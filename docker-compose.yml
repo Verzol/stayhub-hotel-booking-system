@@ -1,0 +1,89 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: stayhub-postgres
+    restart: unless-stopped
+    environment:
+      # Cấu hình database
+      POSTGRES_DB: stayhub_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      # Expose port 5432 ra ngoài
+      - "5432:5432"
+    volumes:
+      # Persist data với volume
+      - stayhub_postgres_data:/var/lib/postgresql/data
+    networks:
+      - stayhub-network
+    healthcheck:
+      # Health check để đảm bảo PostgreSQL đã sẵn sàng
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend Spring Boot
+  backend:
+    build:
+      context: ./src/server
+      dockerfile: Dockerfile
+    container_name: stayhub-backend
+    restart: unless-stopped
+    environment:
+      # Cấu hình kết nối database
+      DB_HOST: stayhub-postgres
+      DB_PORT: 5432
+      DB_NAME: stayhub_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+    ports:
+      # Expose port 8080 ra ngoài
+      - "8080:8080"
+    depends_on:
+      postgres:
+        # Chờ PostgreSQL healthy trước khi start
+        condition: service_healthy
+    networks:
+      - stayhub-network
+    healthcheck:
+      # Health check cho Spring Boot
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8080/api/todos",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Frontend React
+  frontend:
+    build:
+      context: ./src/client
+      dockerfile: Dockerfile
+    container_name: stayhub-frontend
+    restart: unless-stopped
+    ports:
+      # Expose port 80 ra ngoài (hoặc map sang port khác như 3000:80)
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - stayhub-network
+
+# Volumes để persist data
+volumes:
+  stayhub_postgres_data:
+    driver: local
+
+# Network để các services có thể communicate
+networks:
+  stayhub-network:
+    driver: bridge
