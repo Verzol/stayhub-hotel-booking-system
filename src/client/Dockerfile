@@ -4,6 +4,10 @@ FROM node:20-alpine AS build
 # Thiết lập thư mục làm việc
 WORKDIR /app
 
+# Set build arg for API URL
+ARG VITE_API_BASE_URL=http://localhost:8080/api
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+
 # Copy package files và install dependencies
 COPY package*.json ./
 RUN npm ci

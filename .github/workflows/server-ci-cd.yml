@@ -1,0 +1,249 @@
+name: Server CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "src/server/**"
+      - ".github/workflows/server-ci-cd.yml"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "src/server/**"
+      - ".github/workflows/server-ci-cd.yml"
+
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: read
+
+env:
+  JAVA_VERSION: "21"
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+
+jobs:
+  test:
+    name: Build and Test Backend
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: stayhub_db_test
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          cache: "maven"
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build with Maven
+        run: |
+          cd src/server
+          mvn clean compile -B
+
+      - name: Run tests with Maven
+        run: |
+          cd src/server
+          mvn test -B
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/stayhub_db_test
+          SPRING_DATASOURCE_USERNAME: test
+          SPRING_DATASOURCE_PASSWORD: test
+
+      - name: Generate JaCoCo coverage report
+        run: |
+          cd src/server
+          mvn jacoco:report -B
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-test-results
+          path: src/server/target/surefire-reports/
+          retention-days: 30
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-coverage-report
+          path: src/server/target/site/jacoco/
+          retention-days: 30
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./src/server/target/site/jacoco/jacoco.xml
+          flags: server
+          name: server-coverage
+          fail_ci_if_error: false
+
+      - name: Build JAR package
+        run: |
+          cd src/server
+          mvn package -DskipTests -B
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-jar
+          path: src/server/target/*.jar
+          retention-days: 7
+
+  security-scan:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    needs: test
+    permissions:
+      contents: read
+      security-events: write
+      actions: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          cache: "maven"
+
+      - name: OWASP Dependency Check
+        run: |
+          cd src/server
+          mvn org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=8 -B || true
+
+      - name: Upload OWASP report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-owasp-report
+          path: src/server/target/dependency-check-report.html
+          retention-days: 30
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          scan-ref: "./src/server"
+          format: "sarif"
+          output: "trivy-server-results.sarif"
+          severity: "CRITICAL,HIGH"
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: "trivy-server-results.sarif"
+          category: "server-trivy"
+
+      - name: Upload Trivy report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-trivy-report
+          path: trivy-server-results.sarif
+          retention-days: 30
+
+  docker-build-push:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    needs: [test, security-scan]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    permissions:
+      contents: read
+      security-events: write
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ vars.DOCKER_USERNAME }}/stayhub-backend
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./src/server
+          file: ./src/server/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ vars.DOCKER_USERNAME }}/vivu-server:buildcache
+          cache-to: type=registry,ref=${{ vars.DOCKER_USERNAME }}/vivu-server:buildcache,mode=max
+
+      - name: Run Trivy vulnerability scanner on image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ vars.DOCKER_USERNAME }}/stayhub-backend:${{ github.ref_name }}
+          format: "sarif"
+          output: "trivy-image-results.sarif"
+
+      - name: Upload Trivy image scan results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: "trivy-image-results.sarif"
+          category: "server-image-trivy"
+  notify:
+    name: Notify on Failure
+    runs-on: ubuntu-latest
+    needs: [test, security-scan, docker-build-push]
+    if: failure()
+    permissions:
+      contents: read
+
+    steps:
+      - name: Send notification
+        run: |
+          echo "Pipeline failed! Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Author: ${{ github.actor }}"
+          # Add Slack/Teams webhook notification here if needed
