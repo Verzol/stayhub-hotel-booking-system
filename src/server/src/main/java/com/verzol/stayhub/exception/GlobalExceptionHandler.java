@@ -36,6 +36,22 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleUnauthorizedException(UnauthorizedException ex) {
+        return new ResponseEntity<>(
+            ApiResponse.error(ex.getMessage(), HttpStatus.UNAUTHORIZED.value()),
+            HttpStatus.UNAUTHORIZED
+        );
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ApiResponse<Void>> handleForbiddenException(ForbiddenException ex) {
+        return new ResponseEntity<>(
+            ApiResponse.error(ex.getMessage(), HttpStatus.FORBIDDEN.value()),
+            HttpStatus.FORBIDDEN
+        );
+    }
+
     @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Void>> handleValidationExceptions(org.springframework.web.bind.MethodArgumentNotValidException ex) {
         String errorMessage = ex.getBindingResult().getFieldErrors().stream()

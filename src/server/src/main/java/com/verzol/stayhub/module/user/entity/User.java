@@ -190,12 +190,24 @@ public class User implements UserDetails {
         this.enabled = enabled;
     }
 
+    public Boolean getEnabled() {
+        return this.enabled;
+    }
+
     public Boolean getEmailVerified() {
         return emailVerified;
     }
 
     public void setEmailVerified(Boolean emailVerified) {
         this.emailVerified = emailVerified;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 
     // Lifecycle Callbacks
