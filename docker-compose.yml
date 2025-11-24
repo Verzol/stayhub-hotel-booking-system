@@ -29,10 +29,18 @@ services:
     container_name: stayhub-backend
     restart: unless-stopped
     environment:
-      # Sử dụng Spring Boot Datasource properties và lấy giá trị từ .env
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      # Sử dụng Spring Boot Datasource properties
+      # Trong Docker, DB_HOST phải là tên service "postgres", không phải "localhost"
+      - DB_HOST=postgres
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_PORT=${MAIL_PORT}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
     ports:
       - "8080:8080"
     depends_on:
@@ -53,6 +61,8 @@ services:
     build:
       context: ./src/client
       dockerfile: Dockerfile
+      args:
+        - VITE_API_BASE_URL=http://localhost:8080/api
     container_name: stayhub-frontend
     restart: unless-stopped
     ports:
@@ -62,8 +72,28 @@ services:
     networks:
       - stayhub-network
 
+  # pgAdmin for database management
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: stayhub-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - stayhub-network
+
 volumes:
   stayhub_postgres_data:
+    driver: local
+  pgadmin_data:
     driver: local
 
 networks:

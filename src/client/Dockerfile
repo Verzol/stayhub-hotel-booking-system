@@ -1,6 +1,9 @@
 # Build stage - Sử dụng Node.js để build React app
 FROM node:20-alpine AS build
 
+# Update and upgrade Alpine packages to fix vulnerabilities
+RUN apk update && apk upgrade
+
 # Thiết lập thư mục làm việc
 WORKDIR /app
 
@@ -23,7 +26,7 @@ FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
 
 # Copy nginx configuration (nếu cần)
-# COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port 80
 EXPOSE 80
