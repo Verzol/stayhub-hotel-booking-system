@@ -72,10 +72,6 @@ jobs:
         run: |
           cd src/server
           mvn test -B
-        env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/stayhub_db_test
-          SPRING_DATASOURCE_USERNAME: test
-          SPRING_DATASOURCE_PASSWORD: test
 
       - name: Generate JaCoCo coverage report
         run: |
@@ -161,7 +157,7 @@ jobs:
           severity: "CRITICAL,HIGH"
 
       - name: Upload Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: "trivy-server-results.sarif"
