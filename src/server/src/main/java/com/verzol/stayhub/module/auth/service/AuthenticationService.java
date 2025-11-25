@@ -71,7 +71,7 @@ public class AuthenticationService {
         repository.save(user);
         
         var jwtToken = jwtService.generateToken(user);
-        return new AuthenticationResponse(jwtToken, user.getFullName());
+        return new AuthenticationResponse(jwtToken, user.getFullName(), user.getRole(), user.getId());
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
@@ -81,7 +81,7 @@ public class AuthenticationService {
         
         var user = repository.findByEmail(request.getEmail()).orElseThrow();
         var jwtToken = jwtService.generateToken(user);
-        return new AuthenticationResponse(jwtToken, user.getFullName());
+        return new AuthenticationResponse(jwtToken, user.getFullName(), user.getRole(), user.getId());
     }
 
     public void sendVerificationEmail(String email) {

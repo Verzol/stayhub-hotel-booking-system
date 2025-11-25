@@ -82,7 +82,7 @@ const ResetPasswordPage = () => {
           </p>
           <Link
             to="/forgot-password"
-            className="inline-block w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors"
+            className="inline-block w-full py-3 px-4 bg-cyan-500 hover:bg-cyan-600 text-white font-bold rounded-xl transition-colors"
           >
             Request a new link
           </Link>
@@ -95,7 +95,7 @@ const ResetPasswordPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-[#F2F3F3] px-4">
       <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-50 text-blue-600 mb-4">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-cyan-50 text-cyan-500 mb-4">
             <Lock className="w-6 h-6" />
           </div>
           <h2 className="text-2xl font-black text-slate-900">Reset Password</h2>
@@ -118,7 +118,7 @@ const ResetPasswordPage = () => {
             </p>
             <Link
               to="/login"
-              className="inline-block w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors"
+              className="inline-block w-full py-3 px-4 bg-cyan-500 hover:bg-cyan-600 text-white font-bold rounded-xl transition-colors"
             >
               Back to Login
             </Link>
@@ -146,7 +146,7 @@ const ResetPasswordPage = () => {
                 <input
                   {...register('password')}
                   type={showPassword ? 'text' : 'password'}
-                  className="block w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                  className="block w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all outline-none"
                   placeholder="••••••••"
                 />
                 <button
@@ -182,7 +182,7 @@ const ResetPasswordPage = () => {
                 <input
                   {...register('confirmPassword')}
                   type={showConfirmPassword ? 'text' : 'password'}
-                  className="block w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                  className="block w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all outline-none"
                   placeholder="••••••••"
                 />
                 <button
@@ -207,7 +207,7 @@ const ResetPasswordPage = () => {
             <button
               type="submit"
               disabled={status === 'loading'}
-              className="w-full flex justify-center py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full flex justify-center py-3 px-4 bg-cyan-500 hover:bg-cyan-600 text-white font-bold rounded-xl transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {status === 'loading' ? (
                 <Loader2 className="h-5 w-5 animate-spin" />

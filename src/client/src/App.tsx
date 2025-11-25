@@ -14,41 +14,63 @@ import VerifyEmailPage from './features/auth/VerifyEmailPage';
 import LandingPage from './features/landing/LandingPage';
 import MainLayout from './components/layout/MainLayout';
 import ProfilePage from './features/user/ProfilePage';
+import AdminDashboard from './features/admin/AdminDashboard';
+import HostDashboard from './features/host/HostDashboard';
 
-// Định nghĩa kiểu dữ liệu cho Props (TypeScript Standard)
+// Protected Route Props
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  allowedRoles?: string[];
 }
 
-// Component bảo vệ: Nếu chưa login thì đá về trang Login
-const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { isAuthenticated, loading } = useAuth();
+// Protected Route Component
+const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
+  const { isAuthenticated, loading, user } = useAuth();
 
-  if (loading) return <div>Loading...</div>; // Tránh redirect sai khi đang load user
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-brand-bg">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-brand-accent border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-brand-dark/60 font-medium">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Check role access if specified
+  if (allowedRoles && user?.role) {
+    const userRole = user.role.toUpperCase();
+    if (!allowedRoles.map((r) => r.toUpperCase()).includes(userRole)) {
+      return <Navigate to="/" replace />;
+    }
+  }
+
+  return <>{children}</>;
 };
 
-// Trang chủ tạm thời (Dashboard)
-const Dashboard = () => {
-  const { user, logout } = useAuth();
+// Role-based Home Component
+const RoleBasedHome = () => {
+  const { user, isAuthenticated } = useAuth();
 
-  const handleLogout = () => {
-    logout();
-  };
+  if (!isAuthenticated || !user) {
+    return <LandingPage />;
+  }
 
-  return (
-    <div className="p-10 pt-24">
-      <h1 className="text-2xl font-bold">Welcome, {user?.fullName}!</h1>
-      <p className="mt-2 text-gray-600">This is your dashboard.</p>
-      <button
-        onClick={handleLogout}
-        className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-      >
-        Logout
-      </button>
-    </div>
-  );
+  const role = user.role?.toUpperCase();
+
+  if (role === 'ADMIN') {
+    return <Navigate to="/admin" replace />;
+  } else if (role === 'HOST') {
+    return <Navigate to="/host" replace />;
+  }
+
+  // CUSTOMER -> Landing Page
+  return <LandingPage />;
 };
 
 function App() {
@@ -56,17 +78,9 @@ function App() {
     <Router>
       <AuthProvider>
         <Routes>
-          {/* Public Routes with MainLayout (Navbar always visible) */}
+          {/* Customer/Public Routes with MainLayout (has Navbar) */}
           <Route element={<MainLayout />}>
-            <Route path="/" element={<LandingPage />} />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/" element={<RoleBasedHome />} />
             <Route
               path="/profile"
               element={
@@ -77,12 +91,35 @@ function App() {
             />
           </Route>
 
-          {/* Standalone Pages (No Navbar) */}
+          {/* Admin Routes - No MainLayout (has own sidebar) */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute allowedRoles={['ADMIN']}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Host Routes - No MainLayout (has own sidebar) */}
+          <Route
+            path="/host"
+            element={
+              <ProtectedRoute allowedRoles={['HOST']}>
+                <HostDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Auth Pages - Standalone (No Layout) */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
+
+          {/* Catch all - redirect to home */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AuthProvider>
     </Router>

@@ -136,7 +136,7 @@ export default function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center relative bg-[#F2F3F3]">
       <Link
         to="/login"
-        className="absolute top-6 left-6 z-20 flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow-md border border-slate-200 text-slate-600 font-bold hover:text-blue-600 hover:shadow-lg transition-all duration-300 group"
+        className="absolute top-6 left-6 z-20 flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow-md border border-slate-200 text-slate-600 font-bold hover:text-cyan-500 hover:shadow-lg transition-all duration-300 group"
       >
         <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
         <span>Back to Login</span>
@@ -188,7 +188,7 @@ export default function RegisterPage() {
                   <input
                     type="password"
                     {...registerField('password')}
-                    className={`block w-full pl-10 pr-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    className={`block w-full pl-10 pr-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 ${
                       errors.password ? 'border-red-500' : 'border-slate-300'
                     }`}
                     placeholder="Min 8 chars, 1 Uppercase, 1 Special"
@@ -212,7 +212,7 @@ export default function RegisterPage() {
                   <input
                     type="password"
                     {...registerField('confirmPassword')}
-                    className={`block w-full pl-10 pr-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    className={`block w-full pl-10 pr-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 ${
                       errors.confirmPassword
                         ? 'border-red-500'
                         : 'border-slate-300'
@@ -230,7 +230,7 @@ export default function RegisterPage() {
               <button
                 type="button"
                 onClick={handleNextStep}
-                className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 transition-all"
+                className="w-full py-3.5 px-4 bg-cyan-500 hover:bg-cyan-600 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/30 transition-all"
               >
                 Next Step
               </button>
@@ -248,7 +248,7 @@ export default function RegisterPage() {
                   <input
                     type="text"
                     {...registerField('fullName')}
-                    className={`block w-full pl-10 pr-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    className={`block w-full pl-10 pr-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 ${
                       errors.fullName ? 'border-red-500' : 'border-slate-300'
                     }`}
                     placeholder="John Doe"
@@ -273,7 +273,7 @@ export default function RegisterPage() {
                     <input
                       type="date"
                       {...registerField('dateOfBirth')}
-                      className="block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400"
                     />
                   </div>
                 </div>
@@ -284,7 +284,7 @@ export default function RegisterPage() {
                   </label>
                   <select
                     {...registerField('gender')}
-                    className="block w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                    className="block w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 bg-white"
                   >
                     <option value="MALE">Male</option>
                     <option value="FEMALE">Female</option>
@@ -304,7 +304,7 @@ export default function RegisterPage() {
                   <input
                     type="tel"
                     {...registerField('phoneNumber')}
-                    className={`block w-full pl-10 pr-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    className={`block w-full pl-10 pr-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 ${
                       errors.phoneNumber ? 'border-red-500' : 'border-slate-300'
                     }`}
                     placeholder="0123 456 789"
@@ -328,7 +328,7 @@ export default function RegisterPage() {
                   <input
                     type="text"
                     {...registerField('address')}
-                    className="block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400"
                     placeholder="123 Main St, City"
                   />
                 </div>
@@ -345,7 +345,7 @@ export default function RegisterPage() {
                 <button
                   type="submit"
                   disabled={isLoading || !isValid}
-                  className="flex-[2] py-3.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="flex-[2] py-3.5 px-4 bg-cyan-500 hover:bg-cyan-600 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/30 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isLoading ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
