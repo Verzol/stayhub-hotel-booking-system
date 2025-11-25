@@ -3,6 +3,7 @@ package com.verzol.stayhub.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -12,6 +13,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
@@ -30,8 +32,18 @@ public class SecurityConfiguration {
             .cors(org.springframework.security.config.Customizer.withDefaults()) // Enable CORS in Spring Security
             .httpBasic(AbstractHttpConfigurer::disable) // Disable Basic Auth
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/v1/auth/**").permitAll() // Cho phép đăng ký/đăng nhập
-                .anyRequest().authenticated() // Còn lại phải có Token
+                // Public endpoints - Authentication
+                .requestMatchers("/api/v1/auth/**").permitAll()
+                
+                // User profile endpoints - Any authenticated user
+                .requestMatchers("/api/v1/users/me").authenticated()
+                .requestMatchers("/api/v1/users/change-password").authenticated()
+                
+                // Admin endpoints - Only ADMIN role
+                .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                
+                // All other requests require authentication
+                .anyRequest().authenticated()
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider)

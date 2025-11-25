@@ -2,6 +2,8 @@ package com.verzol.stayhub.config;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,6 +22,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter{
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
@@ -63,7 +66,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
             // Token invalid or expired, but we allow the request to proceed anonymously.
             // If the endpoint requires auth, Spring Security will reject it later.
             // Logging the error might be useful for debugging.
-            System.out.println("JWT Filter Error: " + e.getMessage());
+            logger.warn("JWT Filter Error: {}", e.getMessage());
         }
         
         filterChain.doFilter(request, response);
