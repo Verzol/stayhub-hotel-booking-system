@@ -13,6 +13,8 @@ export interface User {
 export interface AuthResponse {
   token: string;
   fullName: string;
+  role: 'CUSTOMER' | 'ADMIN' | 'HOST';
+  id: number;
 }
 
 export interface RegisterRequest {

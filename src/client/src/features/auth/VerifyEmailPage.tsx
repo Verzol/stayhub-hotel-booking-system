@@ -47,7 +47,7 @@ export default function VerifyEmailPage() {
           <div
             className={`p-4 rounded-full ${
               status === 'loading'
-                ? 'bg-blue-50 text-blue-600'
+                ? 'bg-cyan-50 text-cyan-500'
                 : status === 'success'
                   ? 'bg-green-50 text-green-600'
                   : 'bg-red-50 text-red-600'
@@ -73,7 +73,7 @@ export default function VerifyEmailPage() {
           {status === 'success' && (
             <Link
               to="/login"
-              className="block w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors"
+              className="block w-full py-3 px-4 bg-cyan-500 hover:bg-cyan-600 text-white font-bold rounded-xl transition-colors"
             >
               Continue to Login
             </Link>
