@@ -1,24 +1,9 @@
 package com.verzol.stayhub.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+// CORS configuration is now handled in SecurityConfiguration.java
+// This file is kept for backwards compatibility but can be deleted
 
-@Configuration
-public class CorsConfig {
-
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOriginPatterns("*") // Allow all origins for dev
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
-                        .allowedHeaders("*")
-                        .allowCredentials(true);
-            }
-        };
-    }
-}
+// The CORS settings are configured via:
+// 1. SecurityConfiguration.corsConfigurationSource() bean
+// 2. Environment variable: app.cors.allowed-origins
+//
