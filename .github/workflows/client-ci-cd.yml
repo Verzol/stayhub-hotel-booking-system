@@ -93,7 +93,7 @@ jobs:
           cd src/client
           npm run build
         env:
-          VITE_API_BASE_URL: http://localhost:8080/api
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL || 'http://localhost:8080/api' }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -198,7 +198,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            VITE_API_BASE_URL=http://localhost:8080/api
+            VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL || 'https://api.stay-hub.site/api' }}
           cache-from: type=registry,ref=${{ vars.DOCKER_USERNAME }}/stayhub-frontend:buildcache
           cache-to: type=registry,ref=${{ vars.DOCKER_USERNAME }}/stayhub-frontend:buildcache,mode=max
 
