@@ -3,6 +3,7 @@ package com.verzol.stayhub.module.auth.service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,6 +27,9 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
+    
+    @Value("${app.frontend.url:http://localhost:3000}")
+    private String frontendUrl;
 
     // Constructor Injection
     public AuthenticationService(UserRepository repository,
@@ -97,7 +101,7 @@ public class AuthenticationService {
         user.setVerificationTokenExpiry(LocalDateTime.now().plusHours(24));
         repository.save(user);
 
-        String verifyLink = "http://localhost:3000/verify-email?token=" + token;
+        String verifyLink = frontendUrl + "/verify-email?token=" + token;
         emailService.sendEmail(user.getEmail(), "Verify your email",
                 "Click the link to verify your email: <a href=\"" + verifyLink + "\">Verify Email</a>");
     }
@@ -131,7 +135,7 @@ public class AuthenticationService {
         
         repository.save(user);
 
-        String resetLink = "http://localhost:3000/reset-password?token=" + token;
+        String resetLink = frontendUrl + "/reset-password?token=" + token;
         emailService.sendEmail(user.getEmail(), "Reset Password",
                 "Click the link to reset your password: <a href=\"" + resetLink + "\">Reset Password</a>");
     }
