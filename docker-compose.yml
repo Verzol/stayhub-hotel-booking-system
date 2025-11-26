@@ -18,8 +18,8 @@ services:
       - MAIL_PASSWORD=${MAIL_PASSWORD}
       # JWT Configuration (from .env file)
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
-      # Frontend URL for CORS
-      - FRONTEND_URL=http://localhost:3000
+      # CORS Configuration
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:5173}
     ports:
       - "8080:8080"
     networks:
