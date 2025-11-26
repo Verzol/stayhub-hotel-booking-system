@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -42,6 +43,9 @@ public class SecurityConfiguration {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .httpBasic(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
+                // Allow all OPTIONS requests (preflight)
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                
                 // Public endpoints - Authentication
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 
@@ -70,21 +74,20 @@ public class SecurityConfiguration {
         List<String> origins = Arrays.asList(allowedOrigins.split(","));
         configuration.setAllowedOrigins(origins);
         
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(Arrays.asList(
-            "Authorization",
-            "Content-Type",
-            "X-Requested-With",
-            "Accept",
-            "Origin",
-            "Access-Control-Request-Method",
-            "Access-Control-Request-Headers"
-        ));
+        // Allow all common HTTP methods
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
+        
+        // Allow all headers - important for preflight
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        
+        // Expose headers that frontend might need
         configuration.setExposedHeaders(Arrays.asList(
             "Access-Control-Allow-Origin",
             "Access-Control-Allow-Credentials",
-            "Authorization"
+            "Authorization",
+            "Content-Type"
         ));
+        
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L); // Cache preflight for 1 hour
         
