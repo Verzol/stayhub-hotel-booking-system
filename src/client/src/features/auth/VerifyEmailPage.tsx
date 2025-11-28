@@ -143,14 +143,17 @@ export default function VerifyEmailPage() {
               "Almost there."
             </blockquote>
             <p className="text-white/80 text-lg leading-relaxed">
-              Just one more step to verify your account and start your journey with StayHub.
+              Just one more step to verify your account and start your journey
+              with StayHub.
             </p>
           </div>
 
           <div className="flex gap-12">
             <div>
               <div className="text-3xl font-black">Secure</div>
-              <div className="text-white/60 font-medium">Account Verification</div>
+              <div className="text-white/60 font-medium">
+                Account Verification
+              </div>
             </div>
           </div>
         </div>
@@ -210,12 +213,16 @@ export default function VerifyEmailPage() {
                 <p className="text-slate-500 text-lg">
                   We've sent a 6-digit verification code to:
                 </p>
-                <p className="font-bold text-brand-dark text-lg mt-1">{email}</p>
+                <p className="font-bold text-brand-dark text-lg mt-1">
+                  {email}
+                </p>
               </div>
 
               {messageFromLogin && (
                 <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
-                  <span className="text-amber-700 font-medium">{messageFromLogin}</span>
+                  <span className="text-amber-700 font-medium">
+                    {messageFromLogin}
+                  </span>
                 </div>
               )}
 
@@ -223,7 +230,9 @@ export default function VerifyEmailPage() {
               {(status === 'error' || errorMessage) && (
                 <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
                   <XCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
-                  <span className="text-red-600 font-medium">{errorMessage}</span>
+                  <span className="text-red-600 font-medium">
+                    {errorMessage}
+                  </span>
                 </div>
               )}
 
@@ -285,7 +294,7 @@ export default function VerifyEmailPage() {
                   </button>
                 </p>
               </div>
-              
+
               <div className="mt-8 text-center">
                 <Link
                   to="/login"

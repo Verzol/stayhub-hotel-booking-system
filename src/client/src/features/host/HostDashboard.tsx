@@ -157,7 +157,9 @@ export default function HostDashboard() {
           <div className="relative px-6 py-4 border-b border-slate-800/50 z-10 bg-slate-800/30">
             <div className="flex items-center gap-2 text-brand-accent">
               <Star className="w-4 h-4 fill-brand-accent" />
-              <span className="text-sm font-bold tracking-wide uppercase">Host Dashboard</span>
+              <span className="text-sm font-bold tracking-wide uppercase">
+                Host Dashboard
+              </span>
             </div>
           </div>
         )}
@@ -175,13 +177,13 @@ export default function HostDashboard() {
             >
               <item.icon
                 className={`w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110 ${
-                  item.active ? 'text-white' : 'text-slate-500 group-hover:text-white'
+                  item.active
+                    ? 'text-white'
+                    : 'text-slate-500 group-hover:text-white'
                 }`}
               />
               {sidebarOpen && (
-                <span className="flex-1 text-left">
-                  {item.label}
-                </span>
+                <span className="flex-1 text-left">{item.label}</span>
               )}
               {sidebarOpen && item.badge && (
                 <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-sm">
@@ -194,7 +196,9 @@ export default function HostDashboard() {
 
         {/* User Profile & Logout */}
         <div className="relative p-4 border-t border-slate-800/50 space-y-4 z-10 bg-slate-900/50 backdrop-blur-sm">
-          <div className={`flex items-center gap-3 ${!sidebarOpen && 'justify-center'}`}>
+          <div
+            className={`flex items-center gap-3 ${!sidebarOpen && 'justify-center'}`}
+          >
             <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg ring-2 ring-white/10">
               <span className="text-white font-bold">
                 {user?.fullName?.charAt(0) || 'H'}
@@ -329,8 +333,12 @@ export default function HostDashboard() {
                 <Plus className="w-7 h-7 text-cyan-500 group-hover:text-white transition-colors duration-300" />
               </div>
               <div>
-                <p className="font-bold text-lg text-slate-900 group-hover:text-brand-accent transition-colors">Create Listing</p>
-                <p className="text-sm text-slate-500 font-medium">Add a new property</p>
+                <p className="font-bold text-lg text-slate-900 group-hover:text-brand-accent transition-colors">
+                  Create Listing
+                </p>
+                <p className="text-sm text-slate-500 font-medium">
+                  Add a new property
+                </p>
               </div>
             </button>
 
@@ -339,8 +347,12 @@ export default function HostDashboard() {
                 <Calendar className="w-7 h-7 text-purple-600 group-hover:text-white transition-colors duration-300" />
               </div>
               <div>
-                <p className="font-bold text-lg text-slate-900 group-hover:text-brand-accent transition-colors">Manage Calendar</p>
-                <p className="text-sm text-slate-500 font-medium">Set availability</p>
+                <p className="font-bold text-lg text-slate-900 group-hover:text-brand-accent transition-colors">
+                  Manage Calendar
+                </p>
+                <p className="text-sm text-slate-500 font-medium">
+                  Set availability
+                </p>
               </div>
             </button>
 
@@ -349,8 +361,12 @@ export default function HostDashboard() {
                 <FileText className="w-7 h-7 text-green-600 group-hover:text-white transition-colors duration-300" />
               </div>
               <div>
-                <p className="font-bold text-lg text-slate-900 group-hover:text-brand-accent transition-colors">View Reports</p>
-                <p className="text-sm text-slate-500 font-medium">Performance insights</p>
+                <p className="font-bold text-lg text-slate-900 group-hover:text-brand-accent transition-colors">
+                  View Reports
+                </p>
+                <p className="text-sm text-slate-500 font-medium">
+                  Performance insights
+                </p>
               </div>
             </button>
           </div>
@@ -473,17 +489,23 @@ export default function HostDashboard() {
 
                         <div className="flex items-center gap-1.5 text-slate-500 text-sm mb-4 font-medium">
                           <MapPin className="w-4 h-4 text-brand-accent" />
-                          <span className="line-clamp-1">{listing.location}</span>
+                          <span className="line-clamp-1">
+                            {listing.location}
+                          </span>
                         </div>
 
                         <div className="flex items-center gap-4 text-sm text-slate-500 mb-5">
                           <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1.5 rounded-lg">
                             <Bed className="w-4 h-4" />
-                            <span className="font-medium">{listing.bedrooms} beds</span>
+                            <span className="font-medium">
+                              {listing.bedrooms} beds
+                            </span>
                           </div>
                           <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1.5 rounded-lg">
                             <Bath className="w-4 h-4" />
-                            <span className="font-medium">{listing.bathrooms} baths</span>
+                            <span className="font-medium">
+                              {listing.bathrooms} baths
+                            </span>
                           </div>
                         </div>
 

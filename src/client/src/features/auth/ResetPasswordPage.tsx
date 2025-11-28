@@ -132,7 +132,8 @@ const ResetPasswordPage = () => {
               "Secure your journey."
             </blockquote>
             <p className="text-white/80 text-lg leading-relaxed">
-              Create a new password to keep your account safe and continue exploring the world.
+              Create a new password to keep your account safe and continue
+              exploring the world.
             </p>
           </div>
 
@@ -164,7 +165,8 @@ const ResetPasswordPage = () => {
               Reset Password
             </h1>
             <p className="text-slate-500 text-lg">
-              Enter the OTP sent to <span className="font-bold text-brand-dark">{email}</span>
+              Enter the OTP sent to{' '}
+              <span className="font-bold text-brand-dark">{email}</span>
             </p>
           </div>
 

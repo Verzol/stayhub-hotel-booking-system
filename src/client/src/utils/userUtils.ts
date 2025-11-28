@@ -3,7 +3,9 @@ export interface UserAvatarData {
   fullName?: string | null;
 }
 
-export const getAvatarUrl = (user: UserAvatarData | null | undefined): string => {
+export const getAvatarUrl = (
+  user: UserAvatarData | null | undefined
+): string => {
   if (!user) return '';
 
   if (user.avatarUrl) {
@@ -11,11 +13,13 @@ export const getAvatarUrl = (user: UserAvatarData | null | undefined): string =>
     if (user.avatarUrl.startsWith('http')) {
       return user.avatarUrl;
     }
-    
+
     // Otherwise, construct the URL using the backend API URL.
     // We need to ensure we don't double-append /api if the VITE_API_URL includes it.
     // The backend serves uploads at the root /uploads, so we strip /api from the base URL if present.
-    const baseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:8080/api').replace(/\/api$/, '');
+    const baseUrl = (
+      import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
+    ).replace(/\/api$/, '');
     return `${baseUrl}${user.avatarUrl}`;
   }
 
