@@ -53,7 +53,7 @@ export function LoginPage() {
       
       login(response.token, user);
       navigate('/');
-    } catch (err) {
+    } catch {
       setError('Invalid email or password');
     } finally {
       setIsLoading(false);
