@@ -19,6 +19,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.verzol.stayhub.module.auth.service.CustomOAuth2UserService;
+import com.verzol.stayhub.module.user.repository.UserRepository;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
@@ -26,14 +29,26 @@ public class SecurityConfiguration {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final UserRepository userRepository;
+    private final JwtService jwtService;
     
     @Value("${app.cors.allowed-origins:http://localhost:3000,http://localhost:5173}")
     private String allowedOrigins;
 
+    @Value("${app.frontend.url:http://localhost:3000}")
+    private String frontendUrl;
+
     public SecurityConfiguration(JwtAuthenticationFilter jwtAuthFilter,
-                                 AuthenticationProvider authenticationProvider) {
+                                 AuthenticationProvider authenticationProvider,
+                                 CustomOAuth2UserService customOAuth2UserService,
+                                 UserRepository userRepository,
+                                 JwtService jwtService) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.authenticationProvider = authenticationProvider;
+        this.customOAuth2UserService = customOAuth2UserService;
+        this.userRepository = userRepository;
+        this.jwtService = jwtService;
     }
 
     @Bean
@@ -48,6 +63,8 @@ public class SecurityConfiguration {
                 
                 // Public endpoints - Authentication
                 .requestMatchers("/api/v1/auth/**").permitAll()
+                .requestMatchers("/login/oauth2/**").permitAll()
+                .requestMatchers("/uploads/**").permitAll()
                 
                 // User profile endpoints - Any authenticated user
                 .requestMatchers("/api/v1/users/me").authenticated()
@@ -61,7 +78,19 @@ public class SecurityConfiguration {
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider)
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .oauth2Login(oauth2 -> oauth2
+                .userInfoEndpoint(userInfo -> userInfo
+                    .userService(customOAuth2UserService)
+                )
+                .successHandler((request, response, authentication) -> {
+                    var oAuth2User = (org.springframework.security.oauth2.core.user.OAuth2User) authentication.getPrincipal();
+                    String email = oAuth2User.getAttribute("email");
+                    var user = userRepository.findByEmail(email).orElseThrow();
+                    var jwtToken = jwtService.generateToken(user);
+                    response.sendRedirect(frontendUrl + "/oauth2/redirect?token=" + jwtToken);
+                })
+            );
 
         return http.build();
     }

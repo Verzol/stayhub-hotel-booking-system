@@ -147,26 +147,29 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-slate-50 flex font-sans">
       {/* Sidebar */}
       <aside
         className={`${
-          sidebarOpen ? 'w-64' : 'w-20'
-        } bg-slate-900 text-white transition-all duration-300 flex flex-col fixed h-full z-40`}
+          sidebarOpen ? 'w-72' : 'w-24'
+        } bg-slate-900 text-white transition-all duration-300 flex flex-col fixed h-full z-40 shadow-2xl overflow-hidden`}
       >
+        {/* Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-900 to-brand-dark/50 pointer-events-none"></div>
+
         {/* Logo */}
-        <div className="p-4 border-b border-slate-700 flex items-center justify-between">
+        <div className="relative p-6 border-b border-slate-800/50 flex items-center justify-between z-10">
           {sidebarOpen && (
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-cyan-500 rounded-lg flex items-center justify-center">
-                <Building2 className="w-5 h-5 text-white" />
+            <Link to="/" className="flex items-center gap-3 group">
+              <div className="w-10 h-10 bg-gradient-to-br from-brand-accent to-brand-dark rounded-xl flex items-center justify-center shadow-lg shadow-brand-accent/20 group-hover:scale-110 transition-transform">
+                <Building2 className="w-6 h-6 text-white" />
               </div>
-              <span className="font-bold text-lg">StayHub</span>
+              <span className="font-black text-xl tracking-tight">StayHub</span>
             </Link>
           )}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
+            className="p-2 hover:bg-white/10 rounded-xl transition-colors text-slate-400 hover:text-white"
           >
             {sidebarOpen ? (
               <X className="w-5 h-5" />
@@ -177,40 +180,48 @@ export default function AdminDashboard() {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="relative flex-1 p-4 space-y-2 z-10 overflow-y-auto custom-scrollbar">
           {sidebarItems.map((item) => (
             <button
               key={item.label}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
+              className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group ${
                 item.active
-                  ? 'bg-cyan-500 text-white'
-                  : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                  ? 'bg-gradient-to-r from-brand-accent to-brand-dark text-white shadow-lg shadow-brand-accent/25 font-bold'
+                  : 'text-slate-400 hover:bg-white/5 hover:text-white font-medium'
               }`}
             >
-              <item.icon className="w-5 h-5 flex-shrink-0" />
-              {sidebarOpen && <span className="font-medium">{item.label}</span>}
+              <item.icon
+                className={`w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110 ${
+                  item.active ? 'text-white' : 'text-slate-500 group-hover:text-white'
+                }`}
+              />
+              {sidebarOpen && <span>{item.label}</span>}
             </button>
           ))}
         </nav>
 
         {/* User Profile & Logout */}
-        <div className="p-4 border-t border-slate-700 space-y-3">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+        <div className="relative p-4 border-t border-slate-800/50 space-y-4 z-10 bg-slate-900/50 backdrop-blur-sm">
+          <div className={`flex items-center gap-3 ${!sidebarOpen && 'justify-center'}`}>
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg ring-2 ring-white/10">
               <span className="text-white font-bold">
                 {user?.fullName?.charAt(0) || 'A'}
               </span>
             </div>
             {sidebarOpen && (
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm truncate">{user?.fullName}</p>
+                <p className="font-bold text-sm truncate text-white">
+                  {user?.fullName}
+                </p>
                 <p className="text-xs text-slate-400 truncate">Administrator</p>
               </div>
             )}
           </div>
           <button
             onClick={handleLogout}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all ${!sidebarOpen ? 'justify-center' : ''}`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all ${
+              !sidebarOpen ? 'justify-center' : ''
+            }`}
           >
             <LogOut className="w-5 h-5 flex-shrink-0" />
             {sidebarOpen && <span className="font-medium">Sign Out</span>}
@@ -220,126 +231,130 @@ export default function AdminDashboard() {
 
       {/* Main Content */}
       <main
-        className={`flex-1 ${sidebarOpen ? 'ml-64' : 'ml-20'} transition-all duration-300`}
+        className={`flex-1 ${
+          sidebarOpen ? 'ml-72' : 'ml-24'
+        } transition-all duration-300 min-h-screen flex flex-col`}
       >
         {/* Top Header */}
-        <header className="bg-white border-b border-slate-200 sticky top-0 z-30">
-          <div className="px-6 py-4 flex items-center justify-between">
+        <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 shadow-sm">
+          <div className="px-8 py-5 flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
-              <p className="text-sm text-slate-500">
+              <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+                Dashboard
+              </h1>
+              <p className="text-sm text-slate-500 font-medium mt-1">
                 Welcome back, {user?.fullName}
               </p>
             </div>
-            <div className="flex items-center gap-3">
-              <button className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors relative">
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            <div className="flex items-center gap-4">
+              <button className="p-2.5 text-slate-500 hover:text-brand-accent hover:bg-brand-accent/5 rounded-xl transition-all relative group">
+                <Bell className="w-6 h-6" />
+                <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
               </button>
-              <button className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
-                <HelpCircle className="w-5 h-5" />
+              <button className="p-2.5 text-slate-500 hover:text-brand-accent hover:bg-brand-accent/5 rounded-xl transition-all">
+                <HelpCircle className="w-6 h-6" />
               </button>
-              <button className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
-                <Settings className="w-5 h-5" />
+              <button className="p-2.5 text-slate-500 hover:text-brand-accent hover:bg-brand-accent/5 rounded-xl transition-all">
+                <Settings className="w-6 h-6" />
               </button>
             </div>
           </div>
         </header>
 
-        <div className="p-6">
+        <div className="p-8 space-y-8">
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-white rounded-2xl p-6 shadow-[0_2px_10px_-3px_rgba(6,182,212,0.1)] border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
               <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 bg-cyan-100 rounded-xl flex items-center justify-center">
-                  <Users className="w-6 h-6 text-cyan-500" />
+                <div className="w-14 h-14 bg-cyan-50 rounded-2xl flex items-center justify-center group-hover:bg-cyan-500 transition-colors duration-300">
+                  <Users className="w-7 h-7 text-cyan-500 group-hover:text-white transition-colors duration-300" />
                 </div>
-                <span className="flex items-center text-sm text-green-600 font-medium">
-                  <TrendingUp className="w-4 h-4 mr-1" />
+                <span className="flex items-center px-2.5 py-1 rounded-full bg-green-50 text-xs font-bold text-green-600">
+                  <TrendingUp className="w-3.5 h-3.5 mr-1" />
                   +12%
                 </span>
               </div>
-              <h3 className="text-3xl font-bold text-slate-900">
+              <h3 className="text-3xl font-black text-slate-900 mb-1">
                 {stats.totalUsers}
               </h3>
-              <p className="text-slate-500 text-sm mt-1">Total Users</p>
+              <p className="text-slate-500 font-medium">Total Users</p>
             </div>
 
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+            <div className="bg-white rounded-2xl p-6 shadow-[0_2px_10px_-3px_rgba(16,185,129,0.1)] border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
               <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                  <Activity className="w-6 h-6 text-green-600" />
+                <div className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center group-hover:bg-green-500 transition-colors duration-300">
+                  <Activity className="w-7 h-7 text-green-500 group-hover:text-white transition-colors duration-300" />
                 </div>
-                <span className="flex items-center text-sm text-green-600 font-medium">
-                  <TrendingUp className="w-4 h-4 mr-1" />
+                <span className="flex items-center px-2.5 py-1 rounded-full bg-green-50 text-xs font-bold text-green-600">
+                  <TrendingUp className="w-3.5 h-3.5 mr-1" />
                   +8%
                 </span>
               </div>
-              <h3 className="text-3xl font-bold text-slate-900">
+              <h3 className="text-3xl font-black text-slate-900 mb-1">
                 {stats.activeUsers}
               </h3>
-              <p className="text-slate-500 text-sm mt-1">Active Users</p>
+              <p className="text-slate-500 font-medium">Active Users</p>
             </div>
 
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+            <div className="bg-white rounded-2xl p-6 shadow-[0_2px_10px_-3px_rgba(139,92,246,0.1)] border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
               <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                  <Building2 className="w-6 h-6 text-purple-600" />
+                <div className="w-14 h-14 bg-purple-50 rounded-2xl flex items-center justify-center group-hover:bg-purple-500 transition-colors duration-300">
+                  <Building2 className="w-7 h-7 text-purple-500 group-hover:text-white transition-colors duration-300" />
                 </div>
-                <span className="flex items-center text-sm text-green-600 font-medium">
-                  <TrendingUp className="w-4 h-4 mr-1" />
+                <span className="flex items-center px-2.5 py-1 rounded-full bg-green-50 text-xs font-bold text-green-600">
+                  <TrendingUp className="w-3.5 h-3.5 mr-1" />
                   +24%
                 </span>
               </div>
-              <h3 className="text-3xl font-bold text-slate-900">
+              <h3 className="text-3xl font-black text-slate-900 mb-1">
                 {stats.hosts}
               </h3>
-              <p className="text-slate-500 text-sm mt-1">Property Hosts</p>
+              <p className="text-slate-500 font-medium">Property Hosts</p>
             </div>
 
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+            <div className="bg-white rounded-2xl p-6 shadow-[0_2px_10px_-3px_rgba(249,115,22,0.1)] border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
               <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
-                  <CreditCard className="w-6 h-6 text-orange-600" />
+                <div className="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center group-hover:bg-orange-500 transition-colors duration-300">
+                  <CreditCard className="w-7 h-7 text-orange-500 group-hover:text-white transition-colors duration-300" />
                 </div>
-                <span className="flex items-center text-sm text-green-600 font-medium">
-                  <TrendingUp className="w-4 h-4 mr-1" />
+                <span className="flex items-center px-2.5 py-1 rounded-full bg-green-50 text-xs font-bold text-green-600">
+                  <TrendingUp className="w-3.5 h-3.5 mr-1" />
                   +18%
                 </span>
               </div>
-              <h3 className="text-3xl font-bold text-slate-900">$0</h3>
-              <p className="text-slate-500 text-sm mt-1">Total Revenue</p>
+              <h3 className="text-3xl font-black text-slate-900 mb-1">$0</h3>
+              <p className="text-slate-500 font-medium">Total Revenue</p>
             </div>
           </div>
 
           {/* User Management Section */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100">
+          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
             {/* Section Header */}
-            <div className="p-6 border-b border-slate-100">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="p-8 border-b border-slate-100">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
                 <div>
-                  <h2 className="text-xl font-bold text-slate-900">
+                  <h2 className="text-xl font-black text-slate-900">
                     User Management
                   </h2>
-                  <p className="text-sm text-slate-500 mt-1">
+                  <p className="text-sm text-slate-500 mt-1 font-medium">
                     Manage all registered users
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
                   <button
                     onClick={fetchUsers}
-                    className="flex items-center gap-2 px-4 py-2 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors font-medium"
+                    className="flex items-center gap-2 px-4 py-2.5 text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-xl transition-colors font-bold text-sm"
                   >
                     <RefreshCw
                       className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`}
                     />
                     Refresh
                   </button>
-                  <button className="flex items-center gap-2 px-4 py-2 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors font-medium">
+                  <button className="flex items-center gap-2 px-4 py-2.5 text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-xl transition-colors font-bold text-sm">
                     <Download className="w-4 h-4" />
                     Export
                   </button>
-                  <button className="flex items-center gap-2 px-4 py-2.5 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg transition-colors font-medium shadow-sm">
+                  <button className="flex items-center gap-2 px-5 py-2.5 bg-brand-cta hover:bg-brand-cta-hover text-white rounded-xl transition-all shadow-lg shadow-brand-cta/30 font-bold text-sm hover:scale-105 active:scale-95">
                     <UserPlus className="w-4 h-4" />
                     Add User
                   </button>
@@ -347,30 +362,30 @@ export default function AdminDashboard() {
               </div>
 
               {/* Filters */}
-              <div className="flex flex-col sm:flex-row gap-4 mt-6">
-                <div className="relative flex-1">
-                  <Search className="w-5 h-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <div className="flex flex-col sm:flex-row gap-4 mt-8">
+                <div className="relative flex-1 group">
+                  <Search className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within:text-brand-accent transition-colors" />
                   <input
                     type="text"
                     placeholder="Search users by name or email..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 outline-none transition-all bg-slate-50"
+                    className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-4 focus:ring-brand-accent/10 focus:border-brand-accent outline-none transition-all bg-slate-50 focus:bg-white font-medium"
                   />
                 </div>
-                <div className="relative">
-                  <Filter className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <div className="relative group">
+                  <Filter className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within:text-brand-accent transition-colors" />
                   <select
                     value={roleFilter}
                     onChange={(e) => setRoleFilter(e.target.value)}
-                    className="pl-9 pr-8 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 outline-none transition-all bg-slate-50 appearance-none cursor-pointer"
+                    className="pl-11 pr-10 py-3 border border-slate-200 rounded-xl focus:ring-4 focus:ring-brand-accent/10 focus:border-brand-accent outline-none transition-all bg-slate-50 focus:bg-white appearance-none cursor-pointer font-medium"
                   >
                     <option value="ALL">All Roles</option>
                     <option value="ADMIN">Admins</option>
                     <option value="HOST">Hosts</option>
                     <option value="CUSTOMER">Customers</option>
                   </select>
-                  <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <ChevronDown className="w-4 h-4 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
                 </div>
               </div>
             </div>
@@ -379,20 +394,20 @@ export default function AdminDashboard() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-100">
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  <tr className="bg-slate-50/50 border-b border-slate-100">
+                    <th className="text-left px-8 py-5 text-xs font-bold text-slate-500 uppercase tracking-wider">
                       User
                     </th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="text-left px-8 py-5 text-xs font-bold text-slate-500 uppercase tracking-wider">
                       Role
                     </th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="text-left px-8 py-5 text-xs font-bold text-slate-500 uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="text-left px-8 py-5 text-xs font-bold text-slate-500 uppercase tracking-wider">
                       Joined
                     </th>
-                    <th className="text-right px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="text-right px-8 py-5 text-xs font-bold text-slate-500 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
@@ -400,22 +415,24 @@ export default function AdminDashboard() {
                 <tbody className="divide-y divide-slate-100">
                   {isLoading ? (
                     <tr>
-                      <td colSpan={5} className="px-6 py-12 text-center">
+                      <td colSpan={5} className="px-8 py-16 text-center">
                         <div className="flex flex-col items-center">
-                          <RefreshCw className="w-8 h-8 text-cyan-500 animate-spin mb-3" />
-                          <p className="text-slate-500">Loading users...</p>
+                          <RefreshCw className="w-10 h-10 text-brand-accent animate-spin mb-4" />
+                          <p className="text-slate-500 font-medium">Loading users...</p>
                         </div>
                       </td>
                     </tr>
                   ) : filteredUsers.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="px-6 py-12 text-center">
+                      <td colSpan={5} className="px-8 py-16 text-center">
                         <div className="flex flex-col items-center">
-                          <Users className="w-12 h-12 text-slate-300 mb-3" />
-                          <p className="text-slate-500 font-medium">
+                          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+                            <Users className="w-8 h-8 text-slate-400" />
+                          </div>
+                          <p className="text-slate-900 font-bold text-lg">
                             No users found
                           </p>
-                          <p className="text-slate-400 text-sm mt-1">
+                          <p className="text-slate-500 mt-1">
                             Try adjusting your search or filter
                           </p>
                         </div>
@@ -425,39 +442,39 @@ export default function AdminDashboard() {
                     filteredUsers.map((u) => (
                       <tr
                         key={u.id}
-                        className="hover:bg-slate-50 transition-colors"
+                        className="hover:bg-slate-50/80 transition-colors group"
                       >
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
+                        <td className="px-8 py-5">
+                          <div className="flex items-center gap-4">
                             <div
-                              className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-white ${
+                              className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-white shadow-md ${
                                 u.role === 'ADMIN'
-                                  ? 'bg-gradient-to-br from-purple-500 to-purple-600'
+                                  ? 'bg-gradient-to-br from-purple-500 to-indigo-600'
                                   : u.role === 'HOST'
-                                    ? 'bg-gradient-to-br from-cyan-400 to-cyan-500'
-                                    : 'bg-gradient-to-br from-slate-400 to-slate-500'
+                                    ? 'bg-gradient-to-br from-cyan-400 to-cyan-600'
+                                    : 'bg-gradient-to-br from-slate-400 to-slate-600'
                               }`}
                             >
                               {u.fullName.charAt(0).toUpperCase()}
                             </div>
                             <div>
-                              <p className="font-semibold text-slate-900">
+                              <p className="font-bold text-slate-900">
                                 {u.fullName}
                               </p>
-                              <p className="text-sm text-slate-500">
+                              <p className="text-sm text-slate-500 font-medium">
                                 {u.email}
                               </p>
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-8 py-5">
                           <span
-                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${
+                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${
                               u.role === 'ADMIN'
-                                ? 'bg-purple-100 text-purple-700'
+                                ? 'bg-purple-100 text-purple-700 border border-purple-200'
                                 : u.role === 'HOST'
-                                  ? 'bg-cyan-100 text-cyan-600'
-                                  : 'bg-slate-100 text-slate-700'
+                                  ? 'bg-cyan-100 text-cyan-700 border border-cyan-200'
+                                  : 'bg-slate-100 text-slate-700 border border-slate-200'
                             }`}
                           >
                             {u.role === 'ADMIN' && (
@@ -472,29 +489,29 @@ export default function AdminDashboard() {
                             {u.role}
                           </span>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-8 py-5">
                           <span
-                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${
+                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${
                               u.enabled
-                                ? 'bg-green-100 text-green-700'
-                                : 'bg-red-100 text-red-700'
+                                ? 'bg-green-100 text-green-700 border border-green-200'
+                                : 'bg-red-100 text-red-700 border border-red-200'
                             }`}
                           >
                             <span
-                              className={`w-1.5 h-1.5 rounded-full ${u.enabled ? 'bg-green-500' : 'bg-red-500'}`}
+                              className={`w-2 h-2 rounded-full ${u.enabled ? 'bg-green-500' : 'bg-red-500'}`}
                             ></span>
                             {u.enabled ? 'Active' : 'Disabled'}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-sm text-slate-500">
+                        <td className="px-8 py-5 text-sm text-slate-500 font-medium">
                           {new Date(u.createdAt).toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric',
                           })}
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center justify-end gap-2">
+                        <td className="px-8 py-5">
+                          <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <select
                               value={u.role}
                               onChange={(e) =>
@@ -506,7 +523,7 @@ export default function AdminDashboard() {
                                     | 'HOST'
                                 )
                               }
-                              className="text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white focus:ring-2 focus:ring-cyan-400 outline-none cursor-pointer"
+                              className="text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white focus:ring-2 focus:ring-brand-accent outline-none cursor-pointer font-medium"
                             >
                               <option value="CUSTOMER">Customer</option>
                               <option value="HOST">Host</option>
@@ -548,20 +565,20 @@ export default function AdminDashboard() {
             </div>
 
             {/* Table Footer */}
-            <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
-              <p className="text-sm text-slate-500">
+            <div className="px-8 py-6 border-t border-slate-100 flex items-center justify-between bg-slate-50/30">
+              <p className="text-sm text-slate-500 font-medium">
                 Showing{' '}
-                <span className="font-medium">{filteredUsers.length}</span> of{' '}
-                <span className="font-medium">{users.length}</span> users
+                <span className="font-bold text-slate-900">{filteredUsers.length}</span> of{' '}
+                <span className="font-bold text-slate-900">{users.length}</span> users
               </p>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <button
                   disabled
-                  className="px-4 py-2 text-sm font-medium text-slate-400 bg-slate-100 rounded-lg cursor-not-allowed"
+                  className="px-4 py-2 text-sm font-bold text-slate-400 bg-white border border-slate-200 rounded-lg cursor-not-allowed shadow-sm"
                 >
                   Previous
                 </button>
-                <button className="px-4 py-2 text-sm font-medium text-white bg-cyan-500 rounded-lg hover:bg-cyan-600 transition-colors">
+                <button className="px-4 py-2 text-sm font-bold text-white bg-brand-dark hover:bg-brand-accent rounded-lg transition-colors shadow-lg shadow-brand-dark/20">
                   Next
                 </button>
               </div>

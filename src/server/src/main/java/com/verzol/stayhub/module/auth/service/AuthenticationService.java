@@ -1,7 +1,6 @@
 package com.verzol.stayhub.module.auth.service;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +17,7 @@ import com.verzol.stayhub.module.auth.dto.RegisterRequest;
 import com.verzol.stayhub.module.user.entity.Role;
 import com.verzol.stayhub.module.user.entity.User;
 import com.verzol.stayhub.module.user.repository.UserRepository;
+import com.verzol.stayhub.util.OtpUtil;
 
 @Service
 public class AuthenticationService {
@@ -57,7 +57,7 @@ public class AuthenticationService {
             throw new RuntimeException("Phone number is already in use.");
         }
 
-        // Tạo user thủ công thay vì dùng Builder
+        // Create user manually instead of Builder
         User user = new User();
         user.setFullName(request.getFullName());
         user.setEmail(request.getEmail());
@@ -68,14 +68,15 @@ public class AuthenticationService {
         user.setAddress(request.getAddress());
         user.setDateOfBirth(request.getDateOfBirth());
         
-        // Email Verification Logic REMOVED - Auto enable
-        user.setEnabled(true);
+        // Email Verification Logic
+        user.setEnabled(false);
         user.setEmailVerified(false);
 
         repository.save(user);
         
-        var jwtToken = jwtService.generateToken(user);
-        return new AuthenticationResponse(jwtToken, user.getFullName(), user.getRole(), user.getId());
+        sendVerificationEmail(user.getEmail());
+        
+        return new AuthenticationResponse(null, user.getFullName(), user.getRole(), user.getId());
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
@@ -96,62 +97,67 @@ public class AuthenticationService {
             throw new RuntimeException("Email already verified");
         }
 
-        String token = UUID.randomUUID().toString();
-        user.setVerificationToken(token);
-        user.setVerificationTokenExpiry(LocalDateTime.now().plusHours(24));
+        String otp = OtpUtil.generateOtp();
+        user.setVerificationToken(otp);
+        user.setVerificationTokenExpiry(LocalDateTime.now().plusMinutes(15));
         repository.save(user);
 
-        String verifyLink = frontendUrl + "/verify-email?token=" + token;
-        emailService.sendEmail(user.getEmail(), "Verify your email",
-                "Click the link to verify your email: <a href=\"" + verifyLink + "\">Verify Email</a>");
+        emailService.sendOtpEmail(user.getEmail(), "Verify your email", otp);
     }
 
-    public void verifyEmail(String token) {
-        User user = repository.findByVerificationToken(token)
-                .orElseThrow(() -> new RuntimeException("Invalid verification token"));
+    public void verifyEmail(String email, String otp) {
+        User user = repository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getVerificationToken() == null || !user.getVerificationToken().equals(otp)) {
+            throw new RuntimeException("Invalid verification code");
+        }
 
         if (user.getVerificationTokenExpiry().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Verification token expired");
+            throw new RuntimeException("Verification code expired");
         }
 
         user.setEmailVerified(true);
         user.setVerificationToken(null);
         user.setVerificationTokenExpiry(null);
+        user.setEnabled(true); // Enable user after verification
         repository.save(user);
     }
 
     /**
      * Initiates the forgot password flow.
-     * - Generates a reset token valid for 24 hours.
-     * - Sends an email with the reset link.
+     * - Generates a reset OTP valid for 15 minutes.
+     * - Sends an email with the OTP.
      */
     public void forgotPassword(String email) {
         User user = repository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        String token = UUID.randomUUID().toString();
-        user.setResetPasswordToken(token);
-        user.setResetPasswordTokenExpiry(LocalDateTime.now().plusHours(24));
+        String otp = OtpUtil.generateOtp();
+        user.setResetPasswordToken(otp);
+        user.setResetPasswordTokenExpiry(LocalDateTime.now().plusMinutes(15));
         
         repository.save(user);
 
-        String resetLink = frontendUrl + "/reset-password?token=" + token;
-        emailService.sendEmail(user.getEmail(), "Reset Password",
-                "Click the link to reset your password: <a href=\"" + resetLink + "\">Reset Password</a>");
+        emailService.sendOtpEmail(user.getEmail(), "Reset Password OTP", otp);
     }
 
     /**
-     * Resets the user's password using a valid token.
-     * - Validates token and expiry.
+     * Resets the user's password using a valid OTP.
+     * - Validates OTP and expiry.
      * - Updates the password (encoded).
      * - Clears the reset token.
      */
-    public void resetPassword(String token, String newPassword) {
-        User user = repository.findByResetPasswordToken(token)
-                .orElseThrow(() -> new RuntimeException("Invalid reset token"));
+    public void resetPassword(String email, String otp, String newPassword) {
+        User user = repository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getResetPasswordToken() == null || !user.getResetPasswordToken().equals(otp)) {
+            throw new RuntimeException("Invalid reset code");
+        }
 
         if (user.getResetPasswordTokenExpiry().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Reset token expired");
+            throw new RuntimeException("Reset code expired");
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));

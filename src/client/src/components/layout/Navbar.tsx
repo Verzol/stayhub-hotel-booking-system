@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { getAvatarUrl } from '../../utils/userUtils';
 import {
   Globe,
   ChevronDown,
@@ -18,12 +19,7 @@ import {
   Shield,
 } from 'lucide-react';
 
-interface NavbarProps {
-  onOpenLogin: () => void;
-  onOpenRegister: () => void;
-}
-
-export default function Navbar({ onOpenLogin, onOpenRegister }: NavbarProps) {
+export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -163,8 +159,16 @@ export default function Navbar({ onOpenLogin, onOpenRegister }: NavbarProps) {
                       {user?.fullName}
                     </span>
                     <div className="relative">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-accent to-brand-dark flex items-center justify-center text-white font-bold shadow-lg shadow-brand-dark/30">
-                        {user?.fullName?.charAt(0) || 'U'}
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-accent to-brand-dark flex items-center justify-center text-white font-bold shadow-lg shadow-brand-dark/30 overflow-hidden">
+                        {getAvatarUrl(user) ? (
+                          <img 
+                            src={getAvatarUrl(user)} 
+                            alt={user?.fullName || 'User'} 
+                            className="w-full h-full object-cover" 
+                          />
+                        ) : (
+                          user?.fullName?.charAt(0) || 'U'
+                        )}
                       </div>
                       {/* Role Badge */}
                       {user?.role && user.role !== 'CUSTOMER' && (
@@ -186,8 +190,16 @@ export default function Navbar({ onOpenLogin, onOpenRegister }: NavbarProps) {
                         {/* User Info Header */}
                         <div className="px-4 py-4 bg-brand-bg/30 border-b border-brand-dark/10">
                           <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-accent to-brand-dark flex items-center justify-center text-white font-bold text-lg">
-                              {user?.fullName?.charAt(0) || 'U'}
+                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-accent to-brand-dark flex items-center justify-center text-white font-bold text-lg overflow-hidden">
+                              {getAvatarUrl(user) ? (
+                                <img 
+                                  src={getAvatarUrl(user)} 
+                                  alt={user?.fullName || 'User'} 
+                                  className="w-full h-full object-cover" 
+                                />
+                              ) : (
+                                user?.fullName?.charAt(0) || 'U'
+                              )}
                             </div>
                             <div>
                               <div className="font-bold text-brand-dark">
@@ -231,8 +243,8 @@ export default function Navbar({ onOpenLogin, onOpenRegister }: NavbarProps) {
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={onOpenLogin}
+                  <Link
+                    to="/login"
                     className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${
                       showScrolledStyle
                         ? 'text-brand-dark hover:bg-brand-dark/5'
@@ -240,13 +252,13 @@ export default function Navbar({ onOpenLogin, onOpenRegister }: NavbarProps) {
                     }`}
                   >
                     Sign In
-                  </button>
-                  <button
-                    onClick={onOpenRegister}
+                  </Link>
+                  <Link
+                    to="/register"
                     className="px-5 py-2.5 rounded-xl bg-brand-cta hover:bg-brand-cta-hover text-white text-sm font-bold shadow-lg shadow-brand-cta/30 transition-all hover:scale-105 hover:shadow-brand-cta/50"
                   >
                     Get Started
-                  </button>
+                  </Link>
                 </div>
               )}
 
@@ -351,24 +363,20 @@ export default function Navbar({ onOpenLogin, onOpenRegister }: NavbarProps) {
                   </button>
                 ) : (
                   <div className="space-y-2">
-                    <button
-                      onClick={() => {
-                        setIsMobileMenuOpen(false);
-                        onOpenLogin();
-                      }}
-                      className="w-full px-4 py-3 text-brand-dark border border-brand-dark/20 rounded-xl font-bold hover:bg-brand-dark/5 transition-colors"
+                    <Link
+                      to="/login"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="block w-full px-4 py-3 text-center text-brand-dark border border-brand-dark/20 rounded-xl font-bold hover:bg-brand-dark/5 transition-colors"
                     >
                       Sign In
-                    </button>
-                    <button
-                      onClick={() => {
-                        setIsMobileMenuOpen(false);
-                        onOpenRegister();
-                      }}
-                      className="w-full px-4 py-3 bg-brand-cta text-white rounded-xl font-bold hover:bg-brand-cta-hover transition-colors"
+                    </Link>
+                    <Link
+                      to="/register"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="block w-full px-4 py-3 text-center bg-brand-cta text-white rounded-xl font-bold hover:bg-brand-cta-hover transition-colors"
                     >
                       Get Started
-                    </button>
+                    </Link>
                   </div>
                 )}
               </div>

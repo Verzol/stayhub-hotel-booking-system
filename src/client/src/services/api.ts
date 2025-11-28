@@ -71,8 +71,8 @@ api.interceptors.response.use(
       // Handle specific status codes
       switch (error.response.status) {
         case 401:
-          // Unauthorized - handled by AuthContext usually
-          // toast.error('Session expired. Please login again.');
+          // Don't show toast for 401 - let the calling code handle it
+          // This allows login page to show custom error message
           break;
         case 403:
           toast.error('Access denied.');
@@ -91,6 +91,14 @@ api.interceptors.response.use(
           } else {
             toast.error(errorMessage);
           }
+      }
+
+      // Create a more user-friendly error message for 401
+      if (error.response.status === 401) {
+        const friendlyMessage =
+          error.response.data?.message ||
+          'Invalid email or password. Please try again.';
+        return Promise.reject(new Error(friendlyMessage));
       }
     } else {
       // Network error

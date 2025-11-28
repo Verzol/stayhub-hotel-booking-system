@@ -15,6 +15,8 @@ import com.verzol.stayhub.module.user.dto.UserProfileResponse;
 import com.verzol.stayhub.module.user.entity.Role;
 import com.verzol.stayhub.module.user.entity.User;
 import com.verzol.stayhub.module.user.repository.UserRepository;
+import com.verzol.stayhub.common.service.StorageService;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional
@@ -22,11 +24,13 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final StorageService storageService;
 
     // Constructor Injection
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, StorageService storageService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.storageService = storageService;
     }
 
     /**
@@ -95,6 +99,19 @@ public class UserService {
             updatedUser.getDateOfBirth(),
             updatedUser.getEmailVerified()
         );
+    }
+
+    public UserProfileResponse uploadAvatar(String email, MultipartFile file) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        String filename = storageService.store(file);
+        String avatarUrl = "/uploads/" + filename;
+        
+        user.setAvatarUrl(avatarUrl);
+        User updatedUser = userRepository.save(user);
+        
+        return mapToUserProfileResponse(updatedUser);
     }
 
     /**

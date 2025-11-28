@@ -29,23 +29,40 @@ export const logout = () => {
   localStorage.removeItem('user');
 };
 
-export const verifyEmail = async (token: string): Promise<string> => {
-  const response = await api.get<string>(`/auth/verify-email?token=${token}`);
-  return response.data;
-};
-
 export const forgotPassword = async (email: string): Promise<string> => {
   const response = await api.post<string>('/auth/forgot-password', { email });
   return response.data;
 };
 
 export const resetPassword = async (
-  token: string,
+  email: string,
+  otp: string,
   newPassword: string
 ): Promise<string> => {
   const response = await api.post<string>('/auth/reset-password', {
-    token,
+    email,
+    otp,
     newPassword,
+  });
+  return response.data;
+};
+
+export const verifyEmail = async (
+  email: string,
+  otp: string
+): Promise<string> => {
+  const response = await api.post<string>('/auth/verify-email', {
+    email,
+    otp,
+  });
+  return response.data;
+};
+
+export const resendVerificationEmail = async (
+  email: string
+): Promise<string> => {
+  const response = await api.post<string>('/auth/send-verification-email', {
+    email,
   });
   return response.data;
 };
