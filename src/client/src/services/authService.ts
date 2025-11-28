@@ -6,21 +6,21 @@ import type {
 } from '../types/auth';
 
 export const login = async (data: LoginRequest): Promise<AuthResponse> => {
-  const response = await api.post<AuthResponse>('/auth/login', data);
+  const response = await api.post<AuthResponse>('/v1/auth/login', data);
   return response.data;
 };
 
 export const register = async (
   data: RegisterRequest
 ): Promise<AuthResponse> => {
-  const response = await api.post<AuthResponse>('/auth/register', data);
+  const response = await api.post<AuthResponse>('/v1/auth/register', data);
   return response.data;
 };
 
 export const checkEmail = async (
   email: string
 ): Promise<{ exists: boolean }> => {
-  const response = await api.post('/auth/check-email', { email });
+  const response = await api.post('/v1/auth/check-email', { email });
   return response.data;
 };
 
@@ -30,7 +30,7 @@ export const logout = () => {
 };
 
 export const forgotPassword = async (email: string): Promise<string> => {
-  const response = await api.post<string>('/auth/forgot-password', { email });
+  const response = await api.post<string>('/v1/auth/forgot-password', { email });
   return response.data;
 };
 
@@ -39,7 +39,7 @@ export const resetPassword = async (
   otp: string,
   newPassword: string
 ): Promise<string> => {
-  const response = await api.post<string>('/auth/reset-password', {
+  const response = await api.post<string>('/v1/auth/reset-password', {
     email,
     otp,
     newPassword,
@@ -51,7 +51,7 @@ export const verifyEmail = async (
   email: string,
   otp: string
 ): Promise<string> => {
-  const response = await api.post<string>('/auth/verify-email', {
+  const response = await api.post<string>('/v1/auth/verify-email', {
     email,
     otp,
   });
@@ -61,7 +61,7 @@ export const verifyEmail = async (
 export const resendVerificationEmail = async (
   email: string
 ): Promise<string> => {
-  const response = await api.post<string>('/auth/send-verification-email', {
+  const response = await api.post<string>('/v1/auth/send-verification-email', {
     email,
   });
   return response.data;
