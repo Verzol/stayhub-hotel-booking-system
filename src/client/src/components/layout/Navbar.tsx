@@ -161,10 +161,10 @@ export default function Navbar() {
                     <div className="relative">
                       <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-accent to-brand-dark flex items-center justify-center text-white font-bold shadow-lg shadow-brand-dark/30 overflow-hidden">
                         {getAvatarUrl(user) ? (
-                          <img 
-                            src={getAvatarUrl(user)} 
-                            alt={user?.fullName || 'User'} 
-                            className="w-full h-full object-cover" 
+                          <img
+                            src={getAvatarUrl(user)}
+                            alt={user?.fullName || 'User'}
+                            className="w-full h-full object-cover"
                           />
                         ) : (
                           user?.fullName?.charAt(0) || 'U'
@@ -192,10 +192,10 @@ export default function Navbar() {
                           <div className="flex items-center gap-3">
                             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-accent to-brand-dark flex items-center justify-center text-white font-bold text-lg overflow-hidden">
                               {getAvatarUrl(user) ? (
-                                <img 
-                                  src={getAvatarUrl(user)} 
-                                  alt={user?.fullName || 'User'} 
-                                  className="w-full h-full object-cover" 
+                                <img
+                                  src={getAvatarUrl(user)}
+                                  alt={user?.fullName || 'User'}
+                                  className="w-full h-full object-cover"
                                 />
                               ) : (
                                 user?.fullName?.charAt(0) || 'U'

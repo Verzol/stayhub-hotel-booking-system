@@ -42,7 +42,7 @@ export function LoginPage() {
       setIsLoading(true);
       setError(null);
       const response = await loginApi(data);
-      
+
       // Construct User object from AuthResponse
       const user = {
         id: response.id,
@@ -50,10 +50,10 @@ export function LoginPage() {
         fullName: response.fullName,
         role: response.role,
       };
-      
+
       login(response.token, user);
       navigate('/');
-    } catch (err) {
+    } catch {
       setError('Invalid email or password');
     } finally {
       setIsLoading(false);
@@ -284,7 +284,10 @@ export function LoginPage() {
             type="button"
             className="w-full flex items-center justify-center gap-3 py-4 px-6 bg-white border-2 border-slate-200 rounded-xl font-bold text-slate-700 hover:bg-slate-50 hover:border-brand-accent hover:text-brand-accent transition-all duration-200 group"
           >
-            <svg className="w-6 h-6 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
+            <svg
+              className="w-6 h-6 group-hover:scale-110 transition-transform"
+              viewBox="0 0 24 24"
+            >
               <path
                 fill="#4285F4"
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -333,5 +336,3 @@ export function LoginPage() {
 }
 
 export default LoginPage;
-
-

@@ -5,7 +5,6 @@ import {
   updateProfile,
   changePassword,
   sendVerificationEmail,
-
 } from '../../services/userService';
 import type {
   UserProfile,
@@ -18,7 +17,6 @@ import {
   MapPin,
   Calendar,
   Shield,
-
   Edit3,
   Save,
   X,
@@ -68,9 +66,8 @@ export default function ProfilePage() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
-  
-  // Avatar State
 
+  // Avatar State
 
   useEffect(() => {
     fetchProfile();
@@ -179,8 +176,6 @@ export default function ProfilePage() {
     }
   };
 
-
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center pt-20">
@@ -223,16 +218,16 @@ export default function ProfilePage() {
         {/* Header */}
         <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-lg border border-white/20 p-8 mb-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-brand-accent/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
-          
+
           <div className="relative flex flex-col md:flex-row md:items-center gap-8">
             {/* Avatar */}
             <div className="relative">
               <div className="w-32 h-32 bg-gradient-to-br from-brand-dark to-brand-accent rounded-3xl flex items-center justify-center text-white text-4xl font-bold shadow-xl shadow-brand-dark/20 overflow-hidden ring-4 ring-white">
                 {getAvatarUrl(profile) ? (
-                  <img 
-                    src={getAvatarUrl(profile)} 
-                    alt={profile?.fullName || 'User'} 
-                    className="w-full h-full object-cover" 
+                  <img
+                    src={getAvatarUrl(profile)}
+                    alt={profile?.fullName || 'User'}
+                    className="w-full h-full object-cover"
                   />
                 ) : (
                   profile?.fullName?.charAt(0) || 'U'
@@ -258,7 +253,9 @@ export default function ProfilePage() {
                   </span>
                 )}
               </div>
-              <p className="text-slate-500 text-lg mb-4 font-medium">{profile?.email}</p>
+              <p className="text-slate-500 text-lg mb-4 font-medium">
+                {profile?.email}
+              </p>
               <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600 font-medium">
                 <span className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-xl">
                   <User className="w-4 h-4 text-brand-accent" />
@@ -304,7 +301,9 @@ export default function ProfilePage() {
           <div className="lg:col-span-1 space-y-6">
             {/* Quick Links */}
             <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
-              <h3 className="font-bold text-slate-900 mb-4 text-lg">Quick Links</h3>
+              <h3 className="font-bold text-slate-900 mb-4 text-lg">
+                Quick Links
+              </h3>
               <div className="space-y-2">
                 {quickLinks.map((link) => (
                   <button
@@ -316,7 +315,9 @@ export default function ProfilePage() {
                     </div>
                     <div className="flex-1 text-left">
                       <p className="font-bold text-slate-900">{link.label}</p>
-                      <p className="text-xs text-slate-500 font-medium">{link.desc}</p>
+                      <p className="text-xs text-slate-500 font-medium">
+                        {link.desc}
+                      </p>
                     </div>
                     {link.count > 0 && (
                       <span className="px-2.5 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-full">
@@ -332,11 +333,15 @@ export default function ProfilePage() {
             {/* Account Stats */}
             <div className="bg-brand-dark text-white rounded-3xl shadow-lg shadow-brand-dark/20 p-6 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-brand-accent/20 rounded-full blur-2xl -mr-16 -mt-16 pointer-events-none" />
-              
-              <h3 className="font-bold text-lg mb-6 relative z-10">Account Stats</h3>
+
+              <h3 className="font-bold text-lg mb-6 relative z-10">
+                Account Stats
+              </h3>
               <div className="space-y-4 relative z-10">
                 <div className="flex items-center justify-between p-3 bg-white/10 rounded-xl backdrop-blur-sm">
-                  <span className="text-white/70 font-medium">Member Since</span>
+                  <span className="text-white/70 font-medium">
+                    Member Since
+                  </span>
                   <span className="font-bold">
                     {profile?.dateOfBirth
                       ? new Date().getFullYear() -
@@ -345,11 +350,15 @@ export default function ProfilePage() {
                   </span>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-white/10 rounded-xl backdrop-blur-sm">
-                  <span className="text-white/70 font-medium">Total Bookings</span>
+                  <span className="text-white/70 font-medium">
+                    Total Bookings
+                  </span>
                   <span className="font-bold">5</span>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-white/10 rounded-xl backdrop-blur-sm">
-                  <span className="text-white/70 font-medium">Reviews Given</span>
+                  <span className="text-white/70 font-medium">
+                    Reviews Given
+                  </span>
                   <span className="font-bold">3</span>
                 </div>
               </div>
@@ -595,7 +604,10 @@ export default function ProfilePage() {
                       </p>
                     </div>
 
-                    <form onSubmit={handleSavePassword} className="space-y-6 max-w-2xl">
+                    <form
+                      onSubmit={handleSavePassword}
+                      className="space-y-6 max-w-2xl"
+                    >
                       <div>
                         <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">
                           Current Password

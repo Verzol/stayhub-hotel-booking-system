@@ -166,8 +166,8 @@ const ForgotPasswordPage = () => {
               "Don't worry, we've got you covered."
             </blockquote>
             <p className="text-white/80 text-lg leading-relaxed">
-              It happens to the best of us. Follow the simple steps to reset your
-              password and get back to planning your next trip.
+              It happens to the best of us. Follow the simple steps to reset
+              your password and get back to planning your next trip.
             </p>
           </div>
 
@@ -201,8 +201,8 @@ const ForgotPasswordPage = () => {
                 step === 'email'
                   ? 'bg-brand-dark text-white ring-4 ring-white shadow-lg'
                   : step === 'otp' || step === 'password'
-                  ? 'bg-brand-dark text-white'
-                  : 'bg-slate-100 text-slate-400'
+                    ? 'bg-brand-dark text-white'
+                    : 'bg-slate-100 text-slate-400'
               }`}
             >
               1
@@ -219,8 +219,8 @@ const ForgotPasswordPage = () => {
                 step === 'otp'
                   ? 'bg-brand-dark text-white ring-4 ring-white shadow-lg'
                   : step === 'password'
-                  ? 'bg-brand-dark text-white'
-                  : 'bg-slate-100 text-slate-400'
+                    ? 'bg-brand-dark text-white'
+                    : 'bg-slate-100 text-slate-400'
               }`}
             >
               2

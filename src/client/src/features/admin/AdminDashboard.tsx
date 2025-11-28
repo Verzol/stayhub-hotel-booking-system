@@ -192,7 +192,9 @@ export default function AdminDashboard() {
             >
               <item.icon
                 className={`w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110 ${
-                  item.active ? 'text-white' : 'text-slate-500 group-hover:text-white'
+                  item.active
+                    ? 'text-white'
+                    : 'text-slate-500 group-hover:text-white'
                 }`}
               />
               {sidebarOpen && <span>{item.label}</span>}
@@ -202,7 +204,9 @@ export default function AdminDashboard() {
 
         {/* User Profile & Logout */}
         <div className="relative p-4 border-t border-slate-800/50 space-y-4 z-10 bg-slate-900/50 backdrop-blur-sm">
-          <div className={`flex items-center gap-3 ${!sidebarOpen && 'justify-center'}`}>
+          <div
+            className={`flex items-center gap-3 ${!sidebarOpen && 'justify-center'}`}
+          >
             <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg ring-2 ring-white/10">
               <span className="text-white font-bold">
                 {user?.fullName?.charAt(0) || 'A'}
@@ -418,7 +422,9 @@ export default function AdminDashboard() {
                       <td colSpan={5} className="px-8 py-16 text-center">
                         <div className="flex flex-col items-center">
                           <RefreshCw className="w-10 h-10 text-brand-accent animate-spin mb-4" />
-                          <p className="text-slate-500 font-medium">Loading users...</p>
+                          <p className="text-slate-500 font-medium">
+                            Loading users...
+                          </p>
                         </div>
                       </td>
                     </tr>
@@ -568,8 +574,12 @@ export default function AdminDashboard() {
             <div className="px-8 py-6 border-t border-slate-100 flex items-center justify-between bg-slate-50/30">
               <p className="text-sm text-slate-500 font-medium">
                 Showing{' '}
-                <span className="font-bold text-slate-900">{filteredUsers.length}</span> of{' '}
-                <span className="font-bold text-slate-900">{users.length}</span> users
+                <span className="font-bold text-slate-900">
+                  {filteredUsers.length}
+                </span>{' '}
+                of{' '}
+                <span className="font-bold text-slate-900">{users.length}</span>{' '}
+                users
               </p>
               <div className="flex items-center gap-3">
                 <button
