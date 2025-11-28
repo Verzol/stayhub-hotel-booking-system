@@ -45,4 +45,64 @@ public class EmailService {
             throw new IllegalStateException("Failed to create email message", e);
         }
     }
+
+    @Async
+    public void sendOtpEmail(String to, String subject, String otp) {
+        String actionType = subject.toLowerCase().contains("reset") ? "reset your password" : "verify your account";
+        
+        String content = String.format("""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>StayHub OTP</title>
+                <style>
+                    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+                    .header { background: linear-gradient(135deg, #2563eb 0%%, #1d4ed8 100%%); padding: 30px 20px; text-align: center; }
+                    .header h1 { color: #ffffff; margin: 0; font-size: 28px; font-weight: 700; letter-spacing: 1px; }
+                    .content { padding: 40px 30px; color: #333333; line-height: 1.6; }
+                    .greeting { font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #111827; }
+                    .message { margin-bottom: 25px; color: #4b5563; }
+                    .otp-box { background-color: #eff6ff; border: 2px dashed #bfdbfe; border-radius: 12px; padding: 20px; text-align: center; margin: 30px 0; }
+                    .otp-label { font-size: 12px; text-transform: uppercase; color: #6b7280; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600; }
+                    .otp-code { font-size: 36px; font-weight: 800; color: #2563eb; letter-spacing: 6px; margin: 0; font-family: 'Courier New', monospace; }
+                    .expiry { font-size: 13px; color: #ef4444; margin-top: 10px; font-weight: 500; }
+                    .footer { background-color: #f9fafb; padding: 20px; text-align: center; font-size: 12px; color: #9ca3af; border-top: 1px solid #e5e7eb; }
+                    .footer p { margin: 5px 0; }
+                    .social-links { margin-top: 10px; }
+                    .social-links a { color: #2563eb; text-decoration: none; margin: 0 5px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>StayHub</h1>
+                    </div>
+                    <div class="content">
+                        <div class="greeting">Hello,</div>
+                        <p class="message">We received a request to <strong>%s</strong>. Please use the verification code below to complete this process:</p>
+                        
+                        <div class="otp-box">
+                            <div class="otp-label">Your Verification Code</div>
+                            <div class="otp-code">%s</div>
+                            <div class="expiry">Valid for 15 minutes</div>
+                        </div>
+                        
+                        <p class="message">If you did not request this code, please ignore this email. Your account remains secure.</p>
+                        <br>
+                        <p style="margin: 0; color: #4b5563;">Best regards,<br><strong style="color: #111827;">The StayHub Team</strong></p>
+                    </div>
+                    <div class="footer">
+                        <p>&copy; 2025 StayHub Inc. All rights reserved.</p>
+                        <p>This is an automated message, please do not reply.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """, actionType, otp);
+            
+        sendEmail(to, subject, content);
+    }
 }

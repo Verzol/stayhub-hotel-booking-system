@@ -9,6 +9,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.MediaType;
 
 import com.verzol.stayhub.module.user.dto.ChangePasswordRequest;
 import com.verzol.stayhub.module.user.dto.UpdateProfileRequest;
@@ -44,6 +48,17 @@ public class UserController {
             @RequestBody @Valid UpdateProfileRequest request
     ) {
         return ResponseEntity.ok(userService.updateProfile(principal.getName(), request));
+    }
+
+    /**
+     * Uploads the user's avatar.
+     */
+    @PostMapping(value = "/me/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserProfileResponse> uploadAvatar(
+            Principal principal,
+            @RequestParam("file") MultipartFile file
+    ) {
+        return ResponseEntity.ok(userService.uploadAvatar(principal.getName(), file));
     }
 
     /**

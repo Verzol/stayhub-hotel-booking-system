@@ -13,6 +13,7 @@ import com.verzol.stayhub.module.auth.dto.CheckEmailRequest;
 import com.verzol.stayhub.module.auth.dto.CheckEmailResponse;
 import com.verzol.stayhub.module.auth.dto.RegisterRequest;
 import com.verzol.stayhub.module.auth.dto.ResetPasswordRequest;
+import com.verzol.stayhub.module.auth.dto.VerifyEmailRequest;
 import com.verzol.stayhub.module.auth.service.AuthenticationService;
 
 import jakarta.validation.Valid;
@@ -58,15 +59,15 @@ public class AuthController {
     @PostMapping("/forgot-password")
     public ResponseEntity<ApiResponse<String>> forgotPassword(@RequestBody @Valid CheckEmailRequest request) {
         service.forgotPassword(request.getEmail());
-        return ResponseEntity.ok(ApiResponse.success("Password reset email sent"));
+        return ResponseEntity.ok(ApiResponse.success("Password reset OTP sent"));
     }
 
     /**
-     * Endpoint to reset the password using a token.
+     * Endpoint to reset the password using OTP.
      */
     @PostMapping("/reset-password")
     public ResponseEntity<ApiResponse<String>> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
-        service.resetPassword(request.getToken(), request.getNewPassword());
+        service.resetPassword(request.getEmail(), request.getOtp(), request.getNewPassword());
         return ResponseEntity.ok(ApiResponse.success("Password reset successfully"));
     }
 
@@ -76,16 +77,15 @@ public class AuthController {
     @PostMapping("/send-verification-email")
     public ResponseEntity<ApiResponse<String>> sendVerificationEmail(@RequestBody @Valid CheckEmailRequest request) {
         service.sendVerificationEmail(request.getEmail());
-        return ResponseEntity.ok(ApiResponse.success("Verification email sent"));
+        return ResponseEntity.ok(ApiResponse.success("Verification OTP sent"));
     }
 
     /**
-     * Endpoint to verify a user's email using a token.
+     * Endpoint to verify a user's email using OTP.
      */
     @PostMapping("/verify-email")
-    public ResponseEntity<ApiResponse<String>> verifyEmail(@RequestBody java.util.Map<String, String> request) {
-        String token = request.get("token");
-        service.verifyEmail(token);
+    public ResponseEntity<ApiResponse<String>> verifyEmail(@RequestBody @Valid VerifyEmailRequest request) {
+        service.verifyEmail(request.getEmail(), request.getOtp());
         return ResponseEntity.ok(ApiResponse.success("Email verified successfully"));
     }
 }

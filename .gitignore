@@ -48,3 +48,6 @@ junit.xml
 # Temporary files
 *.tmp
 *.temp
+
+# User content
+**/uploads/
