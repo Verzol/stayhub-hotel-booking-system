@@ -26,13 +26,16 @@ public class PublicHotelController {
     ) {
         // Handle sorting manually if needed, or let Pageable handle it if passed from frontend
         // For custom sort logic based on request.getSort():
+        // Handle sorting manually to avoid Pageable conflict
         Sort sort = Sort.unsorted();
-        if ("price_asc".equals(request.getSort())) {
-            // Price sorting is tricky because it depends on rooms. 
-            // For simplicity, we might sort by basePrice of the cheapest room, but that requires complex query.
-            // Alternatively, sort by starRating or name for now.
-        } else if ("rating_desc".equals(request.getSort())) {
+        String sortBy = request.getSortBy();
+        
+        if ("rating_desc".equals(sortBy)) {
             sort = Sort.by(Sort.Direction.DESC, "starRating");
+        } else if ("price_asc".equals(sortBy) || "price_desc".equals(sortBy)) {
+            // TODO: Implement complex price sorting (requires joining with Room)
+            // For now, fallback to unsorted or sort by ID to prevent crash
+            sort = Sort.by(Sort.Direction.ASC, "id");
         }
         
         if (sort.isSorted()) {
