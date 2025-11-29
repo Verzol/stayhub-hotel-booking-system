@@ -24,16 +24,29 @@ import RoomForm from './components/RoomForm';
 import AvailabilityCalendar from './components/AvailabilityCalendar';
 import PromotionList from './components/PromotionList';
 import PromotionForm from './components/PromotionForm';
-import type { Hotel, Room } from '../../types/host';
+import type { Hotel, Room, Promotion } from '../../types/host';
 
-type View = 'DASHBOARD' | 'HOTELS' | 'HOTEL_FORM' | 'ROOMS' | 'ROOM_FORM' | 'AVAILABILITY' | 'PROMOTIONS' | 'PROMOTION_FORM';
+type View =
+  | 'DASHBOARD'
+  | 'HOTELS'
+  | 'HOTEL_FORM'
+  | 'ROOMS'
+  | 'ROOM_FORM'
+  | 'AVAILABILITY'
+  | 'PROMOTIONS'
+  | 'PROMOTION_FORM';
 
 export default function HostDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [currentView, setCurrentView] = useState<View>('DASHBOARD');
-  const [selectedHotel, setSelectedHotel] = useState<Hotel | undefined>(undefined);
+  const [selectedHotel, setSelectedHotel] = useState<Hotel | undefined>(
+    undefined
+  );
   const [selectedRoom, setSelectedRoom] = useState<Room | undefined>(undefined);
-  
+  const [selectedPromotion, setSelectedPromotion] = useState<
+    Promotion | undefined
+  >(undefined);
+
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -47,7 +60,12 @@ export default function HostDashboard() {
     { icon: Building2, label: 'My Listings', view: 'HOTELS' as View },
     { icon: Calendar, label: 'Bookings', view: 'DASHBOARD' as View }, // Placeholder
     { icon: CreditCard, label: 'Earnings', view: 'DASHBOARD' as View }, // Placeholder
-    { icon: MessageSquare, label: 'Messages', view: 'DASHBOARD' as View, badge: 3 }, // Placeholder
+    {
+      icon: MessageSquare,
+      label: 'Messages',
+      view: 'DASHBOARD' as View,
+      badge: 3,
+    }, // Placeholder
     { icon: Star, label: 'Reviews', view: 'DASHBOARD' as View }, // Placeholder
     { icon: BarChart3, label: 'Analytics', view: 'DASHBOARD' as View }, // Placeholder
     { icon: Settings, label: 'Settings', view: 'DASHBOARD' as View }, // Placeholder
@@ -90,6 +108,12 @@ export default function HostDashboard() {
   };
 
   const handleCreatePromotion = () => {
+    setSelectedPromotion(undefined);
+    setCurrentView('PROMOTION_FORM');
+  };
+
+  const handleEditPromotion = (promotion: Promotion) => {
+    setSelectedPromotion(promotion);
     setCurrentView('PROMOTION_FORM');
   };
 
@@ -147,6 +171,7 @@ export default function HostDashboard() {
           <PromotionList
             hotel={selectedHotel}
             onCreate={handleCreatePromotion}
+            onEdit={handleEditPromotion}
             onBack={() => setCurrentView('HOTELS')}
           />
         );
@@ -155,6 +180,7 @@ export default function HostDashboard() {
         return (
           <PromotionForm
             hotel={selectedHotel}
+            promotion={selectedPromotion}
             onSuccess={() => setCurrentView('PROMOTIONS')}
             onCancel={() => setCurrentView('PROMOTIONS')}
           />
@@ -163,8 +189,12 @@ export default function HostDashboard() {
       default:
         return (
           <div className="text-center py-20">
-            <h2 className="text-2xl font-bold text-slate-900 mb-4">Welcome to Host Dashboard</h2>
-            <p className="text-slate-500 mb-8">Select "My Listings" to manage your properties.</p>
+            <h2 className="text-2xl font-bold text-slate-900 mb-4">
+              Welcome to Host Dashboard
+            </h2>
+            <p className="text-slate-500 mb-8">
+              Select "My Listings" to manage your properties.
+            </p>
             <button
               onClick={() => setCurrentView('HOTELS')}
               className="px-6 py-3 bg-brand-cta text-white rounded-xl font-bold shadow-lg hover:bg-brand-cta-hover transition-all"
@@ -308,7 +338,7 @@ export default function HostDashboard() {
               <button className="p-2.5 text-slate-500 hover:text-brand-accent hover:bg-brand-accent/5 rounded-xl transition-all">
                 <HelpCircle className="w-6 h-6" />
               </button>
-              <button 
+              <button
                 onClick={handleCreateHotel}
                 className="flex items-center gap-2 px-5 py-2.5 bg-brand-cta hover:bg-brand-cta-hover text-white rounded-xl transition-all shadow-lg shadow-brand-cta/30 font-bold text-sm hover:scale-105 active:scale-95"
               >
@@ -319,9 +349,7 @@ export default function HostDashboard() {
           </div>
         </header>
 
-        <div className="p-8">
-          {renderContent()}
-        </div>
+        <div className="p-8">{renderContent()}</div>
       </main>
     </div>
   );

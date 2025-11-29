@@ -56,4 +56,9 @@ public class HostRoomController {
         roomService.updateAvailability(id, date, isAvailable, customPrice);
         return ResponseEntity.ok().build();
     }
+    @PostMapping("/rooms/{id}/images")
+    public ResponseEntity<Void> uploadImages(@PathVariable Long id, @RequestParam("files") org.springframework.web.multipart.MultipartFile[] files) {
+        roomService.uploadImages(id, files);
+        return ResponseEntity.ok().build();
+    }
 }

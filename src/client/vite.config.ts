@@ -21,6 +21,11 @@ export default defineConfig({
         changeOrigin: true, // Thay đổi origin của request
         secure: false, // Không verify SSL certificate
       },
+      '/uploads': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 });

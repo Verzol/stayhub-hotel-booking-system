@@ -16,7 +16,10 @@ export const createHotel = async (data: HotelDTO): Promise<Hotel> => {
   return response.data;
 };
 
-export const updateHotel = async (id: number, data: HotelDTO): Promise<Hotel> => {
+export const updateHotel = async (
+  id: number,
+  data: HotelDTO
+): Promise<Hotel> => {
   const response = await api.put<Hotel>(`/host/hotels/${id}`, data);
   return response.data;
 };
@@ -26,12 +29,33 @@ export const getMyHotels = async (): Promise<Hotel[]> => {
   return response.data;
 };
 
-export const uploadHotelImages = async (id: number, urls: string[]): Promise<void> => {
-  await api.post(`/host/hotels/${id}/images`, { urls });
+export const uploadHotelImages = async (
+  id: number,
+  formData: FormData
+): Promise<void> => {
+  await api.post(`/host/hotels/${id}/images`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+
+export const uploadRoomImages = async (
+  roomId: number,
+  formData: FormData
+): Promise<void> => {
+  await api.post(`/host/rooms/${roomId}/images`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
 };
 
 // Room Management
-export const createRoom = async (hotelId: number, data: RoomDTO): Promise<Room> => {
+export const createRoom = async (
+  hotelId: number,
+  data: RoomDTO
+): Promise<Room> => {
   const response = await api.post<Room>(`/host/hotels/${hotelId}/rooms`, data);
   return response.data;
 };
@@ -84,11 +108,28 @@ export const createPromotion = async (
   return response.data;
 };
 
-export const getHotelPromotions = async (hotelId: number): Promise<Promotion[]> => {
+export const getHotelPromotions = async (
+  hotelId: number
+): Promise<Promotion[]> => {
   const response = await api.get<Promotion[]>(
     `/host/hotels/${hotelId}/promotions`
   );
   return response.data;
+};
+
+export const updatePromotion = async (
+  id: number,
+  data: PromotionDTO
+): Promise<Promotion> => {
+  const response = await api.put<Promotion>(
+    `/host/hotels/promotions/${id}`,
+    data
+  );
+  return response.data;
+};
+
+export const togglePromotion = async (id: number): Promise<void> => {
+  await api.patch(`/host/hotels/promotions/${id}/toggle`);
 };
 
 // Amenities
