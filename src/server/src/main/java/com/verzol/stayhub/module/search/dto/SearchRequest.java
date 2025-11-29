@@ -15,5 +15,5 @@ public class SearchRequest {
     private BigDecimal maxPrice;
     private List<Integer> stars;
     private List<Long> amenities;
-    private String sort; // price_asc, price_desc, rating_desc
+    private String sortBy; // price_asc, price_desc, rating_desc
 }

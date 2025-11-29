@@ -13,6 +13,8 @@ import ResetPasswordPage from './features/auth/ResetPasswordPage';
 import VerifyEmailPage from './features/auth/VerifyEmailPage';
 import OAuth2RedirectHandler from './features/auth/OAuth2RedirectHandler';
 import LandingPage from './features/landing/LandingPage';
+import SearchResultsPage from './features/search/SearchResultsPage';
+import HotelDetailsPage from './features/hotels/HotelDetailsPage';
 import MainLayout from './components/layout/MainLayout';
 import ProfilePage from './features/user/ProfilePage';
 import AdminDashboard from './features/admin/AdminDashboard';
@@ -82,6 +84,8 @@ function App() {
           {/* Customer/Public Routes with MainLayout (has Navbar) */}
           <Route element={<MainLayout />}>
             <Route path="/" element={<RoleBasedHome />} />
+            <Route path="/search" element={<SearchResultsPage />} />
+            <Route path="/hotels/:id" element={<HotelDetailsPage />} />
             <Route
               path="/profile"
               element={

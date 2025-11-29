@@ -3,10 +3,7 @@ import {
   Star,
   Headphones,
   MapPin,
-  Calendar,
-  Users,
-  Search,
-  Hotel,
+  Hotel as HotelIcon,
   ArrowRight,
   Heart,
   Sparkles,
@@ -19,11 +16,70 @@ import {
   ChevronRight,
   Play,
   Quote,
+  Users,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import SearchBar from '../search/components/SearchBar';
+import { searchHotels } from '../../services/searchService';
+import type { Hotel } from '../../types/host';
+import {
+  toggleWishlist,
+  getMyWishlist,
+  type Wishlist,
+} from '../../services/wishlistService';
+import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 export default function LandingPage() {
+  const navigate = useNavigate();
   const [activeDestination, setActiveDestination] = useState(0);
+  const [featuredProperties, setFeaturedProperties] = useState<Hotel[]>([]);
+
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      try {
+        // Fetch top 4 hotels (using default sort or specific logic if available)
+        const data = await searchHotels({ size: 4 });
+        setFeaturedProperties(data.content);
+      } catch {
+        console.error('Failed to fetch featured properties');
+      }
+    };
+    fetchFeatured();
+  }, []);
+
+  const [wishlist, setWishlist] = useState<number[]>([]);
+
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      try {
+        const data = await getMyWishlist();
+        setWishlist(data.map((item: Wishlist) => item.hotelId));
+      } catch {
+        // Ignore error if not logged in
+      }
+    };
+    fetchWishlist();
+  }, []);
+
+  const handleToggleWishlist = async (e: React.MouseEvent, hotelId: number) => {
+    e.stopPropagation(); // Prevent navigation
+    try {
+      await toggleWishlist(hotelId);
+      setWishlist((prev) =>
+        prev.includes(hotelId)
+          ? prev.filter((id) => id !== hotelId)
+          : [...prev, hotelId]
+      );
+      toast.success(
+        wishlist.includes(hotelId)
+          ? 'Removed from wishlist'
+          : 'Added to wishlist'
+      );
+    } catch {
+      toast.error('Please login to save to wishlist');
+    }
+  };
 
   const destinations = [
     {
@@ -49,45 +105,6 @@ export default function LandingPage() {
       img: 'https://images.unsplash.com/photo-1540202404-a6f746353673?q=80&w=800',
       properties: 650,
       rating: 4.8,
-    },
-  ];
-
-  const featuredProperties = [
-    {
-      name: 'Sunrise Beach Resort',
-      location: 'Da Nang',
-      price: 120,
-      rating: 4.9,
-      reviews: 324,
-      img: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=800',
-      badge: 'Popular',
-    },
-    {
-      name: 'Mountain View Villa',
-      location: 'Da Lat',
-      price: 89,
-      rating: 4.8,
-      reviews: 156,
-      img: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?q=80&w=800',
-      badge: 'New',
-    },
-    {
-      name: 'Riverside Boutique Hotel',
-      location: 'Hoi An',
-      price: 75,
-      rating: 4.7,
-      reviews: 289,
-      img: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=800',
-      badge: 'Deal',
-    },
-    {
-      name: 'Ocean Pearl Resort',
-      location: 'Nha Trang',
-      price: 150,
-      rating: 4.9,
-      reviews: 412,
-      img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800',
-      badge: 'Top Rated',
     },
   ];
 
@@ -117,7 +134,7 @@ export default function LandingPage() {
 
   const stats = [
     { number: '50K+', label: 'Happy Guests', icon: Users },
-    { number: '10K+', label: 'Properties', icon: Hotel },
+    { number: '10K+', label: 'Properties', icon: HotelIcon },
     { number: '100+', label: 'Destinations', icon: Globe },
     { number: '4.9', label: 'Average Rating', icon: Star },
   ];
@@ -181,7 +198,10 @@ export default function LandingPage() {
 
               {/* CTA Buttons */}
               <div className="flex flex-wrap items-center gap-4">
-                <button className="px-8 py-4 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-xl shadow-lg shadow-brand-cta/30 transition-all hover:scale-105 flex items-center gap-2">
+                <button
+                  onClick={() => navigate('/search')}
+                  className="px-8 py-4 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-xl shadow-lg shadow-brand-cta/30 transition-all hover:scale-105 flex items-center gap-2"
+                >
                   Explore Hotels
                   <ArrowRight className="w-5 h-5" />
                 </button>
@@ -218,96 +238,8 @@ export default function LandingPage() {
       </div>
 
       {/* Search Widget */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-24 relative z-20">
-        <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden">
-          {/* Tab Header */}
-          <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex items-center gap-6">
-            <button className="flex items-center gap-2 px-4 py-2 bg-brand-dark text-white rounded-lg font-bold text-sm transition-colors">
-              <Hotel className="w-4 h-4" />
-              Hotels
-            </button>
-            <button className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-bold text-sm transition-colors">
-              <Hotel className="w-4 h-4" />
-              Resorts
-            </button>
-            <button className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-bold text-sm transition-colors">
-              <Hotel className="w-4 h-4" />
-              Homestays
-            </button>
-          </div>
-
-          {/* Search Form */}
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-              {/* Destination */}
-              <div className="md:col-span-4">
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">
-                  Destination
-                </label>
-                <div className="relative group">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-accent transition-colors" />
-                  <input
-                    type="text"
-                    placeholder="Where are you going?"
-                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-transparent focus:bg-white transition-all"
-                  />
-                </div>
-              </div>
-
-              {/* Check In */}
-              <div className="md:col-span-2">
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">
-                  Check-in
-                </label>
-                <div className="relative group">
-                  <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-accent transition-colors" />
-                  <input
-                    type="date"
-                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-transparent focus:bg-white transition-all"
-                  />
-                </div>
-              </div>
-
-              {/* Check Out */}
-              <div className="md:col-span-2">
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">
-                  Check-out
-                </label>
-                <div className="relative group">
-                  <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-accent transition-colors" />
-                  <input
-                    type="date"
-                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-transparent focus:bg-white transition-all"
-                  />
-                </div>
-              </div>
-
-              {/* Guests */}
-              <div className="md:col-span-2">
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">
-                  Guests
-                </label>
-                <div className="relative group">
-                  <Users className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-accent transition-colors" />
-                  <select className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-transparent focus:bg-white transition-all appearance-none cursor-pointer">
-                    <option>1 Guest</option>
-                    <option>2 Guests</option>
-                    <option>3 Guests</option>
-                    <option>4+ Guests</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Search Button */}
-              <div className="md:col-span-2 flex items-end">
-                <button className="w-full py-4 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-xl shadow-lg shadow-brand-cta/30 flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95">
-                  <Search className="w-5 h-5" />
-                  Search
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-24 relative z-20 pb-12 md:pb-0">
+        <SearchBar />
       </div>
 
       {/* Features Section */}
@@ -453,83 +385,104 @@ export default function LandingPage() {
               Hand-picked accommodations just for you
             </p>
           </div>
-          <button className="hidden md:flex items-center gap-2 px-5 py-2.5 text-brand-accent hover:bg-brand-accent/10 rounded-xl font-bold transition-colors">
+          <button
+            onClick={() => navigate('/search')}
+            className="hidden md:flex items-center gap-2 px-5 py-2.5 text-brand-accent hover:bg-brand-accent/10 rounded-xl font-bold transition-colors"
+          >
             View All
             <ChevronRight className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuredProperties.map((property, idx) => (
-            <div
-              key={idx}
-              className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-slate-100"
-            >
-              {/* Image */}
-              <div className="relative aspect-[4/3] overflow-hidden">
-                <img
-                  src={property.img}
-                  alt={property.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                {/* Badge */}
-                <div
-                  className={`absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold ${
-                    property.badge === 'Popular'
-                      ? 'bg-brand-accent text-white'
-                      : property.badge === 'New'
-                        ? 'bg-green-500 text-white'
-                        : property.badge === 'Deal'
-                          ? 'bg-orange-500 text-white'
-                          : 'bg-purple-600 text-white'
-                  }`}
-                >
-                  {property.badge}
-                </div>
-                {/* Favorite */}
-                <button className="absolute top-4 right-4 p-2 bg-white/90 rounded-full shadow-lg hover:bg-white transition-colors">
-                  <Heart className="w-4 h-4 text-slate-400 hover:text-red-500 transition-colors" />
-                </button>
-              </div>
-
-              {/* Content */}
-              <div className="p-5">
-                <div className="flex items-center gap-1 text-slate-500 text-sm mb-2">
-                  <MapPin className="w-4 h-4" />
-                  {property.location}
-                </div>
-                <h3 className="font-bold text-lg text-slate-900 mb-2 group-hover:text-brand-accent transition-colors">
-                  {property.name}
-                </h3>
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                    <span className="font-bold text-slate-900">
-                      {property.rating}
-                    </span>
-                  </div>
-                  <span className="text-slate-400 text-sm">
-                    ({property.reviews} reviews)
-                  </span>
-                </div>
-                <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                  <div>
-                    <span className="text-slate-400 text-sm">From</span>
-                    <div className="text-2xl font-black text-brand-dark">
-                      ${property.price}
-                      <span className="text-sm font-medium text-slate-400">
-                        /night
-                      </span>
-                    </div>
-                  </div>
-                  <button className="px-4 py-2 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-lg transition-colors text-sm">
-                    Book Now
+        {featuredProperties.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuredProperties.map((property, idx) => (
+              <div
+                key={idx}
+                className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-slate-100 cursor-pointer"
+                onClick={() => navigate(`/hotels/${property.id}`)}
+              >
+                {/* Image */}
+                <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
+                  <img
+                    src={
+                      property.images?.[0]?.url
+                        ? property.images[0].url.startsWith('http')
+                          ? property.images[0].url
+                          : `http://localhost:8080${property.images[0].url}`
+                        : '/placeholder-hotel.jpg' // Fallback image
+                    }
+                    alt={property.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  {/* Badge (Optional - can be added to Hotel entity later) */}
+                  {/* Badge (Optional - can be added to Hotel entity later) */}
+                  // ... inside return ...
+                  {/* Favorite */}
+                  <button
+                    onClick={(e) => handleToggleWishlist(e, property.id)}
+                    className="absolute top-4 right-4 p-2 bg-white/90 rounded-full shadow-lg hover:bg-white transition-colors"
+                  >
+                    <Heart
+                      className={`w-4 h-4 transition-colors ${
+                        wishlist.includes(property.id)
+                          ? 'text-red-500 fill-red-500'
+                          : 'text-slate-400 hover:text-red-500'
+                      }`}
+                    />
                   </button>
                 </div>
+
+                {/* Content */}
+                <div className="p-5">
+                  <div className="flex items-center gap-1 text-slate-500 text-sm mb-2">
+                    <MapPin className="w-4 h-4" />
+                    {property.city}
+                  </div>
+                  <h3 className="font-bold text-lg text-slate-900 mb-2 group-hover:text-brand-accent transition-colors line-clamp-1">
+                    {property.name}
+                  </h3>
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="flex items-center gap-1">
+                      <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                      <span className="font-bold text-slate-900">
+                        {property.starRating}
+                      </span>
+                    </div>
+                    {/* Reviews count not yet in Hotel entity */}
+                  </div>
+                  <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                    <div>
+                      <span className="text-slate-400 text-sm">From</span>
+                      <div className="text-2xl font-black text-brand-dark">
+                        $100{' '}
+                        {/* Placeholder price until we have min price logic */}
+                        <span className="text-sm font-medium text-slate-400">
+                          /night
+                        </span>
+                      </div>
+                    </div>
+                    <button className="px-4 py-2 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-lg transition-colors text-sm">
+                      Book Now
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 bg-slate-50 rounded-2xl">
+            <p className="text-slate-500">
+              No featured properties found at the moment.
+            </p>
+            <button
+              onClick={() => navigate('/search')}
+              className="mt-4 text-brand-accent font-bold hover:underline"
+            >
+              Browse all hotels
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Testimonials */}
@@ -610,7 +563,7 @@ export default function LandingPage() {
             <div className="md:col-span-1">
               <div className="flex items-center gap-2 mb-4">
                 <div className="bg-brand-accent p-2 rounded-lg">
-                  <Hotel className="w-6 h-6 text-white" />
+                  <HotelIcon className="w-6 h-6 text-white" />
                 </div>
                 <span className="text-2xl font-black text-white">StayHub</span>
               </div>
