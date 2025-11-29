@@ -39,6 +39,15 @@ api.interceptors.request.use(
 // Response Interceptor
 api.interceptors.response.use(
   (response: AxiosResponse) => {
+    // Handle empty response (like ResponseEntity<Void>)
+    if (
+      !response.data ||
+      (typeof response.data === 'object' &&
+        Object.keys(response.data).length === 0)
+    ) {
+      return response;
+    }
+
     // Check if the response follows our ApiResponse structure
     const data = response.data as ApiResponse | unknown;
 
@@ -56,7 +65,7 @@ api.interceptors.response.use(
         return response;
       } else {
         // Business logic error (success = false)
-        const msg = apiResponse.message || 'Something went wrong';
+        const msg = apiResponse.message || 'Đã xảy ra lỗi';
         toast.error(msg);
         return Promise.reject(new Error(msg));
       }
@@ -64,48 +73,58 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    const errorMessage =
-      error.response?.data?.message || 'An unexpected error occurred';
-
     if (error.response) {
+      const status = error.response.status;
+      let errorMessage = 'Đã xảy ra lỗi không mong muốn';
+
+      // Extract error message from response
+      if (error.response.data) {
+        // Handle ApiResponse structure
+        if (
+          typeof error.response.data === 'object' &&
+          'success' in error.response.data &&
+          !error.response.data.success &&
+          'message' in error.response.data
+        ) {
+          errorMessage = error.response.data.message || errorMessage;
+        } else if (
+          typeof error.response.data === 'object' &&
+          'message' in error.response.data
+        ) {
+          errorMessage = error.response.data.message || errorMessage;
+        } else if (typeof error.response.data === 'string') {
+          errorMessage = error.response.data;
+        }
+      }
+
       // Handle specific status codes
-      switch (error.response.status) {
+      switch (status) {
+        case 400:
+          // Don't show toast for 400 - let the calling code handle it
+          break;
         case 401:
           // Don't show toast for 401 - let the calling code handle it
-          // This allows login page to show custom error message
           break;
         case 403:
-          toast.error('Access denied.');
+          toast.error('Truy cập bị từ chối.');
           break;
         case 500:
-          toast.error('Server error. Please try again later.');
+          toast.error('Lỗi máy chủ. Vui lòng thử lại sau.');
           break;
         default:
-          // If the error response follows our ApiResponse structure
-          if (
-            error.response.data &&
-            typeof error.response.data === 'object' &&
-            'success' in error.response.data
-          ) {
-            toast.error(error.response.data.message || errorMessage);
-          } else {
-            toast.error(errorMessage);
-          }
+          toast.error(errorMessage);
       }
 
-      // Create a more user-friendly error message for 401
-      if (error.response.status === 401) {
-        const friendlyMessage =
-          error.response.data?.message ||
-          'Invalid email or password. Please try again.';
-        return Promise.reject(new Error(friendlyMessage));
-      }
+      // Return error with message for handling in calling code
+      const friendlyMessage = errorMessage || 'Đã xảy ra lỗi';
+      return Promise.reject(new Error(friendlyMessage));
     } else {
       // Network error
-      toast.error('Connection lost. Please check your internet.');
+      const networkError =
+        'Mất kết nối. Vui lòng kiểm tra kết nối internet của bạn.';
+      toast.error(networkError);
+      return Promise.reject(new Error(networkError));
     }
-
-    return Promise.reject(error);
   }
 );
 

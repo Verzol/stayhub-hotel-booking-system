@@ -1,6 +1,7 @@
 export interface HotelImage {
   id: number;
   url: string;
+  thumbnailUrl?: string;
   isPrimary: boolean;
 }
 
@@ -19,6 +20,7 @@ export interface Hotel {
   policies: string;
   amenities: Amenity[];
   images?: HotelImage[];
+  rooms?: Room[];
 }
 
 export interface HotelDTO {
@@ -39,6 +41,7 @@ export interface HotelDTO {
 export interface RoomImage {
   id: number;
   url: string;
+  thumbnailUrl?: string;
 }
 
 export interface Room {

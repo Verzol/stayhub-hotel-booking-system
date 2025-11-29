@@ -66,6 +66,9 @@ public class SecurityConfiguration {
                 .requestMatchers("/login/oauth2/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
                 
+                // Public endpoints - Hotel search and details (no authentication required)
+                .requestMatchers("/api/public/hotels/**").permitAll()
+                
                 // User profile endpoints - Any authenticated user
                 .requestMatchers("/api/v1/users/me").authenticated()
                 .requestMatchers("/api/v1/users/change-password").authenticated()

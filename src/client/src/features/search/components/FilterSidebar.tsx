@@ -49,15 +49,15 @@ export default function FilterSidebar({
     <div className="bg-white rounded-2xl border border-slate-100 p-6 space-y-8 sticky top-24">
       {/* Price Range */}
       <div>
-        <h3 className="font-bold text-slate-900 mb-4">Price Range</h3>
+        <h3 className="font-bold text-slate-900 mb-4">Khoảng giá</h3>
         <div className="flex items-center gap-4">
           <div className="flex-1">
             <label className="text-xs text-slate-500 mb-1 block">
-              Min Price
+              Giá tối thiểu
             </label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                $
+                ₫
               </span>
               <input
                 type="number"
@@ -70,18 +70,18 @@ export default function FilterSidebar({
           </div>
           <div className="flex-1">
             <label className="text-xs text-slate-500 mb-1 block">
-              Max Price
+              Giá tối đa
             </label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                $
+                ₫
               </span>
               <input
                 type="number"
                 value={localFilters.maxPrice || ''}
                 onChange={(e) => handlePriceChange(e, 'max')}
                 className="w-full pl-7 pr-3 py-2 border border-slate-200 rounded-xl text-sm focus:border-brand-accent outline-none transition-colors"
-                placeholder="Any"
+                placeholder="Bất kỳ"
               />
             </div>
           </div>
@@ -90,7 +90,7 @@ export default function FilterSidebar({
 
       {/* Star Rating */}
       <div>
-        <h3 className="font-bold text-slate-900 mb-4">Star Rating</h3>
+        <h3 className="font-bold text-slate-900 mb-4">Xếp hạng sao</h3>
         <div className="flex flex-col gap-2">
           {[5, 4, 3, 2, 1].map((star) => (
             <label
@@ -111,7 +111,7 @@ export default function FilterSidebar({
                   />
                 ))}
                 <span className="text-sm text-slate-600 ml-1 group-hover:text-slate-900">
-                  {star} Stars
+                  {star} Sao
                 </span>
               </div>
             </label>

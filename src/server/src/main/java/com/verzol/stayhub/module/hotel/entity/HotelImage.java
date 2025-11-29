@@ -1,9 +1,14 @@
 package com.verzol.stayhub.module.hotel.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 
 @Entity
 @Table(name = "hotel_images")
@@ -21,6 +26,9 @@ public class HotelImage {
 
     @Column(nullable = false)
     private String url;
+
+    @Column(name = "thumbnail_url")
+    private String thumbnailUrl;
 
     @Column(name = "is_primary", columnDefinition = "boolean default false")
     private Boolean isPrimary;

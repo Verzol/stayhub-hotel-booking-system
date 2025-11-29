@@ -28,4 +28,55 @@ export default defineConfig({
       },
     },
   },
+
+  // Cấu hình build optimization
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          // Tách node_modules thành các chunks riêng
+          if (id.includes('node_modules')) {
+            // React và React DOM
+            if (
+              id.includes('react') ||
+              id.includes('react-dom') ||
+              id.includes('scheduler')
+            ) {
+              return 'react-vendor';
+            }
+
+            // React Router
+            if (id.includes('react-router')) {
+              return 'router-vendor';
+            }
+
+            // UI Libraries
+            if (id.includes('lucide-react') || id.includes('@radix-ui')) {
+              return 'ui-vendor';
+            }
+
+            // Utilities (axios, date-fns, etc.)
+            if (
+              id.includes('axios') ||
+              id.includes('date-fns') ||
+              id.includes('sonner')
+            ) {
+              return 'utils-vendor';
+            }
+
+            // Maps (nếu có)
+            if (id.includes('leaflet') || id.includes('react-leaflet')) {
+              return 'maps-vendor';
+            }
+
+            // Các vendor libraries khác
+            return 'vendor';
+          }
+        },
+      },
+    },
+    // Tăng chunk size warning limit lên 600KB (từ 500KB mặc định)
+    // Vì sau khi split, mỗi chunk sẽ nhỏ hơn
+    chunkSizeWarningLimit: 600,
+  },
 });

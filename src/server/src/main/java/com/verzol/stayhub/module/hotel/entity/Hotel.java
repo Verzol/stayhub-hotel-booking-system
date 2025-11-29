@@ -84,4 +84,8 @@ public class Hotel {
         inverseJoinColumns = @JoinColumn(name = "amenity_id")
     )
     private Set<Amenity> amenities;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "hotel_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private List<com.verzol.stayhub.module.room.entity.Room> rooms;
 }

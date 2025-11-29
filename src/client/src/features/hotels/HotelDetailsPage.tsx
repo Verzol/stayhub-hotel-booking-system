@@ -9,6 +9,7 @@ import {
 } from '../../services/wishlistService';
 import {
   Loader2,
+  Users,
   MapPin,
   Star,
   Wifi,
@@ -21,10 +22,13 @@ import {
   Heart,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { formatVND } from '../../utils/currency';
+import { useAuth } from '../../context/AuthContext';
 
 export default function HotelDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [hotel, setHotel] = useState<Hotel | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
@@ -38,7 +42,7 @@ export default function HotelDetailsPage() {
         setHotel(data);
       } catch (error) {
         console.error('Failed to load hotel details', error);
-        toast.error('Failed to load hotel details');
+        toast.error('Không thể tải thông tin khách sạn');
       } finally {
         setLoading(false);
       }
@@ -50,7 +54,9 @@ export default function HotelDetailsPage() {
     const fetchWishlist = async () => {
       try {
         const data = await getMyWishlist();
-        setWishlist(data.map((item: Wishlist) => item.hotelId));
+        setWishlist(
+          Array.isArray(data) ? data.map((item: Wishlist) => item.hotelId) : []
+        );
       } catch {
         // Ignore error if not logged in
       }
@@ -69,11 +75,11 @@ export default function HotelDetailsPage() {
       );
       toast.success(
         wishlist.includes(hotel.id)
-          ? 'Removed from wishlist'
-          : 'Added to wishlist'
+          ? 'Đã xóa khỏi danh sách yêu thích'
+          : 'Đã thêm vào danh sách yêu thích'
       );
     } catch {
-      toast.error('Please login to save to wishlist');
+      toast.error('Vui lòng đăng nhập để lưu vào danh sách yêu thích');
     }
   };
 
@@ -88,24 +94,61 @@ export default function HotelDetailsPage() {
   if (!hotel) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-        <h1 className="text-2xl font-bold text-slate-900">Hotel not found</h1>
+        <h1 className="text-2xl font-bold text-slate-900">
+          Không tìm thấy khách sạn
+        </h1>
         <button
           onClick={() => navigate('/search')}
           className="px-6 py-2 bg-brand-primary text-white rounded-lg font-bold"
         >
-          Back to Search
+          Quay lại tìm kiếm
         </button>
       </div>
     );
   }
 
   const amenitiesList = [
-    { icon: Wifi, label: 'Free WiFi' },
-    { icon: Car, label: 'Parking' },
-    { icon: Utensils, label: 'Restaurant' },
-    { icon: Wind, label: 'Air Conditioning' },
-    { icon: Tv, label: 'Flat-screen TV' },
+    { icon: Wifi, label: 'WiFi miễn phí' },
+    { icon: Car, label: 'Bãi đỗ xe' },
+    { icon: Utensils, label: 'Nhà hàng' },
+    { icon: Wind, label: 'Điều hòa' },
+    { icon: Tv, label: 'TV màn hình phẳng' },
   ];
+
+  // Get minimum price from rooms
+  const minPrice =
+    hotel.rooms && hotel.rooms.length > 0
+      ? Math.min(...hotel.rooms.map((r) => r.basePrice))
+      : null;
+
+  // Handle Select Room button - scroll to rooms section (no login required to view)
+  const handleSelectRoom = () => {
+    const roomsSection = document.getElementById('rooms-section');
+    if (roomsSection) {
+      roomsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  // Handle Book button click - require authentication
+  const handleBookClick = (roomId: number) => {
+    if (!isAuthenticated) {
+      toast.info('Vui lòng đăng nhập để đặt phòng');
+      navigate(`/login?returnUrl=/hotels/${hotel?.id}?roomId=${roomId}`);
+      return;
+    }
+    const params = new URLSearchParams();
+    params.set('roomId', roomId.toString());
+    params.set('hotelId', hotel.id.toString());
+    const searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.get('checkIn'))
+      params.set('checkIn', searchParams.get('checkIn')!);
+    if (searchParams.get('checkOut'))
+      params.set('checkOut', searchParams.get('checkOut')!);
+    if (searchParams.get('guests'))
+      params.set('guests', searchParams.get('guests')!);
+
+    navigate(`/booking?${params.toString()}`);
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 pt-24 pb-12">
@@ -116,7 +159,7 @@ export default function HotelDetailsPage() {
           className="flex items-center gap-2 text-slate-500 hover:text-slate-900 mb-6 font-medium transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
-          Back to Search
+          Quay lại tìm kiếm
         </button>
 
         {/* Header */}
@@ -133,11 +176,11 @@ export default function HotelDetailsPage() {
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1 px-3 py-1 bg-brand-accent/10 rounded-full text-brand-accent font-bold">
                   <Star className="w-4 h-4 fill-brand-accent" />
-                  {hotel.starRating} Stars
+                  {hotel.starRating} Sao
                 </div>
                 <div className="flex items-center gap-1 px-3 py-1 bg-green-100 rounded-full text-green-600 font-bold">
                   <CheckCircle className="w-4 h-4" />
-                  Verified Stay
+                  Đã xác minh
                 </div>
               </div>
             </div>
@@ -157,16 +200,19 @@ export default function HotelDetailsPage() {
                 </button>
               </div>
               <div className="text-right mb-2">
-                <span className="text-slate-400 text-sm">Starting from</span>
+                <span className="text-slate-400 text-sm">Giá từ</span>
                 <div className="text-3xl font-black text-brand-cta">
-                  $100
+                  {minPrice ? formatVND(minPrice) : 'Liên hệ'}
                   <span className="text-sm font-medium text-slate-400">
-                    /night
+                    /đêm
                   </span>
                 </div>
               </div>
-              <button className="px-8 py-3 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-xl shadow-lg shadow-brand-cta/20 transition-all hover:scale-105">
-                Select Room
+              <button
+                onClick={handleSelectRoom}
+                className="px-8 py-3 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-xl shadow-lg shadow-brand-cta/20 transition-all hover:scale-105"
+              >
+                Chọn Phòng
               </button>
             </div>
           </div>
@@ -217,12 +263,12 @@ export default function HotelDetailsPage() {
                       ? hotel.images[3].url
                       : `http://localhost:8080${hotel.images[3].url}`
                   }
-                  alt="More photos"
+                  alt="Thêm hình ảnh"
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center group-hover:bg-black/40 transition-colors">
                   <span className="text-white font-bold text-lg">
-                    +{hotel.images.length - 3} Photos
+                    +{hotel.images.length - 3} Ảnh
                   </span>
                 </div>
               </div>
@@ -236,7 +282,7 @@ export default function HotelDetailsPage() {
           <div className="lg:col-span-2 space-y-8">
             <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
               <h2 className="text-2xl font-bold text-slate-900 mb-4">
-                About this hotel
+                Về khách sạn này
               </h2>
               <p className="text-slate-600 leading-relaxed">
                 {hotel.description}
@@ -245,7 +291,7 @@ export default function HotelDetailsPage() {
 
             <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
               <h2 className="text-2xl font-bold text-slate-900 mb-6">
-                Amenities
+                Tiện nghi
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {amenitiesList.map((item, idx) => (
@@ -264,41 +310,71 @@ export default function HotelDetailsPage() {
 
             <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
               <h2 className="text-2xl font-bold text-slate-900 mb-6">
-                Policies
+                Chính sách
               </h2>
               <div className="prose prose-slate max-w-none">
                 <p className="text-slate-600 whitespace-pre-line">
-                  {hotel.policies || 'No specific policies listed.'}
+                  {hotel.policies ||
+                    'Chưa có chính sách cụ thể nào được liệt kê.'}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Right Column: Booking Widget (Placeholder) */}
-          <div className="lg:col-span-1">
+          {/* Right Column: Booking Widget */}
+          <div className="lg:col-span-1" id="rooms-section">
             <div className="bg-white rounded-3xl p-6 shadow-lg border border-slate-100 sticky top-24">
               <h3 className="text-xl font-bold text-slate-900 mb-4">
-                Book your stay
+                Phòng có sẵn
               </h3>
-              <div className="space-y-4">
-                <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
-                    Check-in / Check-out
-                  </label>
-                  <div className="font-medium text-slate-900">Select Dates</div>
+
+              {hotel.rooms && hotel.rooms.length > 0 ? (
+                <div className="space-y-4">
+                  {hotel.rooms.map((room) => (
+                    <div
+                      key={room.id}
+                      className="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-brand-accent transition-colors"
+                    >
+                      <h4 className="font-bold text-slate-900 mb-1">
+                        {room.name}
+                      </h4>
+                      <p className="text-xs text-slate-500 mb-3 line-clamp-2">
+                        {room.description}
+                      </p>
+
+                      <div className="flex items-center gap-4 text-xs text-slate-500 mb-3">
+                        <div className="flex items-center gap-1">
+                          <Users className="w-3 h-3" />
+                          {room.capacity} Khách
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          {room.area} m²
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between mt-2">
+                        <div className="text-lg font-black text-brand-cta">
+                          {formatVND(room.basePrice)}
+                          <span className="text-xs font-medium text-slate-400">
+                            /đêm
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => handleBookClick(room.id)}
+                          className="px-4 py-2 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-lg text-sm shadow-lg shadow-brand-cta/20 transition-all"
+                        >
+                          Đặt phòng
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
-                    Guests
-                  </label>
-                  <div className="font-medium text-slate-900">
-                    2 Adults, 0 Children
-                  </div>
+              ) : (
+                <div className="text-center py-8 text-slate-500">
+                  Không có phòng nào có sẵn cho khách sạn này.
                 </div>
-                <button className="w-full py-4 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-xl shadow-lg shadow-brand-cta/20 transition-all">
-                  Check Availability
-                </button>
-              </div>
+              )}
             </div>
           </div>
         </div>

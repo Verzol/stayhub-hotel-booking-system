@@ -12,6 +12,7 @@ import {
 import type { Room, Hotel } from '../../../types/host';
 import { getHotelRooms } from '../../../services/hostService';
 import { toast } from 'sonner';
+import { formatVND } from '../../../utils/currency';
 
 interface RoomListProps {
   hotel: Hotel;
@@ -126,9 +127,9 @@ export default function RoomList({
                   </div>
                 )}
                 <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg text-sm font-bold text-slate-900 shadow-sm">
-                  ${room.basePrice}
+                  {formatVND(room.basePrice)}
                   <span className="text-slate-500 font-normal text-xs ml-1">
-                    /night
+                    /đêm
                   </span>
                 </div>
               </div>
@@ -147,7 +148,7 @@ export default function RoomList({
                   <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-100">
                     <Users className="w-4 h-4 text-slate-400" />
                     <span className="text-sm font-bold text-slate-700">
-                      {room.capacity} Guests
+                      {room.capacity} Khách
                     </span>
                   </div>
                   <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-100">
