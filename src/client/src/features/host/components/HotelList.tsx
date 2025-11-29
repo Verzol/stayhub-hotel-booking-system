@@ -106,7 +106,11 @@ export default function HotelList({
             )}
             <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg text-xs font-bold text-slate-900 shadow-sm flex items-center gap-1">
               <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+<<<<<<< HEAD
               {hotel.starRating || 'New'}
+=======
+              {hotel.rating || 'New'}
+>>>>>>> ee1deee893bd69ede601f98222586b45a1461011
             </div>
           </div>
 
