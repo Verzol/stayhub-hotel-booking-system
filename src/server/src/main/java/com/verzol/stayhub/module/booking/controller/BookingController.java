@@ -2,6 +2,8 @@ package com.verzol.stayhub.module.booking.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,8 +17,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.verzol.stayhub.module.booking.dto.BookingDTOs.BookingRequest;
 import com.verzol.stayhub.module.booking.dto.BookingDTOs.BookingResponse;
 import com.verzol.stayhub.module.booking.dto.BookingDTOs.PriceCalculationResponse;
+import com.verzol.stayhub.module.booking.dto.BookingDTOs.CancellationRequest;
+import com.verzol.stayhub.module.booking.dto.BookingDTOs.CancellationResponse;
 import com.verzol.stayhub.module.booking.entity.Booking;
 import com.verzol.stayhub.module.booking.service.BookingService;
+import com.verzol.stayhub.module.booking.service.InvoiceService;
+import com.verzol.stayhub.module.hotel.entity.Hotel;
+import com.verzol.stayhub.module.hotel.repository.HotelRepository;
+import com.verzol.stayhub.module.room.entity.Room;
+import com.verzol.stayhub.module.room.repository.RoomRepository;
 import com.verzol.stayhub.module.user.entity.User;
 import com.verzol.stayhub.module.user.repository.UserRepository;
 
@@ -29,6 +38,9 @@ public class BookingController {
 
     private final BookingService bookingService;
     private final UserRepository userRepository;
+    private final InvoiceService invoiceService;
+    private final RoomRepository roomRepository;
+    private final HotelRepository hotelRepository;
 
     @PostMapping("/preview")
     public ResponseEntity<PriceCalculationResponse> calculatePrice(@RequestBody BookingRequest request) {
@@ -60,5 +72,63 @@ public class BookingController {
         User user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return ResponseEntity.ok(bookingService.getUserBookings(user.getId()));
+    }
+
+    /**
+     * Cancel booking - Guest can cancel their own booking
+     */
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<CancellationResponse> cancelBooking(
+            @PathVariable Long id,
+            @RequestBody(required = false) CancellationRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        if (request == null) {
+            request = new CancellationRequest();
+        }
+        
+        return ResponseEntity.ok(bookingService.cancelBooking(id, user.getId(), request));
+    }
+
+    /**
+     * Download invoice/confirmation as HTML
+     * GET /api/bookings/{id}/invoice
+     */
+    @GetMapping("/{id}/invoice")
+    public ResponseEntity<String> downloadInvoice(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        Booking booking = bookingService.getBooking(id);
+        
+        // Verify ownership
+        if (!booking.getUserId().equals(user.getId())) {
+            throw new RuntimeException("You can only view invoices for your own bookings");
+        }
+        
+        Room room = roomRepository.findById(booking.getRoomId())
+                .orElseThrow(() -> new RuntimeException("Room not found"));
+        
+        Hotel hotel = hotelRepository.findById(room.getHotelId())
+                .orElseThrow(() -> new RuntimeException("Hotel not found"));
+        
+        String guestName = booking.getGuestName() != null && !booking.getGuestName().isEmpty()
+                ? booking.getGuestName()
+                : user.getFullName();
+        
+        String invoiceHtml = invoiceService.generateInvoiceHtml(booking, room, hotel, guestName);
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_HTML);
+        headers.setContentDispositionFormData("attachment", "invoice_" + booking.getId() + ".html");
+        
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(invoiceHtml);
     }
 }

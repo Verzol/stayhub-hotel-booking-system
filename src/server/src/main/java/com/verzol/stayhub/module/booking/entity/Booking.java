@@ -58,6 +58,29 @@ public class Booking {
     @Column(name = "locked_until")
     private LocalDateTime lockedUntil;
 
+    // Check-in/Check-out timestamps
+    @Column(name = "checked_in_at")
+    private LocalDateTime checkedInAt;
+
+    @Column(name = "checked_out_at")
+    private LocalDateTime checkedOutAt;
+
+    // Cancellation fields
+    @Column(name = "cancelled_at")
+    private LocalDateTime cancelledAt;
+
+    @Column(name = "cancellation_reason", columnDefinition = "text")
+    private String cancellationReason;
+
+    @Column(name = "cancelled_by")
+    private String cancelledBy; // "GUEST" or "HOST"
+
+    @Column(name = "refund_amount", precision = 12, scale = 2)
+    private BigDecimal refundAmount;
+
+    @Column(name = "cancellation_policy", columnDefinition = "varchar default 'MODERATE'")
+    private String cancellationPolicy; // FLEXIBLE, MODERATE, STRICT
+
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
