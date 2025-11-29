@@ -115,6 +115,31 @@ public class RoomService {
         }
     }
 
+    private final com.verzol.stayhub.common.service.FileStorageService fileStorageService;
+
+    @Transactional
+    public void uploadImages(Long roomId, org.springframework.web.multipart.MultipartFile[] files) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new RuntimeException("Room not found"));
+        
+        List<com.verzol.stayhub.module.room.entity.RoomImage> images = java.util.Arrays.stream(files).map(file -> {
+            String filename = fileStorageService.store(file);
+            String fileUrl = "/uploads/" + filename;
+            
+            com.verzol.stayhub.module.room.entity.RoomImage img = new com.verzol.stayhub.module.room.entity.RoomImage();
+            img.setRoomId(roomId);
+            img.setUrl(fileUrl);
+            return img;
+        }).collect(Collectors.toList());
+
+        if (room.getImages() == null) {
+            room.setImages(images);
+        } else {
+            room.getImages().addAll(images);
+        }
+        roomRepository.save(room);
+    }
+
     private void mapDtoToEntity(RoomDTO dto, Room room) {
         room.setName(dto.getName());
         room.setDescription(dto.getDescription());

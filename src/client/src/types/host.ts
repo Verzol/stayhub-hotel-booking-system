@@ -1,3 +1,9 @@
+export interface HotelImage {
+  id: number;
+  url: string;
+  isPrimary: boolean;
+}
+
 export interface Hotel {
   id: number;
   name: string;
@@ -11,8 +17,8 @@ export interface Hotel {
   checkInTime: string;
   checkOutTime: string;
   policies: string;
-  amenityIds: number[];
-  images?: string[];
+  amenities: Amenity[];
+  images?: HotelImage[];
 }
 
 export interface HotelDTO {
@@ -30,6 +36,11 @@ export interface HotelDTO {
   amenityIds: number[];
 }
 
+export interface RoomImage {
+  id: number;
+  url: string;
+}
+
 export interface Room {
   id: number;
   name: string;
@@ -41,7 +52,8 @@ export interface Room {
   bathrooms: number;
   bedConfig: string;
   quantity: number;
-  amenityIds: number[];
+  amenities: Amenity[];
+  images?: RoomImage[];
 }
 
 export interface RoomDTO {

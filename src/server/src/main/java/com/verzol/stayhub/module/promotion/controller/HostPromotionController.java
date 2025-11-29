@@ -25,4 +25,15 @@ public class HostPromotionController {
     public ResponseEntity<List<Promotion>> getHotelPromotions(@PathVariable Long hotelId) {
         return ResponseEntity.ok(promotionService.getHotelPromotions(hotelId));
     }
+
+    @PutMapping("/promotions/{id}")
+    public ResponseEntity<Promotion> updatePromotion(@PathVariable Long id, @RequestBody PromotionDTO dto) {
+        return ResponseEntity.ok(promotionService.updatePromotion(id, dto));
+    }
+
+    @PatchMapping("/promotions/{id}/toggle")
+    public ResponseEntity<Void> togglePromotion(@PathVariable Long id) {
+        promotionService.togglePromotion(id);
+        return ResponseEntity.ok().build();
+    }
 }

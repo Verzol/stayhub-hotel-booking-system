@@ -54,15 +54,20 @@ public class HotelService {
                 .collect(Collectors.toList());
     }
 
+    private final com.verzol.stayhub.common.service.FileStorageService fileStorageService;
+
     @Transactional
-    public void uploadImages(Long hotelId, List<String> urls) {
+    public void uploadImages(Long hotelId, org.springframework.web.multipart.MultipartFile[] files) {
         Hotel hotel = hotelRepository.findById(hotelId)
                 .orElseThrow(() -> new RuntimeException("Hotel not found"));
         
-        List<HotelImage> images = urls.stream().map(url -> {
+        List<HotelImage> images = java.util.Arrays.stream(files).map(file -> {
+            String filename = fileStorageService.store(file);
+            String fileUrl = "/uploads/" + filename;
+            
             HotelImage img = new HotelImage();
             img.setHotelId(hotelId);
-            img.setUrl(url);
+            img.setUrl(fileUrl);
             img.setIsPrimary(false); // Default
             return img;
         }).collect(Collectors.toList());

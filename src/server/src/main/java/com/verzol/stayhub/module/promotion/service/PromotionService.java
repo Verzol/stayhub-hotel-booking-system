@@ -37,6 +37,22 @@ public class PromotionService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public Promotion updatePromotion(Long id, PromotionDTO dto) {
+        Promotion promotion = promotionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Promotion not found"));
+        mapDtoToEntity(dto, promotion);
+        return promotionRepository.save(promotion);
+    }
+
+    @Transactional
+    public void togglePromotion(Long id) {
+        Promotion promotion = promotionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Promotion not found"));
+        promotion.setIsActive(!promotion.getIsActive());
+        promotionRepository.save(promotion);
+    }
+
     private void mapDtoToEntity(PromotionDTO dto, Promotion promotion) {
         promotion.setCode(dto.getCode());
         promotion.setDiscountPercent(dto.getDiscountPercent());
