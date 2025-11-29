@@ -1,14 +1,15 @@
-package com.verzol.stayhub.module.user.entity;
+package com.verzol.stayhub.module.wishlist.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
-import com.verzol.stayhub.module.hotel.entity.Hotel;
 
 @Entity
-@Table(name = "wishlists")
+@Table(name = "wishlists", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"user_id", "hotel_id"})
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
