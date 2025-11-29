@@ -30,7 +30,9 @@ export const logout = () => {
 };
 
 export const forgotPassword = async (email: string): Promise<string> => {
-  const response = await api.post<string>('/v1/auth/forgot-password', { email });
+  const response = await api.post<string>('/v1/auth/forgot-password', {
+    email,
+  });
   return response.data;
 };
 

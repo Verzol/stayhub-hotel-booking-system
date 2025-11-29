@@ -10,7 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
+
 
 @RestController
 @RequestMapping("/api/host/hotels")
@@ -35,9 +35,8 @@ public class HostHotelController {
     }
 
     @PostMapping("/{id}/images")
-    public ResponseEntity<Void> uploadImages(@PathVariable Long id, @RequestBody Map<String, List<String>> payload) {
-        List<String> urls = payload.get("urls");
-        hotelService.uploadImages(id, urls);
+    public ResponseEntity<Void> uploadImages(@PathVariable Long id, @RequestParam("files") org.springframework.web.multipart.MultipartFile[] files) {
+        hotelService.uploadImages(id, files);
         return ResponseEntity.ok().build();
     }
 }
