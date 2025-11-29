@@ -39,3 +39,16 @@ export const getHotelDetails = async (id: number) => {
   const response = await api.get<Hotel>(`/public/hotels/${id}`);
   return response.data;
 };
+
+/**
+ * Get location suggestions for autocomplete
+ */
+export const getLocationSuggestions = async (
+  query: string = '',
+  limit: number = 10
+): Promise<string[]> => {
+  const response = await api.get<string[]>('/public/hotels/suggestions', {
+    params: { query, limit },
+  });
+  return response.data;
+};

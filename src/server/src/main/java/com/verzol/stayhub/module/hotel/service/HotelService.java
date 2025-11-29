@@ -1,19 +1,20 @@
 package com.verzol.stayhub.module.hotel.service;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.verzol.stayhub.module.amenity.entity.Amenity;
 import com.verzol.stayhub.module.amenity.repository.AmenityRepository;
 import com.verzol.stayhub.module.hotel.dto.HotelDTO;
 import com.verzol.stayhub.module.hotel.entity.Hotel;
 import com.verzol.stayhub.module.hotel.entity.HotelImage;
 import com.verzol.stayhub.module.hotel.repository.HotelRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -55,6 +56,7 @@ public class HotelService {
     }
 
     private final com.verzol.stayhub.common.service.FileStorageService fileStorageService;
+    private final com.verzol.stayhub.common.service.ImageProcessingService imageProcessingService;
 
     @Transactional
     public void uploadImages(Long hotelId, org.springframework.web.multipart.MultipartFile[] files) {
@@ -65,9 +67,18 @@ public class HotelService {
             String filename = fileStorageService.store(file);
             String fileUrl = "/uploads/" + filename;
             
+            // Generate thumbnail from original file
+            String thumbnailFilename = imageProcessingService.generateThumbnail(
+                file, 
+                filename, 
+                fileStorageService.load(filename).getParent()
+            );
+            String thumbnailUrl = thumbnailFilename != null ? "/uploads/" + thumbnailFilename : null;
+            
             HotelImage img = new HotelImage();
             img.setHotelId(hotelId);
             img.setUrl(fileUrl);
+            img.setThumbnailUrl(thumbnailUrl);
             img.setIsPrimary(false); // Default
             return img;
         }).collect(Collectors.toList());

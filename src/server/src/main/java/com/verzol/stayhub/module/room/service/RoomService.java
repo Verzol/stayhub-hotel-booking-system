@@ -1,5 +1,14 @@
 package com.verzol.stayhub.module.room.service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.verzol.stayhub.module.amenity.entity.Amenity;
 import com.verzol.stayhub.module.amenity.repository.AmenityRepository;
 import com.verzol.stayhub.module.hotel.entity.Hotel;
@@ -9,15 +18,8 @@ import com.verzol.stayhub.module.room.entity.Room;
 import com.verzol.stayhub.module.room.entity.RoomAvailability;
 import com.verzol.stayhub.module.room.repository.RoomAvailabilityRepository;
 import com.verzol.stayhub.module.room.repository.RoomRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -87,15 +89,19 @@ public class RoomService {
                 availability.setDate(date);
             }
 
-            if (!availability.getIsAvailable() && availability.getBookingId() == null) {
-                 // Already blocked by host
-                 throw new RuntimeException("Room is not available on " + date);
-            }
-            
+            // Check if room is already booked
             if (availability.getBookingId() != null) {
                  throw new RuntimeException("Room is already booked on " + date);
             }
+            
+            // Check if room is blocked by host (isAvailable is explicitly false)
+            Boolean isAvailable = availability.getIsAvailable();
+            if (isAvailable != null && !isAvailable && availability.getBookingId() == null) {
+                 // Already blocked by host
+                 throw new RuntimeException("Room is not available on " + date);
+            }
 
+            // Reserve the room
             availability.setIsAvailable(false);
             availability.setBookingId(bookingId);
             availability.setBlockReason("BOOKED");
@@ -116,6 +122,7 @@ public class RoomService {
     }
 
     private final com.verzol.stayhub.common.service.FileStorageService fileStorageService;
+    private final com.verzol.stayhub.common.service.ImageProcessingService imageProcessingService;
 
     @Transactional
     public void uploadImages(Long roomId, org.springframework.web.multipart.MultipartFile[] files) {
@@ -126,9 +133,18 @@ public class RoomService {
             String filename = fileStorageService.store(file);
             String fileUrl = "/uploads/" + filename;
             
+            // Generate thumbnail from original file
+            String thumbnailFilename = imageProcessingService.generateThumbnail(
+                file, 
+                filename, 
+                fileStorageService.load(filename).getParent()
+            );
+            String thumbnailUrl = thumbnailFilename != null ? "/uploads/" + thumbnailFilename : null;
+            
             com.verzol.stayhub.module.room.entity.RoomImage img = new com.verzol.stayhub.module.room.entity.RoomImage();
             img.setRoomId(roomId);
             img.setUrl(fileUrl);
+            img.setThumbnailUrl(thumbnailUrl);
             return img;
         }).collect(Collectors.toList());
 

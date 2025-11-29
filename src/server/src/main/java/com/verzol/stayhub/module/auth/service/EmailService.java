@@ -105,4 +105,125 @@ public class EmailService {
             
         sendEmail(to, subject, content);
     }
+
+    @Async
+    public void sendInvoiceEmail(String to, String guestName, String bookingId, 
+                                 String hotelName, String roomName, 
+                                 String checkIn, String checkOut, 
+                                 Integer guests, String totalPrice, 
+                                 String couponCode, String frontendUrl) {
+        String discountText = couponCode != null && !couponCode.isEmpty() 
+            ? String.format("""
+                <tr>
+                    <td style="padding: 10px 0; color: #059669; font-weight: 600;">Giảm giá (%s)</td>
+                    <td style="padding: 10px 0; text-align: right; color: #059669; font-weight: 600;">Đã áp dụng</td>
+                </tr>
+                """, couponCode)
+            : "";
+
+        String content = String.format("""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Hóa đơn đặt phòng - StayHub</title>
+                <style>
+                    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+                    .header { background: linear-gradient(135deg, #2563eb 0%%, #1d4ed8 100%%); padding: 30px 20px; text-align: center; }
+                    .header h1 { color: #ffffff; margin: 0; font-size: 28px; font-weight: 700; letter-spacing: 1px; }
+                    .header .subtitle { color: #ffffff; opacity: 0.9; margin-top: 5px; font-size: 14px; }
+                    .content { padding: 40px 30px; color: #333333; line-height: 1.6; }
+                    .greeting { font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #111827; }
+                    .booking-info { background-color: #f9fafb; border-radius: 8px; padding: 20px; margin: 25px 0; }
+                    .booking-info h2 { margin: 0 0 15px 0; font-size: 20px; color: #111827; }
+                    .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e5e7eb; }
+                    .info-row:last-child { border-bottom: none; }
+                    .info-label { color: #6b7280; font-size: 14px; }
+                    .info-value { color: #111827; font-weight: 600; font-size: 14px; }
+                    .invoice-table { width: 100%%; border-collapse: collapse; margin: 25px 0; }
+                    .invoice-table td { padding: 12px 0; border-bottom: 1px solid #e5e7eb; }
+                    .invoice-table td:last-child { text-align: right; }
+                    .total-row { border-top: 2px solid #111827; border-bottom: 2px solid #111827; font-weight: 800; font-size: 18px; }
+                    .total-row td { padding: 15px 0; color: #111827; }
+                    .button-container { text-align: center; margin: 30px 0; }
+                    .button { display: inline-block; padding: 14px 28px; background: linear-gradient(135deg, #2563eb 0%%, #1d4ed8 100%%); color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; }
+                    .footer { background-color: #f9fafb; padding: 20px; text-align: center; font-size: 12px; color: #9ca3af; border-top: 1px solid #e5e7eb; }
+                    .footer p { margin: 5px 0; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>StayHub</h1>
+                        <div class="subtitle">Hóa đơn xác nhận đặt phòng</div>
+                    </div>
+                    <div class="content">
+                        <div class="greeting">Xin chào %s,</div>
+                        <p style="margin-bottom: 20px; color: #4b5563;">Cảm ơn bạn đã đặt phòng qua StayHub! Đặt phòng của bạn đã được xác nhận và thanh toán thành công.</p>
+                        
+                        <div class="booking-info">
+                            <h2>Thông tin đặt phòng</h2>
+                            <div class="info-row">
+                                <span class="info-label">Mã đặt phòng:</span>
+                                <span class="info-value">#%s</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Khách sạn:</span>
+                                <span class="info-value">%s</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Phòng:</span>
+                                <span class="info-value">%s</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Nhận phòng:</span>
+                                <span class="info-value">%s</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Trả phòng:</span>
+                                <span class="info-value">%s</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Số khách:</span>
+                                <span class="info-value">%d khách</span>
+                            </div>
+                        </div>
+
+                        <table class="invoice-table">
+                            <tr>
+                                <td style="padding: 10px 0; color: #6b7280;">Tổng tiền phòng</td>
+                                <td style="padding: 10px 0; text-align: right; color: #111827; font-weight: 600;">%s</td>
+                            </tr>
+                            %s
+                            <tr class="total-row">
+                                <td>Tổng cộng</td>
+                                <td>%s</td>
+                            </tr>
+                        </table>
+
+                        <div class="button-container">
+                            <a href="%s/booking/%s" class="button">Xem chi tiết đặt phòng</a>
+                        </div>
+
+                        <p style="margin-top: 30px; color: #4b5563; font-size: 14px;">
+                            Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi qua email hoặc số điện thoại hỗ trợ.
+                        </p>
+                        <br>
+                        <p style="margin: 0; color: #4b5563;">Trân trọng,<br><strong style="color: #111827;">Đội ngũ StayHub</strong></p>
+                    </div>
+                    <div class="footer">
+                        <p>&copy; 2025 StayHub Inc. All rights reserved.</p>
+                        <p>Email này được gửi tự động, vui lòng không trả lời.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """, 
+            guestName, bookingId, hotelName, roomName, checkIn, checkOut, guests, 
+            totalPrice, discountText, totalPrice, frontendUrl, bookingId);
+        
+        sendEmail(to, "Hóa đơn xác nhận đặt phòng #" + bookingId, content);
+    }
 }

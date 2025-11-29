@@ -19,6 +19,14 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { formatVND } from '../../utils/currency';
+
+interface Filters {
+  minPrice: number;
+  maxPrice: number;
+  stars: number[];
+  amenities: number[];
+}
 
 export default function SearchResultsPage() {
   const [searchParams] = useSearchParams();
@@ -28,17 +36,12 @@ export default function SearchResultsPage() {
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [sort, setSort] = useState('price_asc');
   const [wishlist, setWishlist] = useState<number[]>([]);
-  interface Filters {
-    minPrice: number;
-    maxPrice: number;
-    stars: number[];
-    amenities: number[];
-  }
 
   const [filters, setFilters] = useState<Filters>({
     minPrice: Number(searchParams.get('minPrice')) || 0,
     maxPrice: Number(searchParams.get('maxPrice')) || 0,
-    stars: searchParams.get('stars')?.split(',').map(Number) || [],
+    stars:
+      searchParams.get('stars')?.split(',').filter(Boolean).map(Number) || [],
     amenities: [],
   });
 
@@ -46,9 +49,12 @@ export default function SearchResultsPage() {
     const fetchWishlist = async () => {
       try {
         const data = await getMyWishlist();
-        setWishlist(data.map((item: Wishlist) => item.hotelId));
+        setWishlist(
+          Array.isArray(data) ? data.map((item: Wishlist) => item.hotelId) : []
+        );
       } catch {
         // Ignore error if not logged in
+        setWishlist([]);
       }
     };
     fetchWishlist();
@@ -73,10 +79,11 @@ export default function SearchResultsPage() {
         };
 
         const data = await searchHotels(queryParams);
-        setHotels(data.content);
+        setHotels(Array.isArray(data?.content) ? data.content : []);
       } catch (error) {
         console.error('Search failed', error);
-        toast.error('Failed to load search results');
+        toast.error('Không thể tải kết quả tìm kiếm');
+        setHotels([]);
       } finally {
         setLoading(false);
       }
@@ -96,11 +103,11 @@ export default function SearchResultsPage() {
       );
       toast.success(
         wishlist.includes(hotelId)
-          ? 'Removed from wishlist'
-          : 'Added to wishlist'
+          ? 'Đã xóa khỏi danh sách yêu thích'
+          : 'Đã thêm vào danh sách yêu thích'
       );
     } catch {
-      toast.error('Please login to save to wishlist');
+      toast.error('Vui lòng đăng nhập để lưu vào danh sách yêu thích');
     }
   };
 
@@ -121,6 +128,7 @@ export default function SearchResultsPage() {
                   : null,
               ],
               guests: Number(searchParams.get('guests')) || 1,
+              children: Number(searchParams.get('children')) || 0,
             }}
           />
         </div>
@@ -137,9 +145,11 @@ export default function SearchResultsPage() {
           <main className="flex-1">
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-2xl font-bold text-slate-900">
-                {hotels.length} places found
+                {hotels?.length || 0}{' '}
+                {(hotels?.length || 0) === 1 ? 'địa điểm' : 'địa điểm'} được tìm
+                thấy
                 {searchParams.get('query') &&
-                  ` in ${searchParams.get('query')}`}
+                  ` tại ${searchParams.get('query')}`}
               </h1>
 
               <div className="flex items-center gap-4">
@@ -150,9 +160,9 @@ export default function SearchResultsPage() {
                     onChange={(e) => setSort(e.target.value)}
                     className="appearance-none bg-white border border-slate-200 text-slate-700 py-2 pl-4 pr-10 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-brand-accent cursor-pointer"
                   >
-                    <option value="price_asc">Price: Low to High</option>
-                    <option value="price_desc">Price: High to Low</option>
-                    <option value="rating_desc">Top Rated</option>
+                    <option value="price_asc">Giá: Thấp đến cao</option>
+                    <option value="price_desc">Giá: Cao đến thấp</option>
+                    <option value="rating_desc">Đánh giá cao nhất</option>
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                 </div>
@@ -188,10 +198,10 @@ export default function SearchResultsPage() {
                 <Loader2 className="w-8 h-8 text-brand-accent animate-spin" />
               </div>
             ) : viewMode === 'map' ? (
-              <MapView hotels={hotels} />
+              <MapView hotels={hotels || []} />
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {hotels.map((hotel) => (
+                {(hotels || []).map((hotel) => (
                   <div
                     key={hotel.id}
                     className="bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-xl transition-all group relative"
@@ -236,13 +246,19 @@ export default function SearchResultsPage() {
                         </p>
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-lg text-slate-900">
-                            From ${/* Placeholder for min price */}100
+                            {hotel.rooms && hotel.rooms.length > 0
+                              ? `Từ ${formatVND(
+                                  Math.min(
+                                    ...hotel.rooms.map((r) => r.basePrice)
+                                  )
+                                )}`
+                              : 'Liên hệ'}
                             <span className="text-sm text-slate-500 font-normal">
-                              /night
+                              /đêm
                             </span>
                           </span>
                           <button className="px-4 py-2 bg-brand-primary text-white rounded-xl font-bold text-sm hover:bg-brand-primary/90 transition-colors">
-                            View Details
+                            Xem chi tiết
                           </button>
                         </div>
                       </div>

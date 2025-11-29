@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getAvatarUrl } from '../../utils/userUtils';
+import { formatVND } from '../../utils/currency';
 import {
   Globe,
   ChevronDown,
@@ -15,8 +16,11 @@ import {
   LayoutDashboard,
   Heart,
   Bell,
-  Building2,
   Shield,
+  CreditCard,
+  Calendar,
+  ArrowRight,
+  Loader2,
 } from 'lucide-react';
 
 export default function Navbar() {
@@ -25,6 +29,20 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isBookingsMenuOpen, setIsBookingsMenuOpen] = useState(false);
+  const [recentBookings, setRecentBookings] = useState<
+    Array<{
+      id: number;
+      hotelName?: string;
+      roomName?: string;
+      roomImage?: string;
+      checkInDate: string;
+      checkOutDate: string;
+      status: string;
+      totalPrice?: number;
+    }>
+  >([]);
+  const [loadingBookings, setLoadingBookings] = useState(false);
 
   const isHomePage = location.pathname === '/';
   const showScrolledStyle = isScrolled || !isHomePage;
@@ -41,8 +59,35 @@ export default function Navbar() {
   useEffect(() => {
     if (isMobileMenuOpen) setIsMobileMenuOpen(false);
     if (isUserMenuOpen) setIsUserMenuOpen(false);
+    if (isBookingsMenuOpen) setIsBookingsMenuOpen(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
+
+  // Fetch recent bookings when menu opens
+  useEffect(() => {
+    const fetchRecentBookings = async () => {
+      if (
+        isBookingsMenuOpen &&
+        isAuthenticated &&
+        recentBookings.length === 0
+      ) {
+        try {
+          setLoadingBookings(true);
+          const { getMyBookings } = await import(
+            '../../services/bookingService'
+          );
+          const data = await getMyBookings();
+          setRecentBookings(data?.slice(0, 3) || []);
+        } catch (error) {
+          console.error('Failed to fetch bookings', error);
+        } finally {
+          setLoadingBookings(false);
+        }
+      }
+    };
+    fetchRecentBookings();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isBookingsMenuOpen, isAuthenticated]);
 
   const handleLogout = () => {
     logout();
@@ -50,9 +95,8 @@ export default function Navbar() {
   };
 
   const navItems = [
-    { name: 'Hotels', icon: Hotel, href: '#' },
-    { name: 'Villas & Apts', icon: Building2, href: '#' },
-    { name: 'Deals', icon: Percent, href: '#' },
+    { name: 'Khách sạn', icon: Hotel, href: '/search' },
+    { name: 'Ưu đãi', icon: Percent, href: '/search?deals=true' },
   ];
 
   const getDashboardLink = () => {
@@ -63,16 +107,16 @@ export default function Navbar() {
 
   const userMenuItems = [
     {
-      label: 'Dashboard',
+      label: 'Bảng điều khiển',
       icon: LayoutDashboard,
       href: getDashboardLink(),
       show: user?.role === 'ADMIN' || user?.role === 'HOST',
     },
-    { label: 'My Profile', icon: UserIcon, href: '/profile', show: true },
-    { label: 'Saved Properties', icon: Heart, href: '#', show: true },
-    { label: 'Notifications', icon: Bell, href: '#', show: true },
+    { label: 'Hồ sơ của tôi', icon: UserIcon, href: '/profile', show: true },
+    { label: 'Đã lưu', icon: Heart, href: '/wishlist', show: true },
+    { label: 'Thông báo', icon: Bell, href: '#', show: true },
     {
-      label: 'Settings',
+      label: 'Cài đặt',
       icon: Settings,
       href: '#',
       show: user?.role === 'ADMIN',
@@ -113,9 +157,9 @@ export default function Navbar() {
               {/* Desktop Nav */}
               <nav className="hidden lg:flex items-center gap-1">
                 {navItems.map((item) => (
-                  <a
+                  <Link
                     key={item.name}
-                    href={item.href}
+                    to={item.href}
                     className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${
                       showScrolledStyle
                         ? 'text-brand-dark/70 hover:text-brand-accent hover:bg-brand-accent/10'
@@ -124,8 +168,154 @@ export default function Navbar() {
                   >
                     <item.icon className="w-4 h-4" />
                     {item.name}
-                  </a>
+                  </Link>
                 ))}
+
+                {/* My Recent Bookings - Only show if authenticated */}
+                {isAuthenticated && (
+                  <div className="relative">
+                    <button
+                      onClick={() => setIsBookingsMenuOpen(!isBookingsMenuOpen)}
+                      className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${
+                        showScrolledStyle
+                          ? 'text-brand-dark/70 hover:text-brand-accent hover:bg-brand-accent/10'
+                          : 'text-white/90 hover:text-white hover:bg-white/10'
+                      } ${isBookingsMenuOpen ? (showScrolledStyle ? 'bg-brand-accent/10 text-brand-accent' : 'bg-white/10 text-white') : ''}`}
+                    >
+                      <CreditCard className="w-4 h-4" />
+                      Đặt phòng của tôi
+                      <ChevronDown
+                        className={`w-3 h-3 transition-transform ${isBookingsMenuOpen ? 'rotate-180' : ''}`}
+                      />
+                    </button>
+
+                    {/* Bookings Dropdown */}
+                    {isBookingsMenuOpen && (
+                      <>
+                        <div
+                          className="fixed inset-0 z-40"
+                          onClick={() => setIsBookingsMenuOpen(false)}
+                        />
+                        <div className="absolute left-0 top-full mt-2 w-96 bg-white rounded-2xl shadow-2xl border border-brand-dark/10 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                          {/* Header */}
+                          <div className="px-4 py-4 bg-brand-bg/30 border-b border-brand-dark/10 flex items-center justify-between">
+                            <h3 className="font-bold text-brand-dark flex items-center gap-2">
+                              <CreditCard className="w-4 h-4" />
+                              Đặt phòng gần đây
+                            </h3>
+                            <Link
+                              to="/bookings"
+                              onClick={() => setIsBookingsMenuOpen(false)}
+                              className="text-xs text-brand-accent hover:underline font-semibold"
+                            >
+                              Xem tất cả
+                            </Link>
+                          </div>
+
+                          {/* Bookings List */}
+                          <div className="max-h-96 overflow-y-auto">
+                            {loadingBookings ? (
+                              <div className="flex items-center justify-center py-8">
+                                <Loader2 className="w-5 h-5 animate-spin text-brand-accent" />
+                              </div>
+                            ) : recentBookings.length > 0 ? (
+                              <div className="py-2">
+                                {recentBookings.map((booking) => (
+                                  <Link
+                                    key={booking.id}
+                                    to={`/booking/${booking.id}`}
+                                    onClick={() => setIsBookingsMenuOpen(false)}
+                                    className="flex items-start gap-3 px-4 py-3 hover:bg-brand-accent/5 transition-colors border-b border-brand-dark/5 last:border-0"
+                                  >
+                                    {booking.roomImage && (
+                                      <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                                        <img
+                                          src={
+                                            booking.roomImage.startsWith('http')
+                                              ? booking.roomImage
+                                              : `http://localhost:8080${booking.roomImage}`
+                                          }
+                                          alt={booking.roomName || 'Room'}
+                                          className="w-full h-full object-cover"
+                                        />
+                                      </div>
+                                    )}
+                                    <div className="flex-1 min-w-0">
+                                      <div className="font-semibold text-brand-dark text-sm truncate">
+                                        {booking.hotelName ||
+                                          booking.roomName ||
+                                          `Đặt phòng #${booking.id}`}
+                                      </div>
+                                      <div className="flex items-center gap-2 text-xs text-brand-dark/60 mt-1">
+                                        <Calendar className="w-3 h-3" />
+                                        <span>
+                                          {new Date(
+                                            booking.checkInDate
+                                          ).toLocaleDateString('en-US', {
+                                            month: 'short',
+                                            day: 'numeric',
+                                          })}
+                                          {' - '}
+                                          {new Date(
+                                            booking.checkOutDate
+                                          ).toLocaleDateString('en-US', {
+                                            month: 'short',
+                                            day: 'numeric',
+                                          })}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center justify-between mt-2">
+                                        <span
+                                          className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                            booking.status === 'CONFIRMED'
+                                              ? 'bg-green-100 text-green-700'
+                                              : booking.status === 'PENDING'
+                                                ? 'bg-yellow-100 text-yellow-700'
+                                                : 'bg-red-100 text-red-700'
+                                          }`}
+                                        >
+                                          {booking.status === 'CONFIRMED'
+                                            ? 'Đã xác nhận'
+                                            : booking.status === 'PENDING'
+                                              ? 'Chờ thanh toán'
+                                              : booking.status === 'CANCELLED'
+                                                ? 'Đã hủy'
+                                                : booking.status}
+                                        </span>
+                                        {booking.totalPrice && (
+                                          <span className="text-xs font-bold text-brand-dark">
+                                            {formatVND(booking.totalPrice, {
+                                              showSymbol: false,
+                                            })}
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </Link>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="px-4 py-8 text-center">
+                                <CreditCard className="w-12 h-12 text-brand-dark/20 mx-auto mb-3" />
+                                <p className="text-sm text-brand-dark/60 mb-2">
+                                  Chưa có đặt phòng nào
+                                </p>
+                                <Link
+                                  to="/search"
+                                  onClick={() => setIsBookingsMenuOpen(false)}
+                                  className="text-sm text-brand-accent hover:underline font-semibold inline-flex items-center gap-1"
+                                >
+                                  Bắt đầu đặt phòng
+                                  <ArrowRight className="w-3 h-3" />
+                                </Link>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
               </nav>
             </div>
 
@@ -140,7 +330,7 @@ export default function Navbar() {
                 }`}
               >
                 <Globe className="w-4 h-4" />
-                <span>EN</span>
+                <span>VI</span>
                 <ChevronDown className="w-3 h-3" />
               </div>
 
@@ -206,7 +396,12 @@ export default function Navbar() {
                                 {user?.fullName}
                               </div>
                               <div className="text-xs text-brand-dark/50 capitalize">
-                                {user?.role?.toLowerCase()} Account
+                                Tài khoản{' '}
+                                {user?.role === 'ADMIN'
+                                  ? 'Quản trị'
+                                  : user?.role === 'HOST'
+                                    ? 'Chủ nhà'
+                                    : 'Khách hàng'}
                               </div>
                             </div>
                           </div>
@@ -234,7 +429,7 @@ export default function Navbar() {
                             className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-brand-cta hover:bg-brand-cta/10 transition-colors"
                           >
                             <LogOut className="w-4 h-4" />
-                            Sign Out
+                            Đăng xuất
                           </button>
                         </div>
                       </div>
@@ -251,13 +446,13 @@ export default function Navbar() {
                         : 'text-white hover:bg-white/10 border border-white/30'
                     }`}
                   >
-                    Sign In
+                    Đăng nhập
                   </Link>
                   <Link
                     to="/register"
                     className="px-5 py-2.5 rounded-xl bg-brand-cta hover:bg-brand-cta-hover text-white text-sm font-bold shadow-lg shadow-brand-cta/30 transition-all hover:scale-105 hover:shadow-brand-cta/50"
                   >
-                    Get Started
+                    Bắt đầu
                   </Link>
                 </div>
               )}
@@ -317,15 +512,28 @@ export default function Navbar() {
               <div className="flex-1 overflow-y-auto py-4">
                 <nav className="space-y-1 px-3">
                   {navItems.map((item) => (
-                    <a
+                    <Link
                       key={item.name}
-                      href={item.href}
+                      to={item.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 rounded-xl text-brand-dark/80 hover:bg-brand-accent/10 hover:text-brand-accent font-medium transition-colors"
                     >
                       <item.icon className="w-5 h-5" />
                       {item.name}
-                    </a>
+                    </Link>
                   ))}
+
+                  {/* My Bookings in Mobile */}
+                  {isAuthenticated && (
+                    <Link
+                      to="/profile"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 rounded-xl text-brand-dark/80 hover:bg-brand-accent/10 hover:text-brand-accent font-medium transition-colors"
+                    >
+                      <CreditCard className="w-5 h-5" />
+                      Đặt phòng của tôi
+                    </Link>
+                  )}
                 </nav>
 
                 {isAuthenticated && (
@@ -333,7 +541,7 @@ export default function Navbar() {
                     <div className="my-4 border-t border-brand-dark/10" />
                     <div className="px-3">
                       <div className="px-4 py-2 text-xs font-bold text-brand-dark/40 uppercase tracking-wider">
-                        Account
+                        Tài khoản
                       </div>
                       {userMenuItems.map((item) => (
                         <Link
@@ -368,14 +576,14 @@ export default function Navbar() {
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="block w-full px-4 py-3 text-center text-brand-dark border border-brand-dark/20 rounded-xl font-bold hover:bg-brand-dark/5 transition-colors"
                     >
-                      Sign In
+                      Đăng nhập
                     </Link>
                     <Link
                       to="/register"
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="block w-full px-4 py-3 text-center bg-brand-cta text-white rounded-xl font-bold hover:bg-brand-cta-hover transition-colors"
                     >
-                      Get Started
+                      Bắt đầu
                     </Link>
                   </div>
                 )}

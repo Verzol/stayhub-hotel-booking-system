@@ -1,12 +1,12 @@
 package com.verzol.stayhub.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import java.nio.file.Paths;
+
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import lombok.RequiredArgsConstructor;
-import java.nio.file.Paths;
 
 @Configuration
 @RequiredArgsConstructor
@@ -21,6 +21,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
             path += "/";
         }
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations(path);
+                .addResourceLocations(path)
+                .setCachePeriod(31536000) // 1 year in seconds
+                .resourceChain(true);
     }
 }

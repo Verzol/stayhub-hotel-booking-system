@@ -24,7 +24,7 @@ interface MapViewProps {
 export default function MapView({ hotels }: MapViewProps) {
   // Default center (Vietnam) or center of first hotel
   const center: [number, number] =
-    hotels.length > 0 && hotels[0].latitude && hotels[0].longitude
+    hotels && hotels.length > 0 && hotels[0].latitude && hotels[0].longitude
       ? [hotels[0].latitude, hotels[0].longitude]
       : [16.047079, 108.20623]; // Da Nang
 
@@ -40,7 +40,7 @@ export default function MapView({ hotels }: MapViewProps) {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {hotels.map((hotel) =>
+        {(hotels || []).map((hotel) =>
           hotel.latitude && hotel.longitude ? (
             <Marker key={hotel.id} position={[hotel.latitude, hotel.longitude]}>
               <Popup>

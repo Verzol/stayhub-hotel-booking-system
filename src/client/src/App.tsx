@@ -1,4 +1,5 @@
 // src/client/src/App.tsx
+import { Suspense, lazy } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -17,8 +18,31 @@ import SearchResultsPage from './features/search/SearchResultsPage';
 import HotelDetailsPage from './features/hotels/HotelDetailsPage';
 import MainLayout from './components/layout/MainLayout';
 import ProfilePage from './features/user/ProfilePage';
-import AdminDashboard from './features/admin/AdminDashboard';
-import HostDashboard from './features/host/HostDashboard';
+import WishlistPage from './features/wishlist/WishlistPage';
+
+// Lazy load heavy components (code splitting)
+const AdminDashboard = lazy(() => import('./features/admin/AdminDashboard'));
+const HostDashboard = lazy(() => import('./features/host/HostDashboard'));
+const BookingPage = lazy(() => import('./features/booking/BookingPage'));
+const BookingDetailsPage = lazy(
+  () => import('./features/booking/BookingDetailsPage')
+);
+const BookingsListPage = lazy(
+  () => import('./features/booking/BookingsListPage')
+);
+const PaymentSuccessPage = lazy(
+  () => import('./features/booking/PaymentSuccessPage')
+);
+
+// Loading component for lazy-loaded routes
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-brand-bg">
+    <div className="flex flex-col items-center gap-4">
+      <div className="w-12 h-12 border-4 border-brand-accent border-t-transparent rounded-full animate-spin"></div>
+      <p className="text-brand-dark/60 font-medium">Đang tải...</p>
+    </div>
+  </div>
+);
 
 // Protected Route Props
 interface ProtectedRouteProps {
@@ -94,6 +118,54 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/booking"
+              element={
+                <ProtectedRoute>
+                  <Suspense fallback={<PageLoader />}>
+                    <BookingPage />
+                  </Suspense>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/booking/:id"
+              element={
+                <ProtectedRoute>
+                  <Suspense fallback={<PageLoader />}>
+                    <BookingDetailsPage />
+                  </Suspense>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/bookings"
+              element={
+                <ProtectedRoute>
+                  <Suspense fallback={<PageLoader />}>
+                    <BookingsListPage />
+                  </Suspense>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/payment/success"
+              element={
+                <ProtectedRoute>
+                  <Suspense fallback={<PageLoader />}>
+                    <PaymentSuccessPage />
+                  </Suspense>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/wishlist"
+              element={
+                <ProtectedRoute>
+                  <WishlistPage />
+                </ProtectedRoute>
+              }
+            />
           </Route>
 
           {/* Admin Routes - No MainLayout (has own sidebar) */}
@@ -101,7 +173,9 @@ function App() {
             path="/admin"
             element={
               <ProtectedRoute allowedRoles={['ADMIN']}>
-                <AdminDashboard />
+                <Suspense fallback={<PageLoader />}>
+                  <AdminDashboard />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -111,7 +185,9 @@ function App() {
             path="/host"
             element={
               <ProtectedRoute allowedRoles={['HOST']}>
-                <HostDashboard />
+                <Suspense fallback={<PageLoader />}>
+                  <HostDashboard />
+                </Suspense>
               </ProtectedRoute>
             }
           />
