@@ -13,7 +13,7 @@ public class PaymentService {
 
     private final BookingService bookingService;
 
-    @org.springframework.beans.factory.annotation.Value("${app.frontend.url}")
+    @org.springframework.beans.factory.annotation.Value("${app.frontend.url:http://localhost:3000}")
     private String frontendUrl;
 
     public String createPaymentUrl(Long bookingId, BigDecimal amount) {
