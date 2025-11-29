@@ -106,11 +106,7 @@ export default function HotelList({
             )}
             <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg text-xs font-bold text-slate-900 shadow-sm flex items-center gap-1">
               <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-<<<<<<<<< Temporary merge branch 1
-              {hotel.rating || 'New'}
-=========
               {hotel.starRating || 'New'}
->>>>>>>>> Temporary merge branch 2
             </div>
           </div>
 
