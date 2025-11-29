@@ -59,7 +59,7 @@ export default function SearchResultsPage() {
       setLoading(true);
       try {
         const queryParams: SearchParams = {
-          location: searchParams.get('query') || undefined,
+          query: searchParams.get('query') || undefined,
           checkIn: searchParams.get('checkIn') || undefined,
           checkOut: searchParams.get('checkOut') || undefined,
           guests: Number(searchParams.get('guests')) || undefined,

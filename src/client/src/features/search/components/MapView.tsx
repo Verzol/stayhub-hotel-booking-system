@@ -1,6 +1,6 @@
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import type { Hotel } from '../../types/host';
+import type { Hotel } from '../../../types/host';
 import { Link } from 'react-router-dom';
 import L from 'leaflet';
 
