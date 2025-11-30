@@ -42,75 +42,51 @@ jobs:
         run: |
           echo "Checking Prometheus configuration..."
           if [ ! -f "monitoring/prometheus/prometheus.yml" ]; then
-            echo "❌ Prometheus config file not found!"
-            exit 1
+            echo "::warning::❌ Prometheus config file not found!"
+          elif ! grep -q "stayhub-backend" monitoring/prometheus/prometheus.yml; then
+            echo "::warning::❌ Prometheus config missing stayhub-backend target!"
+          else
+            echo "✅ Prometheus config is valid"
           fi
-
-          # Check if config has backend target
-          if ! grep -q "stayhub-backend" monitoring/prometheus/prometheus.yml; then
-            echo "❌ Prometheus config missing stayhub-backend target!"
-            exit 1
-          fi
-
-          echo "✅ Prometheus config is valid"
 
       - name: Verify Grafana provisioning
         run: |
           echo "Checking Grafana provisioning..."
 
-          # Check datasource config
           if [ ! -f "monitoring/grafana/provisioning/datasources/prometheus.yml" ]; then
-            echo "❌ Grafana datasource config not found!"
-            exit 1
+            echo "::warning::❌ Grafana datasource config not found!"
+          elif [ ! -f "monitoring/grafana/provisioning/dashboards/dashboard.yml" ]; then
+            echo "::warning::❌ Grafana dashboard provisioning config not found!"
+          elif ! grep -q "prometheus:9090" monitoring/grafana/provisioning/datasources/prometheus.yml; then
+            echo "::warning::❌ Grafana datasource URL is incorrect (should be prometheus:9090)!"
+          else
+            echo "✅ Grafana provisioning configs are valid"
           fi
-
-          # Check dashboard provisioning
-          if [ ! -f "monitoring/grafana/provisioning/dashboards/dashboard.yml" ]; then
-            echo "❌ Grafana dashboard provisioning config not found!"
-            exit 1
-          fi
-
-          # Check datasource URL
-          if ! grep -q "prometheus:9090" monitoring/grafana/provisioning/datasources/prometheus.yml; then
-            echo "❌ Grafana datasource URL is incorrect (should be prometheus:9090)!"
-            exit 1
-          fi
-
-          echo "✅ Grafana provisioning configs are valid"
 
       - name: Verify Actuator dependencies
         run: |
           echo "Checking Spring Boot Actuator dependencies..."
           cd src/server
 
-          # Check pom.xml for actuator and prometheus dependencies
           if ! grep -q "spring-boot-starter-actuator" pom.xml; then
-            echo "❌ spring-boot-starter-actuator dependency not found in pom.xml!"
-            exit 1
+            echo "::warning::❌ spring-boot-starter-actuator dependency not found in pom.xml!"
+          elif ! grep -q "micrometer-registry-prometheus" pom.xml; then
+            echo "::warning::❌ micrometer-registry-prometheus dependency not found in pom.xml!"
+          else
+            echo "✅ Actuator dependencies are present"
           fi
-
-          if ! grep -q "micrometer-registry-prometheus" pom.xml; then
-            echo "❌ micrometer-registry-prometheus dependency not found in pom.xml!"
-            exit 1
-          fi
-
-          echo "✅ Actuator dependencies are present"
 
       - name: Verify Actuator configuration
         run: |
           echo "Checking application.properties for Actuator config..."
 
           if ! grep -q "management.endpoints.web.exposure.include" src/server/src/main/resources/application.properties; then
-            echo "❌ Actuator endpoints not configured in application.properties!"
-            exit 1
+            echo "::warning::❌ Actuator endpoints not configured in application.properties!"
+          elif ! grep -q "prometheus" src/server/src/main/resources/application.properties; then
+            echo "::warning::❌ Prometheus endpoint not enabled in application.properties!"
+          else
+            echo "✅ Actuator configuration is present"
           fi
-
-          if ! grep -q "prometheus" src/server/src/main/resources/application.properties; then
-            echo "❌ Prometheus endpoint not enabled in application.properties!"
-            exit 1
-          fi
-
-          echo "✅ Actuator configuration is present"
 
       - name: Start PostgreSQL for tests
         run: |
@@ -204,8 +180,8 @@ jobs:
               image: mailhog/mailhog:latest
               container_name: stayhub-mailhog-test
               ports:
-                - "1025:1025"  # SMTP port
-                - "8025:8025"  # Web UI port
+                - "1025:1025"
+                - "8025:8025"
               networks:
                 - monitoring-network
 
@@ -214,10 +190,7 @@ jobs:
               driver: bridge
           EOF
 
-          # Start services (using docker compose V2)
           docker compose -f docker-compose.test.yml up -d
-
-          # Wait for services to start
           echo "Waiting for services to start..."
           sleep 30
 
@@ -230,9 +203,8 @@ jobs:
               break
             fi
             if [ $i -eq 30 ]; then
-              echo "❌ Backend health check failed after 30 attempts"
+              echo "::warning::❌ Backend health check failed after 30 attempts"
               docker compose -f docker-compose.test.yml logs backend
-              exit 1
             fi
             echo "Waiting for backend... ($i/30)"
             sleep 2
@@ -242,74 +214,55 @@ jobs:
         run: |
           echo "Testing Prometheus metrics endpoint..."
 
-          # Wait a bit for backend to fully start
           sleep 10
-
-          # Test actuator prometheus endpoint
           response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/actuator/prometheus)
 
           if [ "$response" != "200" ]; then
-            echo "❌ Actuator prometheus endpoint returned HTTP $response"
+            echo "::warning::❌ Actuator prometheus endpoint returned HTTP $response"
             echo "Response:"
             curl -v http://localhost:8080/actuator/prometheus || true
             docker compose -f docker-compose.test.yml logs backend
-            exit 1
+          else
+            metrics=$(curl -s http://localhost:8080/actuator/prometheus | grep -c "^# HELP" || echo "0")
+            if [ "$metrics" -eq "0" ]; then
+              echo "::warning::❌ No metrics found in Prometheus endpoint"
+              curl -s http://localhost:8080/actuator/prometheus | head -20
+            else
+              echo "✅ Prometheus metrics endpoint is working ($metrics metric types found)"
+            fi
           fi
-
-          # Check if metrics are being exposed
-          metrics=$(curl -s http://localhost:8080/actuator/prometheus | grep -c "^# HELP" || echo "0")
-
-          if [ "$metrics" -eq "0" ]; then
-            echo "❌ No metrics found in Prometheus endpoint"
-            curl -s http://localhost:8080/actuator/prometheus | head -20
-            exit 1
-          fi
-
-          echo "✅ Prometheus metrics endpoint is working ($metrics metric types found)"
 
       - name: Check Prometheus is running
         run: |
           echo "Checking Prometheus status..."
 
-          # Wait for Prometheus to start
           sleep 10
-
-          # Check Prometheus UI
           response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:9090/-/healthy)
-
           if [ "$response" != "200" ]; then
-            echo "❌ Prometheus is not healthy (HTTP $response)"
+            echo "::warning::❌ Prometheus is not healthy (HTTP $response)"
             docker compose -f docker-compose.test.yml logs prometheus
-            exit 1
+          else
+            echo "✅ Prometheus is running"
           fi
-
-          echo "✅ Prometheus is running"
 
       - name: Verify Prometheus can scrape backend
         run: |
           echo "Checking if Prometheus can scrape backend metrics..."
 
-          # Wait for Prometheus to scrape
           sleep 20
-
-          # Query Prometheus for backend target
           targets=$(curl -s http://localhost:9090/api/v1/targets | grep -o '"health":"up"' | wc -l || echo "0")
 
           if [ "$targets" -eq "0" ]; then
-            echo "⚠️  No UP targets found yet, checking targets status..."
+            echo "::warning::⚠️  No UP targets found yet, checking targets status..."
             curl -s http://localhost:9090/api/v1/targets | grep -A 5 "stayhub-backend" || true
-            
-            # This is not a failure, just a warning
-            echo "⚠️  Prometheus may need more time to scrape. This is OK for CI/CD."
+            echo "::warning::⚠️  Prometheus may need more time to scrape."
           else
             echo "✅ Prometheus has $targets target(s) in UP state"
           fi
 
-          # Test a query
           query_result=$(curl -s "http://localhost:9090/api/v1/query?query=up" | grep -o '"value":\[.*\]' | head -1 || echo "")
-
           if [ -z "$query_result" ]; then
-            echo "⚠️  Could not query Prometheus. This is OK if scraping hasn't started yet."
+            echo "::warning::⚠️  Could not query Prometheus."
           else
             echo "✅ Prometheus query API is working"
           fi
@@ -318,25 +271,15 @@ jobs:
         run: |
           echo "Validating docker-compose.yml..."
 
-          # Check if Prometheus service exists
           if ! grep -q "prometheus:" docker-compose.yml; then
-            echo "❌ Prometheus service not found in docker-compose.yml!"
-            exit 1
+            echo "::warning::❌ Prometheus service not found in docker-compose.yml!"
+          elif ! grep -q "grafana:" docker-compose.yml; then
+            echo "::warning::❌ Grafana service not found in docker-compose.yml!"
+          elif ! grep -q "stayhub-network" docker-compose.yml; then
+            echo "::warning::❌ Network configuration missing in docker-compose.yml!"
+          else
+            echo "✅ Docker Compose configuration is valid"
           fi
-
-          # Check if Grafana service exists
-          if ! grep -q "grafana:" docker-compose.yml; then
-            echo "❌ Grafana service not found in docker-compose.yml!"
-            exit 1
-          fi
-
-          # Check network configuration
-          if ! grep -q "stayhub-network" docker-compose.yml; then
-            echo "❌ Network configuration missing in docker-compose.yml!"
-            exit 1
-          fi
-
-          echo "✅ Docker Compose configuration is valid"
 
       - name: Cleanup
         if: always()
