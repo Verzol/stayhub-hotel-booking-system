@@ -65,7 +65,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsAuthenticated(true);
     } catch (error) {
       console.error('Error saving auth data:', error);
-      toast.error('Failed to save login information');
+      toast.error('Không thể lưu thông tin đăng nhập');
     }
   };
 
@@ -90,7 +90,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         logoutApi();
         setUser(null);
         setIsAuthenticated(false);
-        toast.info('You have been logged out.');
+        toast.info('Bạn đã được đăng xuất.');
         // Force page reload to clear all state
         window.location.href = '/';
       } catch (error) {

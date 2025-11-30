@@ -19,22 +19,19 @@ const schema = z
   .object({
     otp: z
       .string()
-      .length(6, 'OTP must be 6 digits')
-      .regex(/^\d+$/, 'OTP must contain only numbers'),
+      .length(6, 'Mã OTP phải có 6 chữ số')
+      .regex(/^\d+$/, 'Mã OTP chỉ được chứa số'),
     password: z
       .string()
-      .min(8, 'Password must be at least 8 characters')
-      .regex(/[A-Z]/, 'Must contain at least one uppercase letter')
-      .regex(/[a-z]/, 'Must contain at least one lowercase letter')
-      .regex(/[0-9]/, 'Must contain at least one number')
-      .regex(
-        /[!@#$%^&*]/,
-        'Must contain at least one special character (!@#$%^&*)'
-      ),
+      .min(8, 'Mật khẩu phải có ít nhất 8 ký tự')
+      .regex(/[A-Z]/, 'Phải chứa ít nhất một chữ cái in hoa')
+      .regex(/[a-z]/, 'Phải chứa ít nhất một chữ cái thường')
+      .regex(/[0-9]/, 'Phải chứa ít nhất một chữ số')
+      .regex(/[!@#$%^&*]/, 'Phải chứa ít nhất một ký tự đặc biệt (!@#$%^&*)'),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
+    message: 'Mật khẩu không khớp',
     path: ['confirmPassword'],
   });
 
@@ -63,7 +60,7 @@ const ResetPasswordPage = () => {
   const onSubmit = async (data: FormData) => {
     if (!email) {
       setStatus('error');
-      setMessage('Email is missing. Please try again.');
+      setMessage('Thiếu email. Vui lòng thử lại.');
       return;
     }
 
@@ -72,13 +69,13 @@ const ResetPasswordPage = () => {
       await resetPassword(email, data.otp, data.password);
       setStatus('success');
       setMessage(
-        'Password reset successfully! You can now login with your new password.'
+        'Đặt lại mật khẩu thành công! Bây giờ bạn có thể đăng nhập bằng mật khẩu mới.'
       );
       setTimeout(() => navigate('/login'), 3000);
     } catch (err: unknown) {
       setStatus('error');
       const error = err as Error;
-      setMessage(error.message || 'Failed to reset password.');
+      setMessage(error.message || 'Không thể đặt lại mật khẩu.');
     }
   };
 
@@ -90,16 +87,16 @@ const ResetPasswordPage = () => {
             <Lock className="h-8 w-8" />
           </div>
           <h2 className="text-2xl font-bold text-brand-dark mb-2">
-            Missing Information
+            Thiếu Thông Tin
           </h2>
           <p className="text-brand-dark/60 mb-6">
-            Please start the password reset process from the beginning.
+            Vui lòng bắt đầu lại quy trình đặt lại mật khẩu.
           </p>
           <Link
             to="/forgot-password"
             className="inline-block w-full py-3 px-4 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-xl hover:shadow-lg transition-all"
           >
-            Go to Forgot Password
+            Đến Trang Quên Mật Khẩu
           </Link>
         </div>
       </div>
@@ -129,189 +126,195 @@ const ResetPasswordPage = () => {
 
           <div className="max-w-md">
             <blockquote className="text-4xl font-black leading-tight mb-6">
-              "Secure your journey."
+              "Bảo vệ hành trình của bạn."
             </blockquote>
             <p className="text-white/80 text-lg leading-relaxed">
-              Create a new password to keep your account safe and continue
-              exploring the world.
+              Tạo mật khẩu mới để giữ tài khoản an toàn và tiếp tục khám phá thế
+              giới.
             </p>
           </div>
 
           <div className="flex gap-12">
             <div>
-              <div className="text-3xl font-black">Secure</div>
-              <div className="text-white/60 font-medium">Account Recovery</div>
+              <div className="text-3xl font-black">An toàn</div>
+              <div className="text-white/60 font-medium">
+                Khôi phục tài khoản
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Right Side - Reset Password Form (Scrollable) */}
-      <div className="w-full lg:w-1/2 ml-auto flex flex-col justify-center min-h-screen p-8 lg:p-24 bg-white">
-        <div className="w-full max-w-md mx-auto">
-          {/* Mobile Logo */}
-          <Link
-            to="/"
-            className="lg:hidden flex items-center gap-3 mb-10 w-fit"
-          >
-            <div className="w-10 h-10 bg-brand-accent rounded-xl flex items-center justify-center">
-              <Hotel className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-xl font-black text-slate-900">StayHub</span>
-          </Link>
-
-          <div className="mb-10">
-            <h1 className="text-3xl font-black text-slate-900 mb-3">
-              Reset Password
-            </h1>
-            <p className="text-slate-500 text-lg">
-              Enter the OTP sent to{' '}
-              <span className="font-bold text-brand-dark">{email}</span>
-            </p>
-          </div>
-
-          {status === 'success' ? (
-            <div className="text-center py-8 bg-green-50 rounded-2xl border border-green-100">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 text-green-600 mb-4">
-                <CheckCircle className="w-8 h-8" />
+      <div className="w-full lg:w-1/2 lg:fixed lg:inset-y-0 lg:right-0 lg:ml-auto lg:overflow-y-auto bg-white">
+        <div className="flex flex-col justify-center min-h-screen p-8 lg:p-24">
+          <div className="w-full max-w-md mx-auto">
+            {/* Mobile Logo */}
+            <Link
+              to="/"
+              className="lg:hidden flex items-center gap-3 mb-10 w-fit"
+            >
+              <div className="w-10 h-10 bg-brand-accent rounded-xl flex items-center justify-center">
+                <Hotel className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">
-                Password Reset!
-              </h3>
-              <p className="text-slate-600 mb-6 px-4">
-                Your password has been successfully updated. Redirecting to
-                login...
+              <span className="text-xl font-black text-slate-900">StayHub</span>
+            </Link>
+
+            <div className="mb-10">
+              <h1 className="text-3xl font-black text-slate-900 mb-3">
+                Đặt Lại Mật Khẩu
+              </h1>
+              <p className="text-slate-500 text-lg">
+                Nhập mã OTP đã được gửi đến{' '}
+                <span className="font-bold text-brand-dark">{email}</span>
               </p>
-              <Link
-                to="/login"
-                className="inline-block py-3 px-8 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-xl shadow-lg shadow-brand-cta/30 transition-all"
-              >
-                Back to Login
-              </Link>
             </div>
-          ) : (
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              {status === 'error' && (
-                <div className="p-4 bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-                  <span className="font-medium">{message}</span>
-                </div>
-              )}
 
-              {/* OTP Field */}
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700 ml-1">
-                  Verification Code (OTP)
-                </label>
-                <div className="relative group">
-                  <KeyRound className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within:text-brand-accent transition-colors" />
-                  <input
-                    {...register('otp')}
-                    type="text"
-                    maxLength={6}
-                    className={`w-full pl-12 pr-4 py-3.5 bg-slate-50 border rounded-xl outline-none focus:bg-white transition-all font-medium tracking-[0.3em] font-mono text-center text-lg ${
-                      errors.otp
-                        ? 'border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
-                        : 'border-slate-200 focus:border-brand-accent focus:ring-4 focus:ring-brand-accent/10'
-                    }`}
-                    placeholder="000000"
-                  />
+            {status === 'success' ? (
+              <div className="text-center py-8 bg-green-50 rounded-2xl border border-green-100">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 text-green-600 mb-4">
+                  <CheckCircle className="w-8 h-8" />
                 </div>
-                {errors.otp && (
-                  <p className="text-red-500 text-sm font-medium ml-1">
-                    {errors.otp.message}
-                  </p>
-                )}
+                <h3 className="text-xl font-bold text-slate-900 mb-2">
+                  Đặt Lại Mật Khẩu Thành Công!
+                </h3>
+                <p className="text-slate-600 mb-6 px-4">
+                  Mật khẩu của bạn đã được cập nhật thành công. Đang chuyển đến
+                  trang đăng nhập...
+                </p>
+                <Link
+                  to="/login"
+                  className="inline-block py-3 px-8 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-xl shadow-lg shadow-brand-cta/30 transition-all"
+                >
+                  Quay lại Đăng nhập
+                </Link>
               </div>
+            ) : (
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                {status === 'error' && (
+                  <div className="p-4 bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                    <span className="font-medium">{message}</span>
+                  </div>
+                )}
 
-              {/* New Password */}
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700 ml-1">
-                  New Password
-                </label>
-                <div className="relative group">
-                  <Lock className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within:text-brand-accent transition-colors" />
-                  <input
-                    {...register('password')}
-                    type={showPassword ? 'text' : 'password'}
-                    className={`w-full pl-12 pr-12 py-3.5 bg-slate-50 border rounded-xl outline-none focus:bg-white transition-all font-medium ${
-                      errors.password
-                        ? 'border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
-                        : 'border-slate-200 focus:border-brand-accent focus:ring-4 focus:ring-brand-accent/10'
-                    }`}
-                    placeholder="Create a strong password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="w-5 h-5" />
-                    ) : (
-                      <Eye className="w-5 h-5" />
-                    )}
-                  </button>
+                {/* OTP Field */}
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 ml-1">
+                    Mã Xác Thực (OTP)
+                  </label>
+                  <div className="relative group">
+                    <KeyRound className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within:text-brand-accent transition-colors" />
+                    <input
+                      {...register('otp')}
+                      type="text"
+                      maxLength={6}
+                      className={`w-full pl-12 pr-4 py-3.5 bg-slate-50 border rounded-xl outline-none focus:bg-white transition-all font-medium tracking-[0.3em] font-mono text-center text-lg ${
+                        errors.otp
+                          ? 'border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
+                          : 'border-slate-200 focus:border-brand-accent focus:ring-4 focus:ring-brand-accent/10'
+                      }`}
+                      placeholder="000000"
+                    />
+                  </div>
+                  {errors.otp && (
+                    <p className="text-red-500 text-sm font-medium ml-1">
+                      {errors.otp.message}
+                    </p>
+                  )}
                 </div>
-                {errors.password && (
-                  <p className="text-red-500 text-sm font-medium ml-1">
-                    {errors.password.message}
-                  </p>
-                )}
-              </div>
 
-              {/* Confirm Password */}
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700 ml-1">
-                  Confirm New Password
-                </label>
-                <div className="relative group">
-                  <Lock className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within:text-brand-accent transition-colors" />
-                  <input
-                    {...register('confirmPassword')}
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    className={`w-full pl-12 pr-12 py-3.5 bg-slate-50 border rounded-xl outline-none focus:bg-white transition-all font-medium ${
-                      errors.confirmPassword
-                        ? 'border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
-                        : 'border-slate-200 focus:border-brand-accent focus:ring-4 focus:ring-brand-accent/10'
-                    }`}
-                    placeholder="Re-enter your password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="w-5 h-5" />
-                    ) : (
-                      <Eye className="w-5 h-5" />
-                    )}
-                  </button>
+                {/* New Password */}
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 ml-1">
+                    Mật Khẩu Mới
+                  </label>
+                  <div className="relative group">
+                    <Lock className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within:text-brand-accent transition-colors" />
+                    <input
+                      {...register('password')}
+                      type={showPassword ? 'text' : 'password'}
+                      className={`w-full pl-12 pr-12 py-3.5 bg-slate-50 border rounded-xl outline-none focus:bg-white transition-all font-medium ${
+                        errors.password
+                          ? 'border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
+                          : 'border-slate-200 focus:border-brand-accent focus:ring-4 focus:ring-brand-accent/10'
+                      }`}
+                      placeholder="Tạo mật khẩu mạnh"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
+                  {errors.password && (
+                    <p className="text-red-500 text-sm font-medium ml-1">
+                      {errors.password.message}
+                    </p>
+                  )}
                 </div>
-                {errors.confirmPassword && (
-                  <p className="text-red-500 text-sm font-medium ml-1">
-                    {errors.confirmPassword.message}
-                  </p>
-                )}
-              </div>
 
-              <button
-                type="submit"
-                disabled={status === 'loading'}
-                className="w-full py-4 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-xl shadow-lg shadow-brand-cta/30 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {status === 'loading' ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Resetting...
-                  </>
-                ) : (
-                  'Reset Password'
-                )}
-              </button>
-            </form>
-          )}
+                {/* Confirm Password */}
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 ml-1">
+                    Xác Nhận Mật Khẩu Mới
+                  </label>
+                  <div className="relative group">
+                    <Lock className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within:text-brand-accent transition-colors" />
+                    <input
+                      {...register('confirmPassword')}
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      className={`w-full pl-12 pr-12 py-3.5 bg-slate-50 border rounded-xl outline-none focus:bg-white transition-all font-medium ${
+                        errors.confirmPassword
+                          ? 'border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
+                          : 'border-slate-200 focus:border-brand-accent focus:ring-4 focus:ring-brand-accent/10'
+                      }`}
+                      placeholder="Nhập lại mật khẩu"
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
+                  {errors.confirmPassword && (
+                    <p className="text-red-500 text-sm font-medium ml-1">
+                      {errors.confirmPassword.message}
+                    </p>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={status === 'loading'}
+                  className="w-full py-4 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-xl shadow-lg shadow-brand-cta/30 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {status === 'loading' ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Đang đặt lại...
+                    </>
+                  ) : (
+                    'Đặt Lại Mật Khẩu'
+                  )}
+                </button>
+              </form>
+            )}
+          </div>
         </div>
       </div>
     </div>

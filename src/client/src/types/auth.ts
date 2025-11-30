@@ -2,7 +2,7 @@ export interface User {
   id: number;
   email: string;
   fullName: string;
-  role: 'CUSTOMER' | 'ADMIN' | 'HOST';
+  role: 'CUSTOMER' | 'HOST';
   gender?: 'MALE' | 'FEMALE' | 'OTHER';
   phoneNumber?: string;
   address?: string;
@@ -13,7 +13,7 @@ export interface User {
 export interface AuthResponse {
   token: string;
   fullName: string;
-  role: 'CUSTOMER' | 'ADMIN' | 'HOST';
+  role: 'CUSTOMER' | 'HOST';
   id: number;
 }
 
@@ -21,7 +21,7 @@ export interface RegisterRequest {
   fullName: string;
   email: string;
   password: string;
-  role: 'CUSTOMER' | 'ADMIN' | 'HOST';
+  role: 'CUSTOMER' | 'HOST';
   phoneNumber?: string;
   address?: string;
   dateOfBirth?: string;

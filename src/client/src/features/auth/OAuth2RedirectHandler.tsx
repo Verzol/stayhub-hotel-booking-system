@@ -31,14 +31,14 @@ export function OAuth2RedirectHandler() {
             role: userProfile.role,
           });
 
-          toast.success(`Welcome back, ${userProfile.fullName}!`);
+          toast.success(`Chào mừng trở lại, ${userProfile.fullName}!`);
           navigate('/');
         } else {
           throw new Error('Failed to fetch profile');
         }
       } catch (err) {
         console.error(err);
-        toast.error('Authentication failed');
+        toast.error('Xác thực thất bại');
         navigate('/login');
       }
     };
@@ -49,7 +49,7 @@ export function OAuth2RedirectHandler() {
     if (token) {
       fetchProfileAndLogin(token);
     } else {
-      toast.error(error || 'Social login failed');
+      toast.error(error || 'Đăng nhập xã hội thất bại');
       navigate('/login');
     }
   }, [searchParams, navigate, login]);
@@ -58,7 +58,9 @@ export function OAuth2RedirectHandler() {
     <div className="min-h-screen flex items-center justify-center bg-brand-bg">
       <div className="flex flex-col items-center gap-4">
         <div className="w-12 h-12 border-4 border-brand-accent border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-brand-dark/60 font-medium">Completing sign in...</p>
+        <p className="text-brand-dark/60 font-medium">
+          Đang hoàn tất đăng nhập...
+        </p>
       </div>
     </div>
   );

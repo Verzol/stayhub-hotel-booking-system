@@ -23,7 +23,6 @@ import WishlistPage from './features/wishlist/WishlistPage';
 import PromotionsPage from './features/promotions/PromotionsPage';
 
 // Lazy load heavy components (code splitting)
-const AdminDashboard = lazy(() => import('./features/admin/AdminDashboard'));
 const HostDashboard = lazy(() => import('./features/host/HostDashboard'));
 const BookingPage = lazy(() => import('./features/booking/BookingPage'));
 const BookingDetailsPage = lazy(
@@ -95,9 +94,7 @@ const RoleBasedHome = () => {
 
   const role = user.role?.toUpperCase();
 
-  if (role === 'ADMIN') {
-    return <Navigate to="/admin" replace />;
-  } else if (role === 'HOST') {
+  if (role === 'HOST') {
     return <Navigate to="/host" replace />;
   }
 
@@ -207,18 +204,6 @@ function App() {
               }
             />
           </Route>
-
-          {/* Admin Routes - No MainLayout (has own sidebar) */}
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute allowedRoles={['ADMIN']}>
-                <Suspense fallback={<PageLoader />}>
-                  <AdminDashboard />
-                </Suspense>
-              </ProtectedRoute>
-            }
-          />
 
           {/* Host Routes - No MainLayout (has own sidebar) */}
           <Route

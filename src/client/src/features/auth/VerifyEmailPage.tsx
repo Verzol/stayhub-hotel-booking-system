@@ -47,7 +47,7 @@ export default function VerifyEmailPage() {
 
   const onSubmit = async (data: OtpFormData) => {
     if (!email) {
-      setErrorMessage('Email is missing. Please try logging in again.');
+      setErrorMessage('Thiếu email. Vui lòng thử đăng nhập lại.');
       return;
     }
 
@@ -61,7 +61,7 @@ export default function VerifyEmailPage() {
       setStatus('error');
       const err = error as Error;
       setErrorMessage(
-        err.message || 'Invalid code. Please check and try again.'
+        err.message || 'Mã không hợp lệ. Vui lòng kiểm tra và thử lại.'
       );
     }
   };
@@ -72,10 +72,10 @@ export default function VerifyEmailPage() {
     setIsResending(true);
     try {
       await resendVerificationEmail(email);
-      toast.success('New code sent! Check your inbox.');
+      toast.success('Mã mới đã được gửi! Vui lòng kiểm tra hộp thư.');
     } catch (error: unknown) {
       const err = error as Error;
-      toast.error(err.message || 'Unable to send code. Please try again.');
+      toast.error(err.message || 'Không thể gửi mã. Vui lòng thử lại.');
     } finally {
       setIsResending(false);
     }
@@ -160,152 +160,154 @@ export default function VerifyEmailPage() {
       </div>
 
       {/* Right Side - Verify Email Form (Scrollable) */}
-      <div className="w-full lg:w-1/2 ml-auto flex flex-col justify-center min-h-screen p-8 lg:p-24 bg-white">
-        <div className="w-full max-w-md mx-auto">
-          {/* Mobile Logo */}
-          <Link
-            to="/"
-            className="lg:hidden flex items-center gap-3 mb-10 w-fit"
-          >
-            <div className="w-10 h-10 bg-brand-accent rounded-xl flex items-center justify-center">
-              <Hotel className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-xl font-black text-slate-900">StayHub</span>
-          </Link>
-
-          {/* Success State */}
-          {status === 'success' && (
-            <div className="text-center py-8 bg-green-50 rounded-2xl border border-green-100">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 text-green-600 mb-4">
-                <CheckCircle className="w-8 h-8" />
+      <div className="w-full lg:w-1/2 lg:fixed lg:inset-y-0 lg:right-0 lg:ml-auto lg:overflow-y-auto bg-white">
+        <div className="flex flex-col justify-center min-h-screen p-8 lg:p-24">
+          <div className="w-full max-w-md mx-auto">
+            {/* Mobile Logo */}
+            <Link
+              to="/"
+              className="lg:hidden flex items-center gap-3 mb-10 w-fit"
+            >
+              <div className="w-10 h-10 bg-brand-accent rounded-xl flex items-center justify-center">
+                <Hotel className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">
-                Email Verified!
-              </h3>
-              <p className="text-slate-600 mb-6 px-4">
-                Your email has been successfully verified. You can now log in to
-                your account.
-              </p>
-              <div className="space-y-3 px-6">
-                <Link
-                  to="/login"
-                  className="block w-full py-3 px-4 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-xl shadow-lg shadow-brand-cta/30 transition-all"
-                >
-                  Continue to Login
-                </Link>
-                <Link
-                  to="/"
-                  className="block w-full py-3 px-4 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-colors"
-                >
-                  Back to Home
-                </Link>
-              </div>
-            </div>
-          )}
+              <span className="text-xl font-black text-slate-900">StayHub</span>
+            </Link>
 
-          {/* Input/Loading/Error State */}
-          {status !== 'success' && (
-            <>
-              <div className="mb-10">
-                <h1 className="text-3xl font-black text-slate-900 mb-3">
-                  Verify Your Email
-                </h1>
-                <p className="text-slate-500 text-lg">
-                  We've sent a 6-digit verification code to:
+            {/* Success State */}
+            {status === 'success' && (
+              <div className="text-center py-8 bg-green-50 rounded-2xl border border-green-100">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 text-green-600 mb-4">
+                  <CheckCircle className="w-8 h-8" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">
+                  Email Verified!
+                </h3>
+                <p className="text-slate-600 mb-6 px-4">
+                  Your email has been successfully verified. You can now log in
+                  to your account.
                 </p>
-                <p className="font-bold text-brand-dark text-lg mt-1">
-                  {email}
-                </p>
-              </div>
-
-              {messageFromLogin && (
-                <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
-                  <span className="text-amber-700 font-medium">
-                    {messageFromLogin}
-                  </span>
-                </div>
-              )}
-
-              {/* Error Message */}
-              {(status === 'error' || errorMessage) && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
-                  <XCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
-                  <span className="text-red-600 font-medium">
-                    {errorMessage}
-                  </span>
-                </div>
-              )}
-
-              {/* OTP Form */}
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700 ml-1">
-                    Verification Code
-                  </label>
-                  <div className="relative group">
-                    <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-accent transition-colors" />
-                    <input
-                      type="text"
-                      {...register('otp')}
-                      maxLength={6}
-                      className={`w-full pl-12 pr-4 py-4 bg-slate-50 border rounded-xl outline-none focus:bg-white transition-all text-center text-3xl tracking-[0.5em] font-mono font-bold ${
-                        errors.otp
-                          ? 'border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
-                          : 'border-slate-200 focus:border-brand-accent focus:ring-4 focus:ring-brand-accent/10'
-                      }`}
-                      placeholder="000000"
-                      disabled={status === 'loading'}
-                    />
-                  </div>
-                  {errors.otp && (
-                    <p className="text-red-500 text-sm font-medium ml-1">
-                      {errors.otp.message}
-                    </p>
-                  )}
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isSubmitting || status === 'loading'}
-                  className="w-full py-4 bg-brand-cta hover:bg-brand-cta-hover text-white rounded-xl font-bold shadow-lg shadow-brand-cta/30 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {status === 'loading' ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      Verifying...
-                    </>
-                  ) : (
-                    'Verify Email'
-                  )}
-                </button>
-              </form>
-
-              {/* Resend OTP */}
-              <div className="mt-8 text-center">
-                <p className="text-slate-500 font-medium">
-                  Didn't receive the code?{' '}
-                  <button
-                    type="button"
-                    onClick={handleResendOtp}
-                    disabled={isResending}
-                    className="text-brand-accent hover:text-brand-dark font-bold disabled:opacity-50 transition-colors"
+                <div className="space-y-3 px-6">
+                  <Link
+                    to="/login"
+                    className="block w-full py-3 px-4 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-xl shadow-lg shadow-brand-cta/30 transition-all"
                   >
-                    {isResending ? 'Sending...' : 'Resend Code'}
-                  </button>
-                </p>
+                    Continue to Login
+                  </Link>
+                  <Link
+                    to="/"
+                    className="block w-full py-3 px-4 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-colors"
+                  >
+                    Back to Home
+                  </Link>
+                </div>
               </div>
+            )}
 
-              <div className="mt-8 text-center">
-                <Link
-                  to="/login"
-                  className="text-slate-400 hover:text-slate-600 font-bold flex items-center justify-center gap-2 transition-colors"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  Back to Login
-                </Link>
-              </div>
-            </>
-          )}
+            {/* Input/Loading/Error State */}
+            {status !== 'success' && (
+              <>
+                <div className="mb-10">
+                  <h1 className="text-3xl font-black text-slate-900 mb-3">
+                    Xác thực Email của bạn
+                  </h1>
+                  <p className="text-slate-500 text-lg">
+                    Chúng tôi đã gửi mã xác thực 6 chữ số đến:
+                  </p>
+                  <p className="font-bold text-brand-dark text-lg mt-1">
+                    {email}
+                  </p>
+                </div>
+
+                {messageFromLogin && (
+                  <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
+                    <span className="text-amber-700 font-medium">
+                      {messageFromLogin}
+                    </span>
+                  </div>
+                )}
+
+                {/* Error Message */}
+                {(status === 'error' || errorMessage) && (
+                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+                    <XCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+                    <span className="text-red-600 font-medium">
+                      {errorMessage}
+                    </span>
+                  </div>
+                )}
+
+                {/* OTP Form */}
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">
+                      Mã Xác thực
+                    </label>
+                    <div className="relative group">
+                      <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-accent transition-colors" />
+                      <input
+                        type="text"
+                        {...register('otp')}
+                        maxLength={6}
+                        className={`w-full pl-12 pr-4 py-4 bg-slate-50 border rounded-xl outline-none focus:bg-white transition-all text-center text-3xl tracking-[0.5em] font-mono font-bold ${
+                          errors.otp
+                            ? 'border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
+                            : 'border-slate-200 focus:border-brand-accent focus:ring-4 focus:ring-brand-accent/10'
+                        }`}
+                        placeholder="000000"
+                        disabled={status === 'loading'}
+                      />
+                    </div>
+                    {errors.otp && (
+                      <p className="text-red-500 text-sm font-medium ml-1">
+                        {errors.otp.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSubmitting || status === 'loading'}
+                    className="w-full py-4 bg-brand-cta hover:bg-brand-cta-hover text-white rounded-xl font-bold shadow-lg shadow-brand-cta/30 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {status === 'loading' ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Đang xác thực...
+                      </>
+                    ) : (
+                      'Xác thực Email'
+                    )}
+                  </button>
+                </form>
+
+                {/* Resend OTP */}
+                <div className="mt-8 text-center">
+                  <p className="text-slate-500 font-medium">
+                    Không nhận được mã?{' '}
+                    <button
+                      type="button"
+                      onClick={handleResendOtp}
+                      disabled={isResending}
+                      className="text-brand-accent hover:text-brand-dark font-bold disabled:opacity-50 transition-colors"
+                    >
+                      {isResending ? 'Đang gửi...' : 'Gửi lại mã'}
+                    </button>
+                  </p>
+                </div>
+
+                <div className="mt-8 text-center">
+                  <Link
+                    to="/login"
+                    className="text-slate-400 hover:text-slate-600 font-bold flex items-center justify-center gap-2 transition-colors"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    Quay lại Đăng nhập
+                  </Link>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

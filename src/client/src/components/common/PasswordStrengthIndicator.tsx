@@ -6,12 +6,12 @@ interface PasswordRequirement {
 }
 
 const requirements: PasswordRequirement[] = [
-  { label: 'At least 8 characters', test: (p) => p.length >= 8 },
-  { label: 'One uppercase letter (A-Z)', test: (p) => /[A-Z]/.test(p) },
-  { label: 'One lowercase letter (a-z)', test: (p) => /[a-z]/.test(p) },
-  { label: 'One number (0-9)', test: (p) => /[0-9]/.test(p) },
+  { label: 'Ít nhất 8 ký tự', test: (p) => p.length >= 8 },
+  { label: 'Một chữ cái in hoa (A-Z)', test: (p) => /[A-Z]/.test(p) },
+  { label: 'Một chữ cái thường (a-z)', test: (p) => /[a-z]/.test(p) },
+  { label: 'Một chữ số (0-9)', test: (p) => /[0-9]/.test(p) },
   {
-    label: 'One special character (!@#$%^&*)',
+    label: 'Một ký tự đặc biệt (!@#$%^&*)',
     test: (p) => /[!@#$%^&*]/.test(p),
   },
 ];
@@ -32,10 +32,11 @@ export function PasswordStrengthIndicator({
   const getStrengthInfo = () => {
     if (!password || passedCount === 0)
       return { label: '', color: 'bg-gray-200' };
-    if (passedCount <= 2) return { label: 'Weak', color: 'bg-red-500' };
-    if (passedCount <= 3) return { label: 'Fair', color: 'bg-orange-500' };
-    if (passedCount <= 4) return { label: 'Good', color: 'bg-yellow-500' };
-    return { label: 'Strong', color: 'bg-green-500' };
+    if (passedCount <= 2) return { label: 'Yếu', color: 'bg-red-500' };
+    if (passedCount <= 3)
+      return { label: 'Trung bình', color: 'bg-orange-500' };
+    if (passedCount <= 4) return { label: 'Tốt', color: 'bg-yellow-500' };
+    return { label: 'Mạnh', color: 'bg-green-500' };
   };
 
   const strengthInfo = getStrengthInfo();
@@ -56,7 +57,7 @@ export function PasswordStrengthIndicator({
       <div className="space-y-2">
         <div className="flex justify-between items-center">
           <span className="text-xs font-medium text-brand-dark/60">
-            Password strength
+            Độ mạnh mật khẩu
           </span>
           {password && (
             <span

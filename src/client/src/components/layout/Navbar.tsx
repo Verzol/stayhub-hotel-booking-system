@@ -104,7 +104,6 @@ export default function Navbar() {
   ];
 
   const getDashboardLink = () => {
-    if (user?.role === 'ADMIN') return '/admin';
     if (user?.role === 'HOST') return '/host';
     return '/';
   };
@@ -114,7 +113,7 @@ export default function Navbar() {
       label: 'Bảng điều khiển',
       icon: LayoutDashboard,
       href: getDashboardLink(),
-      show: user?.role === 'ADMIN' || user?.role === 'HOST',
+      show: user?.role === 'HOST',
     },
     { label: 'Hồ sơ của tôi', icon: UserIcon, href: '/profile', show: true },
     {
@@ -129,7 +128,7 @@ export default function Navbar() {
       label: 'Cài đặt',
       icon: Settings,
       href: '#',
-      show: user?.role === 'ADMIN',
+      show: false,
     },
   ].filter((item) => item.show);
 
@@ -418,11 +417,9 @@ export default function Navbar() {
                               </div>
                               <div className="text-xs text-brand-dark/50 capitalize">
                                 Tài khoản{' '}
-                                {user?.role === 'ADMIN'
-                                  ? 'Quản trị'
-                                  : user?.role === 'HOST'
-                                    ? 'Chủ nhà'
-                                    : 'Khách hàng'}
+                                {user?.role === 'HOST'
+                                  ? 'Chủ nhà'
+                                  : 'Khách hàng'}
                               </div>
                             </div>
                           </div>
