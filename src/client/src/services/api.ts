@@ -65,8 +65,8 @@ api.interceptors.response.use(
         return response;
       } else {
         // Business logic error (success = false)
+        // Don't show toast here - let the calling code handle it to avoid duplicate notifications
         const msg = apiResponse.message || 'Đã xảy ra lỗi';
-        toast.error(msg);
         return Promise.reject(new Error(msg));
       }
     }
@@ -98,6 +98,7 @@ api.interceptors.response.use(
       }
 
       // Handle specific status codes
+      // Only show toast for system errors (500, network) - let components handle business errors
       switch (status) {
         case 400:
           // Don't show toast for 400 - let the calling code handle it
@@ -106,13 +107,15 @@ api.interceptors.response.use(
           // Don't show toast for 401 - let the calling code handle it
           break;
         case 403:
-          toast.error('Truy cập bị từ chối.');
+          // Don't show toast for 403 - let the calling code handle it
           break;
         case 500:
           toast.error('Lỗi máy chủ. Vui lòng thử lại sau.');
           break;
         default:
-          toast.error(errorMessage);
+          // Only show toast for unexpected errors (not business logic errors)
+          // Components should handle 4xx errors with appropriate messages
+          break;
       }
 
       // Return error with message for handling in calling code

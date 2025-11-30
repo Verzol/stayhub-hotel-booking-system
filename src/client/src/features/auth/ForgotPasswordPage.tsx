@@ -18,15 +18,15 @@ import { PasswordStrengthIndicator } from '../../components/common/PasswordStren
 
 // Schema for Step 1: Email
 const emailSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.string().email('Địa chỉ email không hợp lệ'),
 });
 
 // Schema for Step 2: OTP only
 const otpSchema = z.object({
   otp: z
     .string()
-    .length(6, 'OTP must be 6 digits')
-    .regex(/^\d+$/, 'OTP must contain only numbers'),
+    .length(6, 'Mã OTP phải có 6 chữ số')
+    .regex(/^\d+$/, 'Mã OTP chỉ được chứa số'),
 });
 
 // Schema for Step 3: New Password
@@ -34,18 +34,15 @@ const passwordSchema = z
   .object({
     newPassword: z
       .string()
-      .min(8, 'Password must be at least 8 characters')
-      .regex(/[A-Z]/, 'Must contain at least one uppercase letter')
-      .regex(/[a-z]/, 'Must contain at least one lowercase letter')
-      .regex(/[0-9]/, 'Must contain at least one number')
-      .regex(
-        /[!@#$%^&*]/,
-        'Must contain at least one special character (!@#$%^&*)'
-      ),
+      .min(8, 'Mật khẩu phải có ít nhất 8 ký tự')
+      .regex(/[A-Z]/, 'Phải chứa ít nhất một chữ cái in hoa')
+      .regex(/[a-z]/, 'Phải chứa ít nhất một chữ cái thường')
+      .regex(/[0-9]/, 'Phải chứa ít nhất một chữ số')
+      .regex(/[!@#$%^&*]/, 'Phải chứa ít nhất một ký tự đặc biệt (!@#$%^&*)'),
     confirmPassword: z.string(),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
-    message: 'Passwords do not match',
+    message: 'Mật khẩu không khớp',
     path: ['confirmPassword'],
   });
 
@@ -102,12 +99,12 @@ const ForgotPasswordPage = () => {
       await forgotPassword(data.email);
       setEmail(data.email);
       setStep('otp');
-      toast.success('Verification code sent! Check your inbox.');
+      toast.success('Mã xác thực đã được gửi! Vui lòng kiểm tra hộp thư.');
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
       toast.error(
         error.response?.data?.message ||
-          'Unable to send verification code. Please try again.'
+          'Không thể gửi mã xác thực. Vui lòng thử lại.'
       );
     } finally {
       setIsLoading(false);
@@ -126,14 +123,14 @@ const ForgotPasswordPage = () => {
     try {
       await resetPassword(email, otp, data.newPassword);
       toast.success(
-        'Password updated! You can now sign in with your new password.'
+        'Mật khẩu đã được cập nhật! Bạn có thể đăng nhập bằng mật khẩu mới.'
       );
       navigate('/login', { state: { email } });
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
       toast.error(
         error.response?.data?.message ||
-          'Unable to reset password. Please check your code and try again.'
+          'Không thể đặt lại mật khẩu. Vui lòng kiểm tra mã và thử lại.'
       );
     } finally {
       setIsLoading(false);
@@ -163,302 +160,306 @@ const ForgotPasswordPage = () => {
 
           <div className="max-w-md">
             <blockquote className="text-4xl font-black leading-tight mb-6">
-              "Don't worry, we've got you covered."
+              "Đừng lo, chúng tôi sẽ giúp bạn."
             </blockquote>
             <p className="text-white/80 text-lg leading-relaxed">
-              It happens to the best of us. Follow the simple steps to reset
-              your password and get back to planning your next trip.
+              Ai cũng có thể quên. Làm theo các bước đơn giản để đặt lại mật
+              khẩu và tiếp tục lên kế hoạch cho chuyến đi tiếp theo của bạn.
             </p>
           </div>
 
           <div className="flex gap-12">
             <div>
-              <div className="text-3xl font-black">Secure</div>
-              <div className="text-white/60 font-medium">Account Recovery</div>
+              <div className="text-3xl font-black">An toàn</div>
+              <div className="text-white/60 font-medium">
+                Khôi phục tài khoản
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Right Side - Forgot Password Form (Scrollable) */}
-      <div className="w-full lg:w-1/2 ml-auto flex flex-col justify-center min-h-screen p-8 lg:p-24 bg-white">
-        <div className="w-full max-w-md mx-auto">
-          {/* Mobile Logo */}
-          <Link
-            to="/"
-            className="lg:hidden flex items-center gap-3 mb-10 w-fit"
-          >
-            <div className="w-10 h-10 bg-brand-accent rounded-xl flex items-center justify-center">
-              <Hotel className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-xl font-black text-slate-900">StayHub</span>
-          </Link>
-
-          {/* Step Indicator */}
-          <div className="flex items-center justify-center mb-8">
-            <div
-              className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 z-10 ${
-                step === 'email'
-                  ? 'bg-brand-dark text-white ring-4 ring-white shadow-lg'
-                  : step === 'otp' || step === 'password'
-                    ? 'bg-brand-dark text-white'
-                    : 'bg-slate-100 text-slate-400'
-              }`}
+      <div className="w-full lg:w-1/2 lg:fixed lg:inset-y-0 lg:right-0 lg:ml-auto lg:overflow-y-auto bg-white">
+        <div className="flex flex-col justify-center min-h-screen p-8 lg:p-24">
+          <div className="w-full max-w-md mx-auto">
+            {/* Mobile Logo */}
+            <Link
+              to="/"
+              className="lg:hidden flex items-center gap-3 mb-10 w-fit"
             >
-              1
-            </div>
-            <div
-              className={`w-24 h-1 -mx-2 transition-all duration-300 ${
-                step === 'otp' || step === 'password'
-                  ? 'bg-brand-dark'
-                  : 'bg-slate-100'
-              }`}
-            />
-            <div
-              className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 z-10 ${
-                step === 'otp'
-                  ? 'bg-brand-dark text-white ring-4 ring-white shadow-lg'
-                  : step === 'password'
-                    ? 'bg-brand-dark text-white'
-                    : 'bg-slate-100 text-slate-400'
-              }`}
-            >
-              2
-            </div>
-            <div
-              className={`w-24 h-1 -mx-2 transition-all duration-300 ${
-                step === 'password' ? 'bg-brand-dark' : 'bg-slate-100'
-              }`}
-            />
-            <div
-              className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 z-10 ${
-                step === 'password'
-                  ? 'bg-brand-dark text-white ring-4 ring-white shadow-lg'
-                  : 'bg-slate-100 text-slate-400'
-              }`}
-            >
-              3
-            </div>
-          </div>
-
-          {/* Step 1: Email */}
-          {step === 'email' && (
-            <>
-              <div className="mb-10">
-                <h1 className="text-3xl font-black text-slate-900 mb-3">
-                  Forgot password?
-                </h1>
-                <p className="text-slate-500 text-lg">
-                  Enter your email address and we'll send you a code to reset
-                  your password.
-                </p>
+              <div className="w-10 h-10 bg-brand-accent rounded-xl flex items-center justify-center">
+                <Hotel className="w-6 h-6 text-white" />
               </div>
+              <span className="text-xl font-black text-slate-900">StayHub</span>
+            </Link>
 
-              <form
-                onSubmit={handleSubmitEmail(onEmailSubmit)}
-                className="space-y-5"
+            {/* Step Indicator */}
+            <div className="flex items-center justify-center mb-8">
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 z-10 ${
+                  step === 'email'
+                    ? 'bg-brand-dark text-white ring-4 ring-white shadow-lg'
+                    : step === 'otp' || step === 'password'
+                      ? 'bg-brand-dark text-white'
+                      : 'bg-slate-100 text-slate-400'
+                }`}
               >
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">
-                    Email Address
-                  </label>
-                  <div className="relative group">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-accent transition-colors" />
-                    <input
-                      {...registerEmail('email')}
-                      type="email"
-                      className="block w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:ring-4 focus:ring-brand-accent/10 focus:border-brand-accent focus:bg-white transition-all outline-none font-medium"
-                      placeholder="name@example.com"
-                    />
-                  </div>
-                  {emailErrors.email && (
-                    <p className="mt-2 text-sm text-red-600 font-medium">
-                      {emailErrors.email.message}
-                    </p>
-                  )}
+                1
+              </div>
+              <div
+                className={`w-24 h-1 -mx-2 transition-all duration-300 ${
+                  step === 'otp' || step === 'password'
+                    ? 'bg-brand-dark'
+                    : 'bg-slate-100'
+                }`}
+              />
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 z-10 ${
+                  step === 'otp'
+                    ? 'bg-brand-dark text-white ring-4 ring-white shadow-lg'
+                    : step === 'password'
+                      ? 'bg-brand-dark text-white'
+                      : 'bg-slate-100 text-slate-400'
+                }`}
+              >
+                2
+              </div>
+              <div
+                className={`w-24 h-1 -mx-2 transition-all duration-300 ${
+                  step === 'password' ? 'bg-brand-dark' : 'bg-slate-100'
+                }`}
+              />
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 z-10 ${
+                  step === 'password'
+                    ? 'bg-brand-dark text-white ring-4 ring-white shadow-lg'
+                    : 'bg-slate-100 text-slate-400'
+                }`}
+              >
+                3
+              </div>
+            </div>
+
+            {/* Step 1: Email */}
+            {step === 'email' && (
+              <>
+                <div className="mb-10">
+                  <h1 className="text-3xl font-black text-slate-900 mb-3">
+                    Quên mật khẩu?
+                  </h1>
+                  <p className="text-slate-500 text-lg">
+                    Nhập địa chỉ email của bạn và chúng tôi sẽ gửi mã để đặt lại
+                    mật khẩu.
+                  </p>
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full flex items-center justify-center py-4 px-6 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-xl shadow-lg shadow-brand-cta/30 transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                <form
+                  onSubmit={handleSubmitEmail(onEmailSubmit)}
+                  className="space-y-5"
                 >
-                  {isLoading ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    'Send Reset Code'
-                  )}
-                </button>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">
+                      Địa chỉ Email
+                    </label>
+                    <div className="relative group">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-accent transition-colors" />
+                      <input
+                        {...registerEmail('email')}
+                        type="email"
+                        className="block w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:ring-4 focus:ring-brand-accent/10 focus:border-brand-accent focus:bg-white transition-all outline-none font-medium"
+                        placeholder="name@example.com"
+                      />
+                    </div>
+                    {emailErrors.email && (
+                      <p className="mt-2 text-sm text-red-600 font-medium">
+                        {emailErrors.email.message}
+                      </p>
+                    )}
+                  </div>
 
-                <div className="text-center mt-6">
-                  <Link
-                    to="/login"
-                    className="text-slate-500 hover:text-slate-800 font-bold transition-colors flex items-center justify-center gap-2"
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                    Back to Login
-                  </Link>
-                </div>
-              </form>
-            </>
-          )}
-
-          {/* Step 2: OTP */}
-          {step === 'otp' && (
-            <>
-              <div className="mb-10">
-                <h1 className="text-3xl font-black text-slate-900 mb-3">
-                  Check your email
-                </h1>
-                <p className="text-slate-500 text-lg">
-                  We sent a code to{' '}
-                  <span className="font-bold text-brand-dark">
-                    {getValuesEmail('email')}
-                  </span>
-                </p>
-              </div>
-
-              <form
-                onSubmit={handleSubmitOtp(onOtpSubmit)}
-                className="space-y-8"
-              >
-                <div>
-                  <input
-                    {...registerOtp('otp')}
-                    type="text"
-                    maxLength={6}
-                    className="block w-full px-4 py-5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-300 focus:ring-4 focus:ring-brand-accent/10 focus:border-brand-accent focus:bg-white transition-all outline-none text-center text-4xl tracking-[0.5em] font-mono font-bold"
-                    placeholder="000000"
-                  />
-                  {otpErrors.otp && (
-                    <p className="mt-2 text-sm text-red-600 font-medium text-center">
-                      {otpErrors.otp.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="flex gap-4">
-                  <button
-                    type="button"
-                    onClick={() => setStep('email')}
-                    className="w-1/3 py-4 px-6 border border-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 flex items-center justify-center gap-2"
-                  >
-                    <ArrowLeft className="w-5 h-5" />
-                    Back
-                  </button>
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="flex-1 flex items-center justify-center py-4 px-6 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-xl shadow-lg shadow-brand-cta/30 transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                    className="w-full flex items-center justify-center py-4 px-6 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-xl shadow-lg shadow-brand-cta/30 transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
                   >
                     {isLoading ? (
                       <Loader2 className="w-5 h-5 animate-spin" />
                     ) : (
-                      'Verify Code'
+                      'Gửi Mã Đặt Lại'
                     )}
                   </button>
-                </div>
-              </form>
-            </>
-          )}
 
-          {/* Step 3: New Password */}
-          {step === 'password' && (
-            <>
-              <div className="mb-10">
-                <h1 className="text-3xl font-black text-slate-900 mb-3">
-                  Set new password
-                </h1>
-                <p className="text-slate-500 text-lg">
-                  Create a strong password to secure your account.
-                </p>
-              </div>
-
-              <form
-                onSubmit={handleSubmitPassword(onPasswordSubmit)}
-                className="space-y-5"
-              >
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">
-                    New Password
-                  </label>
-                  <div className="relative group">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-accent transition-colors" />
-                    <input
-                      {...registerPassword('newPassword')}
-                      type={showPassword ? 'text' : 'password'}
-                      className="block w-full pl-12 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:ring-4 focus:ring-brand-accent/10 focus:border-brand-accent focus:bg-white transition-all outline-none font-medium"
-                      placeholder="Create a strong password"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                  <div className="text-center mt-6">
+                    <Link
+                      to="/login"
+                      className="text-slate-500 hover:text-slate-800 font-bold transition-colors flex items-center justify-center gap-2"
                     >
-                      {showPassword ? (
-                        <EyeOff className="w-5 h-5" />
-                      ) : (
-                        <Eye className="w-5 h-5" />
-                      )}
-                    </button>
+                      <ArrowLeft className="w-4 h-4" />
+                      Quay lại Đăng nhập
+                    </Link>
                   </div>
-                  <PasswordStrengthIndicator
-                    password={watchPassword('newPassword') || ''}
-                  />
-                  {passwordErrors.newPassword && (
-                    <p className="mt-2 text-sm text-red-600 font-medium">
-                      {passwordErrors.newPassword.message}
-                    </p>
-                  )}
+                </form>
+              </>
+            )}
+
+            {/* Step 2: OTP */}
+            {step === 'otp' && (
+              <>
+                <div className="mb-10">
+                  <h1 className="text-3xl font-black text-slate-900 mb-3">
+                    Kiểm tra email của bạn
+                  </h1>
+                  <p className="text-slate-500 text-lg">
+                    Chúng tôi đã gửi mã đến{' '}
+                    <span className="font-bold text-brand-dark">
+                      {getValuesEmail('email')}
+                    </span>
+                  </p>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">
-                    Confirm Password
-                  </label>
-                  <div className="relative group">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-accent transition-colors" />
-                    <input
-                      {...registerPassword('confirmPassword')}
-                      type={showConfirmPassword ? 'text' : 'password'}
-                      className="block w-full pl-12 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:ring-4 focus:ring-brand-accent/10 focus:border-brand-accent focus:bg-white transition-all outline-none font-medium"
-                      placeholder="Re-enter your password"
-                    />
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setShowConfirmPassword(!showConfirmPassword)
-                      }
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-                    >
-                      {showConfirmPassword ? (
-                        <EyeOff className="w-5 h-5" />
-                      ) : (
-                        <Eye className="w-5 h-5" />
-                      )}
-                    </button>
-                  </div>
-                  {passwordErrors.confirmPassword && (
-                    <p className="mt-2 text-sm text-red-600 font-medium">
-                      {passwordErrors.confirmPassword.message}
-                    </p>
-                  )}
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full flex items-center justify-center py-4 px-6 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-xl shadow-lg shadow-brand-cta/30 transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                <form
+                  onSubmit={handleSubmitOtp(onOtpSubmit)}
+                  className="space-y-8"
                 >
-                  {isLoading ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    'Reset Password'
-                  )}
-                </button>
-              </form>
-            </>
-          )}
+                  <div>
+                    <input
+                      {...registerOtp('otp')}
+                      type="text"
+                      maxLength={6}
+                      className="block w-full px-4 py-5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-300 focus:ring-4 focus:ring-brand-accent/10 focus:border-brand-accent focus:bg-white transition-all outline-none text-center text-4xl tracking-[0.5em] font-mono font-bold"
+                      placeholder="000000"
+                    />
+                    {otpErrors.otp && (
+                      <p className="mt-2 text-sm text-red-600 font-medium text-center">
+                        {otpErrors.otp.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex gap-4">
+                    <button
+                      type="button"
+                      onClick={() => setStep('email')}
+                      className="w-1/3 py-4 px-6 border border-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 flex items-center justify-center gap-2"
+                    >
+                      <ArrowLeft className="w-5 h-5" />
+                      Quay lại
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="flex-1 flex items-center justify-center py-4 px-6 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-xl shadow-lg shadow-brand-cta/30 transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                    >
+                      {isLoading ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        'Xác thực Mã'
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </>
+            )}
+
+            {/* Step 3: New Password */}
+            {step === 'password' && (
+              <>
+                <div className="mb-10">
+                  <h1 className="text-3xl font-black text-slate-900 mb-3">
+                    Đặt mật khẩu mới
+                  </h1>
+                  <p className="text-slate-500 text-lg">
+                    Tạo mật khẩu mạnh để bảo vệ tài khoản của bạn.
+                  </p>
+                </div>
+
+                <form
+                  onSubmit={handleSubmitPassword(onPasswordSubmit)}
+                  className="space-y-5"
+                >
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">
+                      Mật Khẩu Mới
+                    </label>
+                    <div className="relative group">
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-accent transition-colors" />
+                      <input
+                        {...registerPassword('newPassword')}
+                        type={showPassword ? 'text' : 'password'}
+                        className="block w-full pl-12 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:ring-4 focus:ring-brand-accent/10 focus:border-brand-accent focus:bg-white transition-all outline-none font-medium"
+                        placeholder="Tạo mật khẩu mạnh"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                      >
+                        {showPassword ? (
+                          <EyeOff className="w-5 h-5" />
+                        ) : (
+                          <Eye className="w-5 h-5" />
+                        )}
+                      </button>
+                    </div>
+                    <PasswordStrengthIndicator
+                      password={watchPassword('newPassword') || ''}
+                    />
+                    {passwordErrors.newPassword && (
+                      <p className="mt-2 text-sm text-red-600 font-medium">
+                        {passwordErrors.newPassword.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">
+                      Xác Nhận Mật Khẩu
+                    </label>
+                    <div className="relative group">
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-accent transition-colors" />
+                      <input
+                        {...registerPassword('confirmPassword')}
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        className="block w-full pl-12 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:ring-4 focus:ring-brand-accent/10 focus:border-brand-accent focus:bg-white transition-all outline-none font-medium"
+                        placeholder="Nhập lại mật khẩu"
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="w-5 h-5" />
+                        ) : (
+                          <Eye className="w-5 h-5" />
+                        )}
+                      </button>
+                    </div>
+                    {passwordErrors.confirmPassword && (
+                      <p className="mt-2 text-sm text-red-600 font-medium">
+                        {passwordErrors.confirmPassword.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full flex items-center justify-center py-4 px-6 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-xl shadow-lg shadow-brand-cta/30 transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                  >
+                    {isLoading ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      'Đặt Lại Mật Khẩu'
+                    )}
+                  </button>
+                </form>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

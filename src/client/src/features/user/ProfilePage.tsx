@@ -25,7 +25,6 @@ import {
   AlertCircle,
   Eye,
   EyeOff,
-  Settings,
   Heart,
   Clock,
   ChevronRight,
@@ -40,9 +39,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [sendingVerification, setSendingVerification] = useState(false);
-  const [activeTab, setActiveTab] = useState<
-    'profile' | 'security' | 'preferences'
-  >('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'security'>('profile');
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -67,8 +64,6 @@ export default function ProfilePage() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
-
-  // Avatar State
 
   useEffect(() => {
     fetchProfile();
@@ -188,7 +183,6 @@ export default function ProfilePage() {
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
     { id: 'security', label: 'Security', icon: Shield },
-    { id: 'preferences', label: 'Preferences', icon: Settings },
   ];
 
   const quickLinks = [
@@ -346,40 +340,6 @@ export default function ProfilePage() {
                 ))}
               </div>
             </div>
-
-            {/* Account Stats */}
-            <div className="bg-brand-dark text-white rounded-3xl shadow-lg shadow-brand-dark/20 p-6 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-brand-accent/20 rounded-full blur-2xl -mr-16 -mt-16 pointer-events-none" />
-
-              <h3 className="font-bold text-lg mb-6 relative z-10">
-                Account Stats
-              </h3>
-              <div className="space-y-4 relative z-10">
-                <div className="flex items-center justify-between p-3 bg-white/10 rounded-xl backdrop-blur-sm">
-                  <span className="text-white/70 font-medium">
-                    Member Since
-                  </span>
-                  <span className="font-bold">
-                    {profile?.dateOfBirth
-                      ? new Date().getFullYear() -
-                        new Date(profile.dateOfBirth).getFullYear()
-                      : 'N/A'}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-white/10 rounded-xl backdrop-blur-sm">
-                  <span className="text-white/70 font-medium">
-                    Total Bookings
-                  </span>
-                  <span className="font-bold">5</span>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-white/10 rounded-xl backdrop-blur-sm">
-                  <span className="text-white/70 font-medium">
-                    Reviews Given
-                  </span>
-                  <span className="font-bold">3</span>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Main Content */}
@@ -392,9 +352,7 @@ export default function ProfilePage() {
                     <button
                       key={tab.id}
                       onClick={() =>
-                        setActiveTab(
-                          tab.id as 'profile' | 'security' | 'preferences'
-                        )
+                        setActiveTab(tab.id as 'profile' | 'security')
                       }
                       className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap ${
                         activeTab === tab.id
@@ -741,114 +699,6 @@ export default function ProfilePage() {
                         </button>
                       </div>
                     </form>
-
-                    {/* Two-Factor Auth Section */}
-                    <div className="mt-10 pt-8 border-t border-slate-100">
-                      <div className="flex items-center justify-between p-6 bg-slate-50 rounded-2xl border border-slate-100">
-                        <div>
-                          <h4 className="font-bold text-slate-900 text-lg">
-                            Two-Factor Authentication
-                          </h4>
-                          <p className="text-sm text-slate-500 font-medium mt-1">
-                            Add an extra layer of security to your account
-                          </p>
-                        </div>
-                        <button className="px-6 py-2.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300 rounded-xl transition-all font-bold shadow-sm">
-                          Enable
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Preferences Tab */}
-                {activeTab === 'preferences' && (
-                  <div className="space-y-8">
-                    <div>
-                      <h3 className="text-xl font-bold text-slate-900 mb-6">
-                        Notification Preferences
-                      </h3>
-                      <div className="space-y-4">
-                        {[
-                          {
-                            label: 'Email Notifications',
-                            desc: 'Receive booking updates via email',
-                          },
-                          {
-                            label: 'SMS Notifications',
-                            desc: 'Get text messages for urgent updates',
-                          },
-                          {
-                            label: 'Marketing Emails',
-                            desc: 'Receive deals and promotions',
-                          },
-                          {
-                            label: 'Push Notifications',
-                            desc: 'Browser notifications for new messages',
-                          },
-                        ].map((pref, idx) => (
-                          <div
-                            key={idx}
-                            className="flex items-center justify-between p-5 bg-slate-50 rounded-2xl border border-slate-100"
-                          >
-                            <div>
-                              <p className="font-bold text-slate-900">
-                                {pref.label}
-                              </p>
-                              <p className="text-sm text-slate-500 font-medium mt-0.5">
-                                {pref.desc}
-                              </p>
-                            </div>
-                            <label className="relative inline-flex items-center cursor-pointer">
-                              <input
-                                type="checkbox"
-                                className="sr-only peer"
-                                defaultChecked={idx < 2}
-                              />
-                              <div className="w-12 h-7 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-accent transition-colors"></div>
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="pt-8 border-t border-slate-100">
-                      <h3 className="text-xl font-bold text-slate-900 mb-6">
-                        Display Settings
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">
-                            Language
-                          </label>
-                          <div className="relative">
-                            <select className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-brand-accent/10 focus:border-brand-accent outline-none transition-all font-medium appearance-none">
-                              <option>English</option>
-                              <option>Vietnamese</option>
-                              <option>Chinese</option>
-                            </select>
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                              <ChevronRight className="w-4 h-4 text-slate-400 rotate-90" />
-                            </div>
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">
-                            Currency
-                          </label>
-                          <div className="relative">
-                            <select className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-brand-accent/10 focus:border-brand-accent outline-none transition-all font-medium appearance-none">
-                              <option>USD ($)</option>
-                              <option>VND (₫)</option>
-                              <option>EUR (€)</option>
-                            </select>
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                              <ChevronRight className="w-4 h-4 text-slate-400 rotate-90" />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 )}
               </div>

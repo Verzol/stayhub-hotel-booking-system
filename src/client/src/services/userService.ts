@@ -27,19 +27,6 @@ export interface ChangePasswordRequest {
   confirmationPassword: string;
 }
 
-// Admin Operations
-export interface UserListResponse {
-  id: number;
-  email: string;
-  fullName: string;
-  phoneNumber?: string;
-  role: 'CUSTOMER' | 'ADMIN' | 'HOST';
-  enabled: boolean;
-  emailVerified: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export const getProfile = async (): Promise<UserProfile> => {
   const response = await api.get('/v1/users/me');
   return response.data;
@@ -75,31 +62,4 @@ export const sendVerificationEmail = async (email: string): Promise<void> => {
 
 export const verifyEmail = async (token: string): Promise<void> => {
   await api.post('/v1/auth/verify-email', { token });
-};
-
-export const getAllUsers = async (): Promise<UserListResponse[]> => {
-  const response = await api.get<UserListResponse[]>('/v1/admin/users');
-  return response.data || [];
-};
-
-export const toggleUserStatus = async (userId: number): Promise<void> => {
-  await api.patch(`/v1/admin/users/${userId}/toggle-status`);
-};
-
-export const changeUserRole = async (
-  userId: number,
-  role: 'CUSTOMER' | 'ADMIN' | 'HOST'
-): Promise<void> => {
-  await api.patch(`/v1/admin/users/${userId}/change-role`, { role });
-};
-
-export const deleteUser = async (userId: number): Promise<void> => {
-  await api.delete(`/v1/admin/users/${userId}`);
-};
-
-export const getUserById = async (userId: number): Promise<UserProfile> => {
-  const response = await api.get<{ success: boolean; data: UserProfile }>(
-    `/v1/admin/users/${userId}`
-  );
-  return response.data.data;
 };

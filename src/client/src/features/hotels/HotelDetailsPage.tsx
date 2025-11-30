@@ -75,9 +75,12 @@ export default function HotelDetailsPage() {
       try {
         setLoadingReviews(true);
         const data = await getReviewsByHotel(Number(id));
-        setReviews(data);
+        // Đảm bảo data luôn là array
+        setReviews(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error('Failed to load reviews:', error);
+        // Đảm bảo reviews luôn là array ngay cả khi có lỗi
+        setReviews([]);
       } finally {
         setLoadingReviews(false);
       }
@@ -158,10 +161,10 @@ export default function HotelDetailsPage() {
       return;
     }
 
-    // Block HOST and ADMIN from booking (they can only manage)
-    if (user?.role === 'HOST' || user?.role === 'ADMIN') {
+    // Block HOST from booking (they can only manage)
+    if (user?.role === 'HOST') {
       toast.error(
-        'Bạn đang đăng nhập với tài khoản Host/Admin. Vui lòng đăng nhập bằng tài khoản khách hàng để đặt phòng.'
+        'Bạn đang đăng nhập với tài khoản Host. Vui lòng đăng nhập bằng tài khoản khách hàng để đặt phòng.'
       );
       return;
     }
@@ -365,7 +368,7 @@ export default function HotelDetailsPage() {
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="w-6 h-6 animate-spin text-brand-accent" />
                 </div>
-              ) : reviews.length > 0 ? (
+              ) : Array.isArray(reviews) && reviews.length > 0 ? (
                 <div className="space-y-6">
                   {reviews.map((review) => {
                     let photoUrls: string[] = [];

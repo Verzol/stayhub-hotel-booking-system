@@ -35,7 +35,6 @@ import { formatVND } from '../../utils/currency';
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const [activeDestination, setActiveDestination] = useState(0);
   const [featuredProperties, setFeaturedProperties] = useState<Hotel[]>([]);
   const [loadingFeatured, setLoadingFeatured] = useState(true);
 
@@ -108,26 +107,26 @@ export default function LandingPage() {
 
   const destinations = [
     {
-      name: 'Da Nang',
-      img: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?q=80&w=800',
+      name: 'Đà Nẵng',
+      img: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?q=80&w=800&h=1066&auto=format&fit=crop&ixlib=rb-4.1.0',
       properties: 1200,
       rating: 4.8,
     },
     {
-      name: 'Ho Chi Minh City',
-      img: 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?q=80&w=800',
+      name: 'TP. Hồ Chí Minh',
+      img: 'https://images.unsplash.com/photo-1536086845112-89de23aa4772?q=80&w=800&h=1066&auto=format&fit=crop&ixlib=rb-4.1.0',
       properties: 2500,
       rating: 4.7,
     },
     {
-      name: 'Hanoi',
-      img: 'https://images.unsplash.com/photo-1528127269322-539801943592?q=80&w=800',
+      name: 'Hà Nội',
+      img: 'https://images.unsplash.com/photo-1592028219310-0cb15923525a?q=80&w=800&h=1066&auto=format&fit=crop&ixlib=rb-4.1.0',
       properties: 1800,
       rating: 4.9,
     },
     {
-      name: 'Phu Quoc',
-      img: 'https://images.unsplash.com/photo-1540202404-a6f746353673?q=80&w=800',
+      name: 'Phú Quốc',
+      img: 'https://images.unsplash.com/photo-1698809807960-758cf416e96e?q=80&w=800&h=1066&auto=format&fit=crop&ixlib=rb-4.1.0',
       properties: 650,
       rating: 4.8,
     },
@@ -135,24 +134,24 @@ export default function LandingPage() {
 
   const testimonials = [
     {
-      name: 'Sarah Johnson',
-      avatar: 'S',
-      role: 'Travel Blogger',
-      text: 'StayHub made finding the perfect hotel so easy! The booking process was seamless and I got an amazing deal.',
+      name: 'Nguyễn Thị Lan',
+      avatar: 'L',
+      role: 'Blogger Du lịch',
+      text: 'StayHub giúp tôi tìm khách sạn hoàn hảo một cách dễ dàng! Quy trình đặt phòng rất suôn sẻ và tôi còn được giá tốt nữa.',
       rating: 5,
     },
     {
-      name: 'Michael Chen',
+      name: 'Trần Văn Minh',
       avatar: 'M',
-      role: 'Business Traveler',
-      text: 'I use StayHub for all my business trips. The customer service is exceptional and the prices are unbeatable.',
+      role: 'Khách hàng công tác',
+      text: 'Tôi sử dụng StayHub cho tất cả các chuyến công tác. Dịch vụ khách hàng tuyệt vời và giá cả không thể cạnh tranh hơn.',
       rating: 5,
     },
     {
-      name: 'Emily Davis',
-      avatar: 'E',
-      role: 'Family Vacation',
-      text: 'Found the perfect family resort through StayHub. The kids loved it and we got 30% off! Highly recommend.',
+      name: 'Lê Thị Mai',
+      avatar: 'M',
+      role: 'Gia đình đi nghỉ',
+      text: 'Đã tìm được resort gia đình hoàn hảo qua StayHub. Các con rất thích và chúng tôi còn được giảm 30%! Rất đáng thử.',
       rating: 5,
     },
   ];
@@ -359,20 +358,17 @@ export default function LandingPage() {
             {destinations.map((city, idx) => (
               <div
                 key={idx}
-                onMouseEnter={() => setActiveDestination(idx)}
                 onClick={() =>
                   navigate(`/search?query=${encodeURIComponent(city.name)}`)
                 }
-                className={`group cursor-pointer rounded-2xl overflow-hidden relative aspect-[3/4] shadow-lg transition-all duration-500 ${
-                  activeDestination === idx ? 'lg:col-span-2 lg:row-span-2' : ''
-                }`}
+                className="group cursor-pointer rounded-2xl overflow-hidden relative aspect-[3/4] shadow-lg transition-shadow duration-300 hover:shadow-xl"
               >
                 <HotelImage
                   src={city.img}
                   alt={city.name}
-                  className="w-full h-full group-hover:scale-110 transition-transform duration-700"
+                  className="w-full h-full"
                   aspectRatio="3/4"
-                  lazy={idx > 0} // Load first image immediately
+                  lazy={idx > 0}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
 
@@ -400,7 +396,7 @@ export default function LandingPage() {
                         `/search?query=${encodeURIComponent(city.name)}`
                       );
                     }}
-                    className="mt-4 w-full py-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-bold rounded-xl border border-white/20 transition-all opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 flex items-center justify-center gap-2"
+                    className="mt-4 w-full py-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-bold rounded-xl border border-white/20 transition-all flex items-center justify-center gap-2"
                   >
                     Khám phá
                     <ArrowRight className="w-4 h-4" />
@@ -427,7 +423,7 @@ export default function LandingPage() {
             onClick={() => navigate('/search')}
             className="hidden md:flex items-center gap-2 px-5 py-2.5 text-brand-accent hover:bg-brand-accent/10 rounded-xl font-bold transition-colors"
           >
-            View All
+            Xem tất cả
             <ChevronRight className="w-5 h-5" />
           </button>
         </div>

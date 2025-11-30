@@ -62,17 +62,17 @@ class ErrorBoundary extends Component<Props, State> {
                 <AlertTriangle className="w-8 h-8 text-red-500" />
               </div>
               <h1 className="text-2xl font-bold text-slate-900 mb-2">
-                Something went wrong
+                Đã xảy ra lỗi
               </h1>
               <p className="text-slate-600 mb-6">
-                We're sorry, but something unexpected happened. Please try
-                refreshing the page or return to the home page.
+                Xin lỗi, đã xảy ra sự cố không mong muốn. Vui lòng thử làm mới
+                trang hoặc quay về trang chủ.
               </p>
 
               {process.env.NODE_ENV === 'development' && this.state.error && (
                 <div className="w-full mb-6 p-4 bg-slate-50 rounded-xl border border-slate-200 text-left">
                   <p className="text-sm font-semibold text-slate-900 mb-2">
-                    Error Details:
+                    Chi tiết lỗi:
                   </p>
                   <p className="text-sm text-red-600 font-mono break-all">
                     {this.state.error.toString()}
@@ -80,7 +80,7 @@ class ErrorBoundary extends Component<Props, State> {
                   {this.state.errorInfo && (
                     <details className="mt-2">
                       <summary className="text-xs text-slate-500 cursor-pointer">
-                        Stack Trace
+                        Ngăn xếp lỗi
                       </summary>
                       <pre className="text-xs text-slate-600 mt-2 overflow-auto max-h-48 whitespace-pre-wrap">
                         {this.state.errorInfo.componentStack}
@@ -96,7 +96,7 @@ class ErrorBoundary extends Component<Props, State> {
                   className="flex-1 sm:flex-initial px-6 py-3 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
                 >
                   <RefreshCw className="w-5 h-5" />
-                  Refresh Page
+                  Làm mới trang
                 </button>
                 <button
                   onClick={() => {
@@ -105,7 +105,7 @@ class ErrorBoundary extends Component<Props, State> {
                   className="flex-1 sm:flex-initial px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
                 >
                   <Home className="w-5 h-5" />
-                  Go Home
+                  Về trang chủ
                 </button>
               </div>
             </div>
