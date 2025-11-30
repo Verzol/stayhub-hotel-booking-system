@@ -153,12 +153,12 @@ jobs:
           cat > docker-compose.test.yml << 'EOF'
           services:
             backend:
-              image: openjdk:21-jre-slim
+              image: eclipse-temurin:21-jre-alpine
               container_name: stayhub-backend-test
               working_dir: /app
               volumes:
-                - ./src/server/target/*.jar:/app/app.jar
-              command: java -jar /app/app.jar
+                - ./src/server/target:/app/target:ro
+              command: sh -c "cp /app/target/*.jar /app/app.jar && apk add --no-cache curl && java -Djava.net.preferIPv4Stack=true -jar /app/app.jar"
               environment:
                 DB_URL: jdbc:postgresql://host.docker.internal:5432/stayhub_test
                 DB_USERNAME: test
@@ -191,8 +191,7 @@ jobs:
               networks:
                 - monitoring-network
               depends_on:
-                backend:
-                  condition: service_healthy
+                - backend
 
           networks:
             monitoring-network:
