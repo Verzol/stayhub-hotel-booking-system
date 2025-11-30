@@ -1,12 +1,14 @@
 package com.verzol.stayhub.module.hotel.dto;
 
-import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.util.List;
 
+import lombok.Data;
+
 @Data
 public class HotelDTO {
+    private Long id;
     private String name;
     private String description;
     private String address;

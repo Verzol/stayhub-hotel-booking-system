@@ -1,0 +1,16 @@
+# Prometheus data (stored in Docker volumes, not in repo)
+prometheus_data/
+*.db
+*.wal
+
+# Grafana data (stored in Docker volumes, not in repo)
+grafana_data/
+grafana.db
+
+# Grafana plugins (downloaded automatically)
+grafana/plugins/
+
+# Temporary files
+*.tmp
+*.log
+

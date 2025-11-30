@@ -58,6 +58,9 @@ public class SecurityConfiguration {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .httpBasic(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
+                // Actuator endpoints for monitoring (MUST be first to avoid OAuth2 redirect)
+                .requestMatchers("/actuator/**").permitAll()
+                
                 // Allow all OPTIONS requests (preflight)
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 
@@ -70,12 +73,13 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/public/hotels/**").permitAll()
                 .requestMatchers("/api/public/promotions/**").permitAll()
                 
+                // Public endpoints - Reviews (GET requests should be public)
+                .requestMatchers(HttpMethod.GET, "/api/v1/reviews/hotel/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/reviews/booking/**").permitAll()
+                
                 // User profile endpoints - Any authenticated user
                 .requestMatchers("/api/v1/users/me").authenticated()
                 .requestMatchers("/api/v1/users/change-password").authenticated()
-                
-                // Admin endpoints - Only ADMIN role
-                .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                 
                 // All other requests require authentication
                 .anyRequest().authenticated()

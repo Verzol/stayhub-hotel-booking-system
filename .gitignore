@@ -51,3 +51,9 @@ junit.xml
 
 # User content
 **/uploads/
+
+# Monitoring data (stored in Docker volumes)
+monitoring/prometheus_data/
+monitoring/grafana_data/
+monitoring/*.db
+monitoring/*.wal

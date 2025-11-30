@@ -30,14 +30,14 @@ public class ReviewController {
     private final UserRepository userRepository;
 
     @PostMapping("/upload-photos")
-    @PreAuthorize("hasAnyRole('CUSTOMER', 'HOST', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'HOST')")
     public ResponseEntity<List<String>> uploadPhotos(@RequestPart("files") MultipartFile[] files) {
         List<String> photoUrls = reviewService.uploadPhotos(files);
         return ResponseEntity.ok(photoUrls);
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('CUSTOMER', 'HOST', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'HOST')")
     public ResponseEntity<Review> createReview(@RequestBody CreateReviewRequest request, Principal principal) {
         User user = userRepository.findByEmail(principal.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
