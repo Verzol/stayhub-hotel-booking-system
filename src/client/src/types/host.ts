@@ -7,6 +7,7 @@ export interface HotelImage {
 
 export interface Hotel {
   id: number;
+  ownerId?: number;
   name: string;
   description: string;
   address: string;

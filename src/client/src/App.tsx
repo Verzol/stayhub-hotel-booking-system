@@ -17,6 +17,7 @@ import LandingPage from './features/landing/LandingPage';
 import SearchResultsPage from './features/search/SearchResultsPage';
 import HotelDetailsPage from './features/hotels/HotelDetailsPage';
 import MainLayout from './components/layout/MainLayout';
+import ChatLayout from './components/layout/ChatLayout';
 import ProfilePage from './features/user/ProfilePage';
 import WishlistPage from './features/wishlist/WishlistPage';
 import PromotionsPage from './features/promotions/PromotionsPage';
@@ -34,6 +35,9 @@ const BookingsListPage = lazy(
 const PaymentSuccessPage = lazy(
   () => import('./features/booking/PaymentSuccessPage')
 );
+const ChatPage = lazy(() => import('./features/chat/ChatPage'));
+const ChatListPage = lazy(() => import('./features/chat/ChatListPage'));
+const ReviewForm = lazy(() => import('./features/review/ReviewForm'));
 
 // Loading component for lazy-loaded routes
 const PageLoader = () => (
@@ -165,6 +169,40 @@ function App() {
               element={
                 <ProtectedRoute>
                   <WishlistPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/review/:bookingId"
+              element={
+                <ProtectedRoute allowedRoles={['CUSTOMER']}>
+                  <Suspense fallback={<PageLoader />}>
+                    <ReviewForm />
+                  </Suspense>
+                </ProtectedRoute>
+              }
+            />
+          </Route>
+
+          {/* Chat Routes - Separate Layout (no Navbar) */}
+          <Route element={<ChatLayout />}>
+            <Route
+              path="/chat"
+              element={
+                <ProtectedRoute>
+                  <Suspense fallback={<PageLoader />}>
+                    <ChatListPage />
+                  </Suspense>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/chat/:otherUserId"
+              element={
+                <ProtectedRoute>
+                  <Suspense fallback={<PageLoader />}>
+                    <ChatPage />
+                  </Suspense>
                 </ProtectedRoute>
               }
             />

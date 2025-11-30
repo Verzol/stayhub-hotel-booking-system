@@ -25,6 +25,8 @@ import { toast } from 'sonner';
 import { formatVND } from '../../utils/currency';
 import { useAuth } from '../../context/AuthContext';
 import HotelImage from '../../components/common/HotelImage';
+import { getReviewsByHotel, type Review } from '../../services/reviewService';
+import { MessageCircle } from 'lucide-react';
 
 export default function HotelDetailsPage() {
   const { id } = useParams();
@@ -34,6 +36,8 @@ export default function HotelDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
   const [wishlist, setWishlist] = useState<number[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loadingReviews, setLoadingReviews] = useState(false);
 
   useEffect(() => {
     const fetchHotel = async () => {
@@ -64,6 +68,22 @@ export default function HotelDetailsPage() {
     };
     fetchWishlist();
   }, []);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      if (!id) return;
+      try {
+        setLoadingReviews(true);
+        const data = await getReviewsByHotel(Number(id));
+        setReviews(data);
+      } catch (error) {
+        console.error('Failed to load reviews:', error);
+      } finally {
+        setLoadingReviews(false);
+      }
+    };
+    fetchReviews();
+  }, [id]);
 
   const handleToggleWishlist = async () => {
     if (!hotel) return;
@@ -196,6 +216,17 @@ export default function HotelDetailsPage() {
             </div>
             <div className="flex flex-col items-end justify-center">
               <div className="flex items-center gap-4 mb-4">
+                {isAuthenticated &&
+                  hotel.ownerId &&
+                  user?.id !== hotel.ownerId && (
+                    <button
+                      onClick={() => navigate(`/chat/${hotel.ownerId}`)}
+                      className="p-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors group"
+                      title="Nhắn tin với chủ khách sạn"
+                    >
+                      <MessageCircle className="w-6 h-6 text-slate-400 group-hover:text-brand-accent transition-colors" />
+                    </button>
+                  )}
                 <button
                   onClick={handleToggleWishlist}
                   className="p-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors group"
@@ -320,6 +351,104 @@ export default function HotelDetailsPage() {
                     'Chưa có chính sách cụ thể nào được liệt kê.'}
                 </p>
               </div>
+            </div>
+
+            {/* Reviews Section */}
+            <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-slate-900">
+                  Đánh giá ({reviews.length})
+                </h2>
+              </div>
+
+              {loadingReviews ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin text-brand-accent" />
+                </div>
+              ) : reviews.length > 0 ? (
+                <div className="space-y-6">
+                  {reviews.map((review) => {
+                    let photoUrls: string[] = [];
+                    if (review.images) {
+                      try {
+                        photoUrls = JSON.parse(review.images);
+                      } catch {
+                        photoUrls = [];
+                      }
+                    }
+                    return (
+                      <div
+                        key={review.id}
+                        className="border-b border-slate-200 pb-6 last:border-0 last:pb-0"
+                      >
+                        <div className="flex items-start gap-4">
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand-accent to-brand-dark flex items-center justify-center text-white font-bold flex-shrink-0">
+                            U
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <div className="flex items-center gap-1">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                  <Star
+                                    key={star}
+                                    className={`w-4 h-4 ${
+                                      star <= review.rating
+                                        ? 'text-yellow-400 fill-yellow-400'
+                                        : 'text-gray-300'
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                              <span className="text-sm text-slate-500">
+                                {new Date(review.createdAt).toLocaleDateString(
+                                  'vi-VN',
+                                  {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                  }
+                                )}
+                              </span>
+                            </div>
+                            {review.comment && (
+                              <p className="text-slate-700 mb-3 leading-relaxed">
+                                {review.comment}
+                              </p>
+                            )}
+                            {photoUrls.length > 0 && (
+                              <div className="grid grid-cols-3 gap-2 mt-3">
+                                {photoUrls.map((url, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="aspect-square rounded-lg overflow-hidden"
+                                  >
+                                    <img
+                                      src={
+                                        url.startsWith('http')
+                                          ? url
+                                          : `http://localhost:8080${url}`
+                                      }
+                                      alt={`Review photo ${idx + 1}`}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Star className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                  <p className="text-slate-500">
+                    Chưa có đánh giá nào cho khách sạn này
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 

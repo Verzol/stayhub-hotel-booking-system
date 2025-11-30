@@ -43,7 +43,6 @@ public class PublicHotelController {
         if ("rating_desc".equals(sortBy)) {
             sort = Sort.by(Sort.Direction.DESC, "starRating");
         } else if ("price_asc".equals(sortBy) || "price_desc".equals(sortBy)) {
-            // TODO: Implement complex price sorting (requires joining with Room)
             // For now, fallback to unsorted or sort by ID to prevent crash
             sort = Sort.by(Sort.Direction.ASC, "id");
         }
