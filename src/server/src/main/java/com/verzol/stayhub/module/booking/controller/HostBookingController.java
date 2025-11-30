@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.verzol.stayhub.module.booking.dto.BookingDTOs.AnalyticsResponse;
+import com.verzol.stayhub.module.booking.dto.BookingDTOs.EarningsResponse;
 import com.verzol.stayhub.module.booking.dto.BookingDTOs.HostBookingResponse;
 import com.verzol.stayhub.module.booking.service.BookingService;
 import com.verzol.stayhub.module.hotel.entity.Hotel;
@@ -180,5 +182,74 @@ public class HostBookingController {
         
         bookingService.checkOut(bookingId, hotelId);
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Get all bookings for all hotels owned by the host (for dashboard)
+     * GET /api/host/bookings/all
+     * This endpoint returns all bookings across all hotels in one request (much faster than multiple requests)
+     */
+    @GetMapping("/all")
+    public ResponseEntity<List<HostBookingResponse>> getAllBookings(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        return ResponseEntity.ok(bookingService.getAllHostBookings(user.getId()));
+    }
+
+    /**
+     * Get analytics for host's hotels
+     * GET /api/host/bookings/analytics?hotelId=1&startDate=2024-01-01&endDate=2024-12-31
+     * Optimized: Pre-calculated analytics from filtered bookings
+     */
+    @GetMapping("/analytics")
+    public ResponseEntity<AnalyticsResponse> getAnalytics(
+            @RequestParam(required = false) Long hotelId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        if (hotelId != null) {
+            // Verify hotel ownership
+            Hotel hotel = hotelRepository.findById(hotelId)
+                    .orElseThrow(() -> new RuntimeException("Hotel not found"));
+            if (!hotel.getOwnerId().equals(user.getId())) {
+                throw new RuntimeException("You don't have permission to view analytics for this hotel");
+            }
+        }
+        
+        return ResponseEntity.ok(bookingService.getAnalytics(user.getId(), hotelId, startDate, endDate));
+    }
+
+    /**
+     * Get earnings for host's hotels
+     * GET /api/host/bookings/earnings?hotelId=1&startDate=2024-01-01&endDate=2024-12-31
+     * Optimized: Pre-calculated earnings from filtered bookings
+     */
+    @GetMapping("/earnings")
+    public ResponseEntity<EarningsResponse> getEarnings(
+            @RequestParam(required = false) Long hotelId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        if (hotelId != null) {
+            // Verify hotel ownership
+            Hotel hotel = hotelRepository.findById(hotelId)
+                    .orElseThrow(() -> new RuntimeException("Hotel not found"));
+            if (!hotel.getOwnerId().equals(user.getId())) {
+                throw new RuntimeException("You don't have permission to view earnings for this hotel");
+            }
+        }
+        
+        return ResponseEntity.ok(bookingService.getEarnings(user.getId(), hotelId, startDate, endDate));
     }
 }

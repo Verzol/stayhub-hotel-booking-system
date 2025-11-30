@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,9 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.verzol.stayhub.module.booking.dto.BookingDTOs.BookingRequest;
 import com.verzol.stayhub.module.booking.dto.BookingDTOs.BookingResponse;
-import com.verzol.stayhub.module.booking.dto.BookingDTOs.PriceCalculationResponse;
 import com.verzol.stayhub.module.booking.dto.BookingDTOs.CancellationRequest;
 import com.verzol.stayhub.module.booking.dto.BookingDTOs.CancellationResponse;
+import com.verzol.stayhub.module.booking.dto.BookingDTOs.PriceCalculationResponse;
 import com.verzol.stayhub.module.booking.entity.Booking;
 import com.verzol.stayhub.module.booking.service.BookingService;
 import com.verzol.stayhub.module.booking.service.InvoiceService;
@@ -43,16 +44,24 @@ public class BookingController {
     private final HotelRepository hotelRepository;
 
     @PostMapping("/preview")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<PriceCalculationResponse> calculatePrice(@RequestBody BookingRequest request) {
         return ResponseEntity.ok(bookingService.calculatePrice(request));
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<BookingResponse> createBooking(
             @RequestBody BookingRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
         User user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        // Double check: Host cannot create bookings (only manage)
+        if ("HOST".equalsIgnoreCase(user.getRole().name())) {
+            throw new RuntimeException("Hosts cannot create bookings. They can only manage their properties.");
+        }
+        
         return ResponseEntity.ok(bookingService.createPendingBooking(request, user.getId()));
     }
 
@@ -62,15 +71,23 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.mapToResponse(booking));
     }
     @PostMapping("/{id}/confirm")
+    @PreAuthorize("hasRole('CUSTOMER')") // Only CUSTOMER can confirm bookings
     public ResponseEntity<Void> confirmBooking(@PathVariable Long id) {
         bookingService.confirmBooking(id);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/my-bookings")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<List<BookingResponse>> getMyBookings(@AuthenticationPrincipal UserDetails userDetails) {
         User user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        // Double check: Host cannot view guest bookings
+        if ("HOST".equalsIgnoreCase(user.getRole().name())) {
+            throw new RuntimeException("Hosts cannot view guest bookings. Please use the Host Dashboard to manage your property bookings.");
+        }
+        
         return ResponseEntity.ok(bookingService.getUserBookings(user.getId()));
     }
 
@@ -78,12 +95,18 @@ public class BookingController {
      * Cancel booking - Guest can cancel their own booking
      */
     @PostMapping("/{id}/cancel")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<CancellationResponse> cancelBooking(
             @PathVariable Long id,
             @RequestBody(required = false) CancellationRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
         User user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        // Double check: Host cannot cancel guest bookings from this endpoint
+        if ("HOST".equalsIgnoreCase(user.getRole().name())) {
+            throw new RuntimeException("Hosts cannot cancel bookings from here. Please use the Host Dashboard to manage bookings.");
+        }
         
         if (request == null) {
             request = new CancellationRequest();

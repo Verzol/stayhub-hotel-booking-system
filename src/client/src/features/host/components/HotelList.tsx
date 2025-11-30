@@ -8,8 +8,10 @@ import {
   Image as ImageIcon,
 } from 'lucide-react';
 import type { Hotel } from '../../../types/host';
-import { getMyHotels } from '../../../services/hostService';
 import { toast } from 'sonner';
+import HotelImage from '../../../components/common/HotelImage';
+import { getCachedHotels } from '../../../utils/cachedServices';
+import { HotelCardSkeleton } from '../../../components/common/Skeleton';
 
 interface HotelListProps {
   onEdit: (hotel: Hotel) => void;
@@ -29,7 +31,8 @@ export default function HotelList({
 
   const loadHotels = useCallback(async () => {
     try {
-      const data = await getMyHotels();
+      // Use cached version for faster load
+      const data = await getCachedHotels();
       setHotels(data);
     } catch (error) {
       console.error('Failed to load hotels', error);
@@ -45,12 +48,9 @@ export default function HotelList({
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="h-96 bg-slate-50 rounded-2xl animate-pulse border border-slate-100"
-          />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <HotelCardSkeleton key={i} />
         ))}
       </div>
     );
@@ -90,14 +90,12 @@ export default function HotelList({
           {/* Image */}
           <div className="relative h-56 bg-slate-100 overflow-hidden">
             {hotel.images && hotel.images.length > 0 ? (
-              <img
-                src={
-                  hotel.images[0].url.startsWith('http')
-                    ? hotel.images[0].url
-                    : `http://localhost:8080${hotel.images[0].url}`
-                }
+              <HotelImage
+                src={hotel.images[0].url}
                 alt={hotel.name}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                className="w-full h-full group-hover:scale-110 transition-transform duration-700"
+                aspectRatio="auto"
+                lazy={true}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-slate-400 bg-slate-50">

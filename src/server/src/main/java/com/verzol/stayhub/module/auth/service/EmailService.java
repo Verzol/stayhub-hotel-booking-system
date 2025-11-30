@@ -148,7 +148,7 @@ public class EmailService {
                     .total-row { border-top: 2px solid #111827; border-bottom: 2px solid #111827; font-weight: 800; font-size: 18px; }
                     .total-row td { padding: 15px 0; color: #111827; }
                     .button-container { text-align: center; margin: 30px 0; }
-                    .button { display: inline-block; padding: 14px 28px; background: linear-gradient(135deg, #2563eb 0%%, #1d4ed8 100%%); color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; }
+                    .button { display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #2563eb 0%%, #1d4ed8 100%%); color: #ffffff; text-decoration: none; border-radius: 50px; font-weight: 700; font-size: 16px; box-shadow: 0 10px 20px -10px rgba(37, 99, 235, 0.5); letter-spacing: 0.5px; }
                     .footer { background-color: #f9fafb; padding: 20px; text-align: center; font-size: 12px; color: #9ca3af; border-top: 1px solid #e5e7eb; }
                     .footer p { margin: 5px 0; }
                 </style>

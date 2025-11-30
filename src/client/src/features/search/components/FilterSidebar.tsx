@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Star } from 'lucide-react';
 
 interface FilterSidebarProps {
@@ -21,6 +21,9 @@ export default function FilterSidebar({
     setLocalFilters(filters);
   }, [filters]);
 
+  // Debounce price changes to avoid too many updates
+  const priceTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+
   const handlePriceChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     type: 'min' | 'max'
@@ -31,7 +34,14 @@ export default function FilterSidebar({
       [type === 'min' ? 'minPrice' : 'maxPrice']: val,
     };
     setLocalFilters(newFilters);
-    onFilterChange(newFilters);
+
+    // Debounce the filter change (800ms for price input)
+    if (priceTimeoutRef.current) {
+      clearTimeout(priceTimeoutRef.current);
+    }
+    priceTimeoutRef.current = setTimeout(() => {
+      onFilterChange(newFilters);
+    }, 800);
   };
 
   const toggleStar = (star: number) => {
@@ -44,6 +54,15 @@ export default function FilterSidebar({
     setLocalFilters(newFilters);
     onFilterChange(newFilters);
   };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (priceTimeoutRef.current) {
+        clearTimeout(priceTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div className="bg-white rounded-2xl border border-slate-100 p-6 space-y-8 sticky top-24">

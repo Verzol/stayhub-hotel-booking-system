@@ -228,6 +228,8 @@ export default function ProfilePage() {
                     src={getAvatarUrl(profile)}
                     alt={profile?.fullName || 'User'}
                     className="w-full h-full object-cover"
+                    loading="lazy"
+                    decoding="async"
                   />
                 ) : (
                   profile?.fullName?.charAt(0) || 'U'

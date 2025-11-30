@@ -1,22 +1,17 @@
 import { useState } from 'react';
 import {
   Building2,
-  Plus,
   Home,
   Calendar,
   CreditCard,
-  MessageSquare,
   BarChart3,
-  Settings,
-  Bell,
-  HelpCircle,
-  Menu,
-  X,
-  Star,
   LogOut,
+  ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
+import { useWorkerCleanup } from '../../hooks/useWorker';
+import Navbar from '../../components/layout/Navbar';
 import HotelList from './components/HotelList';
 import HotelForm from './components/HotelForm';
 import RoomList from './components/RoomList';
@@ -24,6 +19,10 @@ import RoomForm from './components/RoomForm';
 import AvailabilityCalendar from './components/AvailabilityCalendar';
 import PromotionList from './components/PromotionList';
 import PromotionForm from './components/PromotionForm';
+import HostBookingManagementWrapper from './components/HostBookingManagementWrapper';
+import DashboardOverview from './components/DashboardOverview';
+import HostAnalytics from './components/HostAnalytics';
+import HostEarnings from './components/HostEarnings';
 import type { Hotel, Room, Promotion } from '../../types/host';
 
 type View =
@@ -34,10 +33,12 @@ type View =
   | 'ROOM_FORM'
   | 'AVAILABILITY'
   | 'PROMOTIONS'
-  | 'PROMOTION_FORM';
+  | 'PROMOTION_FORM'
+  | 'BOOKINGS'
+  | 'ANALYTICS'
+  | 'EARNINGS';
 
 export default function HostDashboard() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [currentView, setCurrentView] = useState<View>('DASHBOARD');
   const [selectedHotel, setSelectedHotel] = useState<Hotel | undefined>(
     undefined
@@ -50,25 +51,20 @@ export default function HostDashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
+  // Cleanup workers on unmount
+  useWorkerCleanup();
+
   const handleLogout = () => {
     logout();
     navigate('/');
   };
 
-  const sidebarItems = [
-    { icon: Home, label: 'Dashboard', view: 'DASHBOARD' as View },
-    { icon: Building2, label: 'My Listings', view: 'HOTELS' as View },
-    { icon: Calendar, label: 'Bookings', view: 'DASHBOARD' as View }, // Placeholder
-    { icon: CreditCard, label: 'Earnings', view: 'DASHBOARD' as View }, // Placeholder
-    {
-      icon: MessageSquare,
-      label: 'Messages',
-      view: 'DASHBOARD' as View,
-      badge: 3,
-    }, // Placeholder
-    { icon: Star, label: 'Reviews', view: 'DASHBOARD' as View }, // Placeholder
-    { icon: BarChart3, label: 'Analytics', view: 'DASHBOARD' as View }, // Placeholder
-    { icon: Settings, label: 'Settings', view: 'DASHBOARD' as View }, // Placeholder
+  const tabs = [
+    { id: 'DASHBOARD', label: 'Tổng quan', icon: Home },
+    { id: 'HOTELS', label: 'Khách sạn', icon: Building2 },
+    { id: 'BOOKINGS', label: 'Đặt phòng', icon: Calendar },
+    { id: 'EARNINGS', label: 'Thu nhập', icon: CreditCard },
+    { id: 'ANALYTICS', label: 'Phân tích', icon: BarChart3 },
   ];
 
   // Navigation Handlers
@@ -185,172 +181,109 @@ export default function HostDashboard() {
             onCancel={() => setCurrentView('PROMOTIONS')}
           />
         );
+      case 'BOOKINGS':
+        return <HostBookingManagementWrapper />;
+      case 'ANALYTICS':
+        return <HostAnalytics />;
+      case 'EARNINGS':
+        return <HostEarnings />;
       case 'DASHBOARD':
       default:
-        return (
-          <div className="text-center py-20">
-            <h2 className="text-2xl font-bold text-slate-900 mb-4">
-              Welcome to Host Dashboard
-            </h2>
-            <p className="text-slate-500 mb-8">
-              Select "My Listings" to manage your properties.
-            </p>
-            <button
-              onClick={() => setCurrentView('HOTELS')}
-              className="px-6 py-3 bg-brand-cta text-white rounded-xl font-bold shadow-lg hover:bg-brand-cta-hover transition-all"
-            >
-              Go to My Listings
-            </button>
-          </div>
-        );
+        return <DashboardOverview />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex font-sans">
-      {/* Sidebar */}
-      <aside
-        className={`${
-          sidebarOpen ? 'w-72' : 'w-24'
-        } bg-slate-900 text-white transition-all duration-300 flex flex-col fixed h-full z-40 shadow-2xl overflow-hidden`}
-      >
-        {/* Background Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-900 to-brand-dark/50 pointer-events-none"></div>
+    <div className="min-h-screen bg-[#F2F3F3] font-sans text-slate-800">
+      <Navbar />
+      <div className="min-h-screen bg-brand-bg pt-24 pb-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header - Similar to Profile Page */}
+          <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-lg border border-white/20 p-8 mb-8 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-brand-accent/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
 
-        {/* Logo */}
-        <div className="relative p-6 border-b border-slate-800/50 flex items-center justify-between z-10">
-          {sidebarOpen && (
-            <Link to="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 bg-gradient-to-br from-brand-accent to-brand-dark rounded-xl flex items-center justify-center shadow-lg shadow-brand-accent/20 group-hover:scale-110 transition-transform">
-                <Building2 className="w-6 h-6 text-white" />
+            <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+              {/* Left - User Info */}
+              <div className="flex items-center gap-6">
+                {/* Avatar */}
+                <div className="relative">
+                  <div className="w-20 h-20 bg-gradient-to-br from-brand-dark to-brand-accent rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-xl shadow-brand-dark/20 overflow-hidden ring-4 ring-white">
+                    {user?.avatarUrl ? (
+                      <img
+                        src={user.avatarUrl}
+                        alt={user?.fullName || 'Host'}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    ) : (
+                      user?.fullName?.charAt(0) || 'H'
+                    )}
+                  </div>
+                </div>
+
+                {/* Info */}
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <h1 className="text-2xl font-black text-brand-dark">
+                      {user?.fullName || 'Host Dashboard'}
+                    </h1>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-brand-accent/10 text-brand-accent text-xs font-bold uppercase tracking-wider rounded-full">
+                      <Building2 className="w-3.5 h-3.5" />
+                      Host
+                    </span>
+                  </div>
+                  <p className="text-slate-500 font-medium">{user?.email}</p>
+                </div>
               </div>
-              <span className="font-black text-xl tracking-tight">StayHub</span>
-            </Link>
-          )}
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 hover:bg-white/10 rounded-xl transition-colors text-slate-400 hover:text-white"
-          >
-            {sidebarOpen ? (
-              <X className="w-5 h-5" />
-            ) : (
-              <Menu className="w-5 h-5" />
-            )}
-          </button>
-        </div>
 
-        {/* Host Badge */}
-        {sidebarOpen && (
-          <div className="relative px-6 py-4 border-b border-slate-800/50 z-10 bg-slate-800/30">
-            <div className="flex items-center gap-2 text-brand-accent">
-              <Star className="w-4 h-4 fill-brand-accent" />
-              <span className="text-sm font-bold tracking-wide uppercase">
-                Host Dashboard
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Navigation */}
-        <nav className="relative flex-1 p-4 space-y-2 z-10 overflow-y-auto custom-scrollbar">
-          {sidebarItems.map((item) => (
-            <button
-              key={item.label}
-              onClick={() => setCurrentView(item.view)}
-              className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group ${
-                currentView === item.view
-                  ? 'bg-gradient-to-r from-brand-accent to-brand-dark text-white shadow-lg shadow-brand-accent/25 font-bold'
-                  : 'text-slate-400 hover:bg-white/5 hover:text-white font-medium'
-              }`}
-            >
-              <item.icon
-                className={`w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110 ${
-                  currentView === item.view
-                    ? 'text-white'
-                    : 'text-slate-500 group-hover:text-white'
-                }`}
-              />
-              {sidebarOpen && (
-                <span className="flex-1 text-left">{item.label}</span>
-              )}
-              {sidebarOpen && item.badge && (
-                <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-sm">
-                  {item.badge}
-                </span>
-              )}
-            </button>
-          ))}
-        </nav>
-
-        {/* User Profile & Logout */}
-        <div className="relative p-4 border-t border-slate-800/50 space-y-4 z-10 bg-slate-900/50 backdrop-blur-sm">
-          <div
-            className={`flex items-center gap-3 ${!sidebarOpen && 'justify-center'}`}
-          >
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg ring-2 ring-white/10">
-              <span className="text-white font-bold">
-                {user?.fullName?.charAt(0) || 'H'}
-              </span>
-            </div>
-            {sidebarOpen && (
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-sm truncate text-white">
-                  {user?.fullName}
-                </p>
-                <p className="text-xs text-slate-400 truncate">Property Host</p>
+              {/* Right - Actions */}
+              <div className="flex items-center gap-3">
+                <Link
+                  to="/"
+                  className="px-5 py-2.5 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors font-bold text-sm flex items-center gap-2"
+                >
+                  <ChevronRight className="w-4 h-4 rotate-180" />
+                  Về trang chủ
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="px-5 py-2.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors font-bold text-sm flex items-center gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Đăng xuất
+                </button>
               </div>
-            )}
+            </div>
           </div>
-          <button
-            onClick={handleLogout}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all ${
-              !sidebarOpen ? 'justify-center' : ''
-            }`}
-          >
-            <LogOut className="w-5 h-5 flex-shrink-0" />
-            {sidebarOpen && <span className="font-medium">Sign Out</span>}
-          </button>
+
+          {/* Tabs Navigation - Similar to Profile Page */}
+          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden mb-6">
+            <div className="border-b border-slate-100">
+              <div className="flex p-2 gap-2 overflow-x-auto">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setCurrentView(tab.id as View)}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap ${
+                      currentView === tab.id
+                        ? 'bg-brand-accent text-white shadow-lg shadow-brand-accent/30'
+                        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                    }`}
+                  >
+                    <tab.icon className="w-4 h-4" />
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Main Content */}
+          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 min-h-[600px]">
+            <div className="p-8">{renderContent()}</div>
+          </div>
         </div>
-      </aside>
-
-      {/* Main Content */}
-      <main
-        className={`flex-1 ${
-          sidebarOpen ? 'ml-72' : 'ml-24'
-        } transition-all duration-300 min-h-screen flex flex-col`}
-      >
-        {/* Top Header */}
-        <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 shadow-sm">
-          <div className="px-8 py-5 flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-                Host Dashboard
-              </h1>
-              <p className="text-sm text-slate-500 font-medium mt-1">
-                Manage your properties and bookings
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              <button className="p-2.5 text-slate-500 hover:text-brand-accent hover:bg-brand-accent/5 rounded-xl transition-all relative group">
-                <Bell className="w-6 h-6" />
-                <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
-              </button>
-              <button className="p-2.5 text-slate-500 hover:text-brand-accent hover:bg-brand-accent/5 rounded-xl transition-all">
-                <HelpCircle className="w-6 h-6" />
-              </button>
-              <button
-                onClick={handleCreateHotel}
-                className="flex items-center gap-2 px-5 py-2.5 bg-brand-cta hover:bg-brand-cta-hover text-white rounded-xl transition-all shadow-lg shadow-brand-cta/30 font-bold text-sm hover:scale-105 active:scale-95"
-              >
-                <Plus className="w-5 h-5" />
-                Add New Listing
-              </button>
-            </div>
-          </div>
-        </header>
-
-        <div className="p-8">{renderContent()}</div>
-      </main>
+      </div>
     </div>
   );
 }

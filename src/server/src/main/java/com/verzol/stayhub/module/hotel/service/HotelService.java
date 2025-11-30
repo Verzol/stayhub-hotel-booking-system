@@ -4,12 +4,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.verzol.stayhub.module.amenity.entity.Amenity;
 import com.verzol.stayhub.module.amenity.repository.AmenityRepository;
 import com.verzol.stayhub.module.hotel.dto.HotelDTO;
+import com.verzol.stayhub.module.hotel.dto.HotelSearchDTO;
 import com.verzol.stayhub.module.hotel.entity.Hotel;
 import com.verzol.stayhub.module.hotel.entity.HotelImage;
 import com.verzol.stayhub.module.hotel.repository.HotelRepository;
@@ -44,15 +48,10 @@ public class HotelService {
         return hotelRepository.save(hotel);
     }
 
+    @Transactional(readOnly = true)
     public List<Hotel> getMyHotels(Long ownerId) {
-        // Assuming we might need a custom query or just filter. 
-        // For now, let's use Example or add a method to Repository.
-        // Since I can't easily modify Repository interface without another tool call, 
-        // I'll assume I can add a method to it or use a workaround.
-        // Actually, I should add findByOwnerId to HotelRepository.
-        return hotelRepository.findAll().stream()
-                .filter(h -> h.getOwnerId().equals(ownerId))
-                .collect(Collectors.toList());
+        // Use optimized query - findByOwnerId uses database index
+        return hotelRepository.findByOwnerId(ownerId);
     }
 
     private final com.verzol.stayhub.common.service.FileStorageService fileStorageService;
@@ -108,5 +107,53 @@ public class HotelService {
             List<Amenity> amenities = amenityRepository.findAllById(dto.getAmenityIds());
             hotel.setAmenities(new HashSet<>(amenities));
         }
+    }
+
+    /**
+     * Search hotels with optimized DTO response
+     * Maps Hotel entities to HotelSearchDTO to reduce response size
+     * Only loads necessary data, avoiding N+1 queries and large responses
+     */
+    public Page<HotelSearchDTO> searchHotelsOptimized(Specification<Hotel> spec, Pageable pageable) {
+        // Use Specification to filter (with all existing filters)
+        // Note: With LAZY loading, images and rooms won't be loaded automatically
+        // We'll query them separately in batch to avoid N+1
+        Page<Hotel> hotels = hotelRepository.findAll(spec, pageable);
+        
+        // Get hotel IDs for batch queries
+        List<Long> hotelIds = hotels.getContent().stream()
+            .map(Hotel::getId)
+            .collect(Collectors.toList());
+        
+        // Batch load first images for all hotels (1 query instead of N)
+        java.util.Map<Long, String> thumbnailMap = hotelRepository.findFirstImageByHotelIds(hotelIds);
+        
+        // Batch load min prices for all hotels (1 query instead of N)
+        java.util.Map<Long, java.math.BigDecimal> minPriceMap = hotelRepository.findMinPriceByHotelIds(hotelIds);
+        
+        // Batch load room counts (1 query instead of N)
+        java.util.Map<Long, Integer> roomCountMap = hotelRepository.findRoomCountByHotelIds(hotelIds);
+        
+        // Map to DTO using batch-loaded data
+        return hotels.map(hotel -> {
+            String thumbnailUrl = thumbnailMap.get(hotel.getId());
+            java.math.BigDecimal minPrice = minPriceMap.get(hotel.getId());
+            Integer roomCount = roomCountMap.getOrDefault(hotel.getId(), 0);
+            
+            return new HotelSearchDTO(
+                hotel.getId(),
+                hotel.getName(),
+                hotel.getDescription(),
+                hotel.getCity(),
+                hotel.getCountry(),
+                hotel.getAddress(),
+                hotel.getStarRating(),
+                hotel.getLatitude(),
+                hotel.getLongitude(),
+                thumbnailUrl,
+                minPrice,
+                roomCount
+            );
+        });
     }
 }

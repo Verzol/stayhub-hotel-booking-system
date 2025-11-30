@@ -19,6 +19,7 @@ import HotelDetailsPage from './features/hotels/HotelDetailsPage';
 import MainLayout from './components/layout/MainLayout';
 import ProfilePage from './features/user/ProfilePage';
 import WishlistPage from './features/wishlist/WishlistPage';
+import PromotionsPage from './features/promotions/PromotionsPage';
 
 // Lazy load heavy components (code splitting)
 const AdminDashboard = lazy(() => import('./features/admin/AdminDashboard'));
@@ -109,6 +110,7 @@ function App() {
           <Route element={<MainLayout />}>
             <Route path="/" element={<RoleBasedHome />} />
             <Route path="/search" element={<SearchResultsPage />} />
+            <Route path="/promotions" element={<PromotionsPage />} />
             <Route path="/hotels/:id" element={<HotelDetailsPage />} />
             <Route
               path="/profile"
@@ -121,7 +123,7 @@ function App() {
             <Route
               path="/booking"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={['CUSTOMER']}>
                   <Suspense fallback={<PageLoader />}>
                     <BookingPage />
                   </Suspense>
@@ -131,7 +133,7 @@ function App() {
             <Route
               path="/booking/:id"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={['CUSTOMER']}>
                   <Suspense fallback={<PageLoader />}>
                     <BookingDetailsPage />
                   </Suspense>
@@ -141,7 +143,7 @@ function App() {
             <Route
               path="/bookings"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={['CUSTOMER']}>
                   <Suspense fallback={<PageLoader />}>
                     <BookingsListPage />
                   </Suspense>
