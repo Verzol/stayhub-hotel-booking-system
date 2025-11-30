@@ -1,0 +1,264 @@
+{
+  "dashboard": {
+    "title": "StayHub - Prometheus Queries Examples",
+    "tags": ["stayhub", "examples", "queries"],
+    "timezone": "browser",
+    "schemaVersion": 38,
+    "version": 1,
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Application Status",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+        "targets": [
+          {
+            "expr": "up{job=\"stayhub-backend\"}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {
+                "type": "value",
+                "options": {
+                  "0": { "text": "DOWN", "color": "red" },
+                  "1": { "text": "UP", "color": "green" }
+                }
+              }
+            ],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": 0, "color": "red" },
+                { "value": 1, "color": "green" }
+              ]
+            }
+          }
+        },
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto"
+        }
+      },
+      {
+        "id": 2,
+        "title": "HTTP Request Rate",
+        "type": "timeseries",
+        "gridPos": { "h": 8, "w": 12, "x": 6, "y": 0 },
+        "targets": [
+          {
+            "expr": "sum(rate(http_server_requests_seconds_count[5m]))",
+            "legendFormat": "Requests/sec",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "reqps",
+            "color": { "mode": "palette-classic" }
+          }
+        }
+      },
+      {
+        "id": 3,
+        "title": "Response Time - P95",
+        "type": "timeseries",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(http_server_requests_seconds_bucket[5m]))",
+            "legendFormat": "P95",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.99, rate(http_server_requests_seconds_bucket[5m]))",
+            "legendFormat": "P99",
+            "refId": "B"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ms",
+            "decimals": 2
+          }
+        }
+      },
+      {
+        "id": 4,
+        "title": "Heap Memory Usage",
+        "type": "gauge",
+        "gridPos": { "h": 8, "w": 6, "x": 12, "y": 4 },
+        "targets": [
+          {
+            "expr": "(jvm_memory_used_bytes{area=\"heap\"} / jvm_memory_max_bytes{area=\"heap\"}) * 100",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": 0, "color": "green" },
+                { "value": 70, "color": "yellow" },
+                { "value": 90, "color": "red" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 5,
+        "title": "Error Rate",
+        "type": "timeseries",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+        "targets": [
+          {
+            "expr": "sum(rate(http_server_requests_seconds_count{status=~\"5..\"}[5m]))",
+            "legendFormat": "5xx Errors",
+            "refId": "A"
+          },
+          {
+            "expr": "sum(rate(http_server_requests_seconds_count{status=~\"4..\"}[5m]))",
+            "legendFormat": "4xx Errors",
+            "refId": "B"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "reqps",
+            "color": { "mode": "palette-classic" }
+          }
+        }
+      },
+      {
+        "id": 6,
+        "title": "CPU Usage",
+        "type": "gauge",
+        "gridPos": { "h": 8, "w": 6, "x": 12, "y": 12 },
+        "targets": [
+          {
+            "expr": "process_cpu_usage * 100",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": 0, "color": "green" },
+                { "value": 50, "color": "yellow" },
+                { "value": 80, "color": "red" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 7,
+        "title": "Top 10 Endpoints by Request Rate",
+        "type": "bargauge",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
+        "targets": [
+          {
+            "expr": "topk(10, sum(rate(http_server_requests_seconds_count[5m])) by (uri))",
+            "legendFormat": "{{uri}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "reqps",
+            "color": { "mode": "palette-classic" }
+          }
+        },
+        "options": {
+          "displayMode": "gradient",
+          "orientation": "horizontal",
+          "showUnfilled": true
+        }
+      },
+      {
+        "id": 8,
+        "title": "Active Threads",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 6, "x": 12, "y": 20 },
+        "targets": [
+          {
+            "expr": "jvm_threads_live_threads",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        }
+      },
+      {
+        "id": 9,
+        "title": "Database Connections",
+        "type": "timeseries",
+        "gridPos": { "h": 8, "w": 18, "x": 0, "y": 28 },
+        "targets": [
+          {
+            "expr": "hikari_connections_active",
+            "legendFormat": "Active",
+            "refId": "A"
+          },
+          {
+            "expr": "hikari_connections_idle",
+            "legendFormat": "Idle",
+            "refId": "B"
+          },
+          {
+            "expr": "hikari_connections_active + hikari_connections_idle",
+            "legendFormat": "Total",
+            "refId": "C"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        }
+      },
+      {
+        "id": 10,
+        "title": "Application Uptime",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 6, "x": 0, "y": 36 },
+        "targets": [
+          {
+            "expr": "process_uptime_seconds / 3600",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "hours",
+            "decimals": 2
+          }
+        }
+      }
+    ],
+    "time": {
+      "from": "now-15m",
+      "to": "now"
+    },
+    "timepicker": {
+      "refresh_intervals": ["10s", "30s", "1m", "5m", "15m", "30m", "1h"]
+    }
+  }
+}

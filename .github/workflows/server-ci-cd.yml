@@ -43,6 +43,17 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
+      
+      mailhog:
+        image: mailhog/mailhog:latest
+        ports:
+          - 1025:1025  # SMTP port
+          - 8025:8025  # Web UI port
+        options: >-
+          --health-cmd "wget --quiet --tries=1 --spider http://localhost:8025 || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Checkout code
@@ -79,11 +90,11 @@ jobs:
           DB_PASSWORD: test
           # JWT (test key - not used in production)
           JWT_SECRET_KEY: 746573742d7365637265742d6b65792d666f722d756e69742d74657374732d6f6e6c792d646f2d6e6f742d7573652d696e2d70726f64
-          # Mail (from secrets for integration tests, fallback for unit tests)
-          MAIL_HOST: ${{ secrets.MAIL_HOST || 'localhost' }}
-          MAIL_PORT: ${{ secrets.MAIL_PORT || '1025' }}
-          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME || 'test' }}
-          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD || 'test' }}
+          # Mail (using MailHog service for tests)
+          MAIL_HOST: localhost
+          MAIL_PORT: 1025
+          MAIL_USERNAME: ""
+          MAIL_PASSWORD: ""
           # CORS (for tests)
           CORS_ALLOWED_ORIGINS: http://localhost:3000,http://localhost:5173
 

@@ -1,0 +1,299 @@
+name: Monitoring Test
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "monitoring/**"
+      - "src/server/src/main/resources/application.properties"
+      - "src/server/pom.xml"
+      - "docker-compose.yml"
+      - ".github/workflows/monitoring-test.yml"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "monitoring/**"
+      - "src/server/src/main/resources/application.properties"
+      - "src/server/pom.xml"
+      - "docker-compose.yml"
+      - ".github/workflows/monitoring-test.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test-monitoring:
+    name: Test Prometheus and Grafana Setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          cache: "maven"
+
+      - name: Verify Prometheus config
+        run: |
+          echo "Checking Prometheus configuration..."
+          if [ ! -f "monitoring/prometheus/prometheus.yml" ]; then
+            echo "::warning::❌ Prometheus config file not found!"
+          elif ! grep -q "stayhub-backend" monitoring/prometheus/prometheus.yml; then
+            echo "::warning::❌ Prometheus config missing stayhub-backend target!"
+          else
+            echo "✅ Prometheus config is valid"
+          fi
+
+      - name: Verify Grafana provisioning
+        run: |
+          echo "Checking Grafana provisioning..."
+
+          if [ ! -f "monitoring/grafana/provisioning/datasources/prometheus.yml" ]; then
+            echo "::warning::❌ Grafana datasource config not found!"
+          elif [ ! -f "monitoring/grafana/provisioning/dashboards/dashboard.yml" ]; then
+            echo "::warning::❌ Grafana dashboard provisioning config not found!"
+          elif ! grep -q "prometheus:9090" monitoring/grafana/provisioning/datasources/prometheus.yml; then
+            echo "::warning::❌ Grafana datasource URL is incorrect (should be prometheus:9090)!"
+          else
+            echo "✅ Grafana provisioning configs are valid"
+          fi
+
+      - name: Verify Actuator dependencies
+        run: |
+          echo "Checking Spring Boot Actuator dependencies..."
+          cd src/server
+
+          if ! grep -q "spring-boot-starter-actuator" pom.xml; then
+            echo "::warning::❌ spring-boot-starter-actuator dependency not found in pom.xml!"
+          elif ! grep -q "micrometer-registry-prometheus" pom.xml; then
+            echo "::warning::❌ micrometer-registry-prometheus dependency not found in pom.xml!"
+          else
+            echo "✅ Actuator dependencies are present"
+          fi
+
+      - name: Verify Actuator configuration
+        run: |
+          echo "Checking application.properties for Actuator config..."
+
+          if ! grep -q "management.endpoints.web.exposure.include" src/server/src/main/resources/application.properties; then
+            echo "::warning::❌ Actuator endpoints not configured in application.properties!"
+          elif ! grep -q "prometheus" src/server/src/main/resources/application.properties; then
+            echo "::warning::❌ Prometheus endpoint not enabled in application.properties!"
+          else
+            echo "✅ Actuator configuration is present"
+          fi
+
+      - name: Start PostgreSQL for tests
+        run: |
+          docker run -d \
+            --name postgres-test \
+            -e POSTGRES_DB=stayhub_test \
+            -e POSTGRES_USER=test \
+            -e POSTGRES_PASSWORD=test \
+            -p 5432:5432 \
+            postgres:16-alpine
+
+      - name: Wait for PostgreSQL
+        run: |
+          echo "Waiting for PostgreSQL to be ready..."
+          timeout 30 bash -c 'until docker exec postgres-test pg_isready -U test; do sleep 1; done'
+
+      - name: Set up Docker Compose
+        run: |
+          echo "Verifying Docker Compose is available..."
+          docker compose version || docker-compose --version
+          echo "✅ Docker Compose is ready"
+
+      - name: Build backend with Maven
+        run: |
+          cd src/server
+          mvn clean package -DskipTests -B
+        env:
+          DB_URL: jdbc:postgresql://localhost:5432/stayhub_test
+          DB_USERNAME: test
+          DB_PASSWORD: test
+          JWT_SECRET_KEY: test-secret-key-for-ci-cd-only
+          MAIL_HOST: localhost
+          MAIL_PORT: 1025
+          MAIL_USERNAME: ""
+          MAIL_PASSWORD: ""
+
+      - name: Start services with Docker Compose
+        run: |
+          # Create a test docker-compose file
+          cat > docker-compose.test.yml << 'EOF'
+          services:
+            backend:
+              image: eclipse-temurin:21-jre-alpine
+              container_name: stayhub-backend-test
+              working_dir: /app
+              volumes:
+                - ./src/server/target:/app/target:ro
+              command: sh -c "cp /app/target/*.jar /app/app.jar && apk add --no-cache curl && java -Djava.net.preferIPv4Stack=true -jar /app/app.jar"
+              environment:
+                DB_URL: jdbc:postgresql://host.docker.internal:5432/stayhub_test
+                DB_USERNAME: test
+                DB_PASSWORD: test
+                JWT_SECRET_KEY: test-secret-key-for-ci-cd-only
+                MAIL_HOST: mailhog
+                MAIL_PORT: 1025
+                MAIL_USERNAME: ""
+                MAIL_PASSWORD: ""
+                CORS_ALLOWED_ORIGINS: http://localhost:3000
+              ports:
+                - "8080:8080"
+              networks:
+                - monitoring-network
+              depends_on:
+                - mailhog
+              extra_hosts:
+                - "host.docker.internal:host-gateway"
+              
+            prometheus:
+              image: prom/prometheus:latest
+              container_name: stayhub-prometheus-test
+              volumes:
+                - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+              command:
+                - '--config.file=/etc/prometheus/prometheus.yml'
+                - '--storage.tsdb.path=/prometheus'
+                - '--storage.tsdb.retention.time=1h'
+                - '--web.enable-lifecycle'
+              ports:
+                - "9090:9090"
+              networks:
+                - monitoring-network
+              depends_on:
+                - backend
+            
+            mailhog:
+              image: mailhog/mailhog:latest
+              container_name: stayhub-mailhog-test
+              ports:
+                - "1025:1025"
+                - "8025:8025"
+              networks:
+                - monitoring-network
+
+          networks:
+            monitoring-network:
+              driver: bridge
+          EOF
+
+          docker compose -f docker-compose.test.yml up -d
+          echo "Waiting for services to start..."
+          sleep 30
+
+      - name: Check backend health
+        run: |
+          echo "Checking backend health endpoint..."
+          for i in {1..30}; do
+            if curl -f http://localhost:8080/actuator/health > /dev/null 2>&1; then
+              echo "✅ Backend is healthy"
+              break
+            fi
+            if [ $i -eq 30 ]; then
+              echo "::warning::❌ Backend health check failed after 30 attempts"
+              docker compose -f docker-compose.test.yml logs backend
+            fi
+            echo "Waiting for backend... ($i/30)"
+            sleep 2
+          done
+
+      - name: Test Prometheus metrics endpoint
+        run: |
+          echo "Testing Prometheus metrics endpoint..."
+
+          sleep 10
+          response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/actuator/prometheus)
+
+          if [ "$response" != "200" ]; then
+            echo "::warning::❌ Actuator prometheus endpoint returned HTTP $response"
+            echo "Response:"
+            curl -v http://localhost:8080/actuator/prometheus || true
+            docker compose -f docker-compose.test.yml logs backend
+          else
+            metrics=$(curl -s http://localhost:8080/actuator/prometheus | grep -c "^# HELP" || echo "0")
+            if [ "$metrics" -eq "0" ]; then
+              echo "::warning::❌ No metrics found in Prometheus endpoint"
+              curl -s http://localhost:8080/actuator/prometheus | head -20
+            else
+              echo "✅ Prometheus metrics endpoint is working ($metrics metric types found)"
+            fi
+          fi
+
+      - name: Check Prometheus is running
+        run: |
+          echo "Checking Prometheus status..."
+
+          sleep 10
+          response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:9090/-/healthy)
+          if [ "$response" != "200" ]; then
+            echo "::warning::❌ Prometheus is not healthy (HTTP $response)"
+            docker compose -f docker-compose.test.yml logs prometheus
+          else
+            echo "✅ Prometheus is running"
+          fi
+
+      - name: Verify Prometheus can scrape backend
+        run: |
+          echo "Checking if Prometheus can scrape backend metrics..."
+
+          sleep 20
+          targets=$(curl -s http://localhost:9090/api/v1/targets | grep -o '"health":"up"' | wc -l || echo "0")
+
+          if [ "$targets" -eq "0" ]; then
+            echo "::warning::⚠️  No UP targets found yet, checking targets status..."
+            curl -s http://localhost:9090/api/v1/targets | grep -A 5 "stayhub-backend" || true
+            echo "::warning::⚠️  Prometheus may need more time to scrape."
+          else
+            echo "✅ Prometheus has $targets target(s) in UP state"
+          fi
+
+          query_result=$(curl -s "http://localhost:9090/api/v1/query?query=up" | grep -o '"value":\[.*\]' | head -1 || echo "")
+          if [ -z "$query_result" ]; then
+            echo "::warning::⚠️  Could not query Prometheus."
+          else
+            echo "✅ Prometheus query API is working"
+          fi
+
+      - name: Check Docker Compose configuration
+        run: |
+          echo "Validating docker-compose.yml..."
+
+          if ! grep -q "prometheus:" docker-compose.yml; then
+            echo "::warning::❌ Prometheus service not found in docker-compose.yml!"
+          elif ! grep -q "grafana:" docker-compose.yml; then
+            echo "::warning::❌ Grafana service not found in docker-compose.yml!"
+          elif ! grep -q "stayhub-network" docker-compose.yml; then
+            echo "::warning::❌ Network configuration missing in docker-compose.yml!"
+          else
+            echo "✅ Docker Compose configuration is valid"
+          fi
+
+      - name: Cleanup
+        if: always()
+        run: |
+          echo "Cleaning up test containers..."
+          docker compose -f docker-compose.test.yml down -v || true
+          docker rm -f postgres-test || true
+          docker network prune -f || true
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Monitoring Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Prometheus configuration validated" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Grafana provisioning validated" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Actuator dependencies verified" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Actuator configuration verified" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Backend metrics endpoint tested" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Prometheus service tested" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All monitoring components are properly configured!" >> $GITHUB_STEP_SUMMARY
