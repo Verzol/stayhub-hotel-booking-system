@@ -7,6 +7,11 @@ export default defineConfig({
   // Plugin React cho Vite
   plugins: [react()],
 
+  // Define global variables for browser compatibility
+  define: {
+    global: 'globalThis',
+  },
+
   // Cấu hình server development
   server: {
     port: 3000, // Port để chạy dev server

@@ -33,6 +33,7 @@ import com.verzol.stayhub.module.room.entity.Room;
 import com.verzol.stayhub.module.room.repository.RoomRepository;
 import com.verzol.stayhub.module.room.service.RoomService;
 import com.verzol.stayhub.module.user.repository.UserRepository;
+import com.verzol.stayhub.module.notification.service.NotificationService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -48,6 +49,7 @@ public class BookingService {
     private final EmailService emailService;
     private final UserRepository userRepository;
     private final BookingStateMachine stateMachine;
+    private final NotificationService notificationService;
     private final RefundCalculationService refundCalculationService;
 
     @Value("${app.frontend.url:http://localhost:3000}")
@@ -275,6 +277,25 @@ public class BookingService {
             });
         }
 
+        // Send notification to guest
+        try {
+            Room room = roomRepository.findById(booking.getRoomId())
+                    .orElseThrow(() -> new RuntimeException("Room not found"));
+            Hotel hotel = hotelRepository.findById(room.getHotelId())
+                    .orElseThrow(() -> new RuntimeException("Hotel not found"));
+            
+            String message = String.format("Đặt phòng #%d tại %s đã được xác nhận thành công!", 
+                    booking.getId(), hotel.getName());
+            notificationService.sendNotification(
+                    booking.getUserId(),
+                    "Đặt phòng thành công",
+                    message,
+                    "BOOKING"
+            );
+        } catch (Exception e) {
+            System.err.println("Failed to send booking confirmation notification: " + e.getMessage());
+        }
+
         // Send invoice email
         try {
             Room room = roomRepository.findById(booking.getRoomId())
@@ -441,6 +462,27 @@ public class BookingService {
         }
         
         bookingRepository.save(booking);
+        
+        // Send notification to guest if cancelled by host
+        if ("HOST".equals(booking.getCancelledBy())) {
+            try {
+                Room room = roomRepository.findById(booking.getRoomId())
+                        .orElseThrow(() -> new RuntimeException("Room not found"));
+                Hotel hotel = hotelRepository.findById(room.getHotelId())
+                        .orElseThrow(() -> new RuntimeException("Hotel not found"));
+                
+                String message = String.format("Đặt phòng #%d tại %s đã bị hủy bởi chủ khách sạn.", 
+                        booking.getId(), hotel.getName());
+                notificationService.sendNotification(
+                        booking.getUserId(),
+                        "Đặt phòng bị hủy",
+                        message,
+                        "BOOKING"
+                );
+            } catch (Exception e) {
+                System.err.println("Failed to send cancellation notification: " + e.getMessage());
+            }
+        }
         
         // Build response
         CancellationResponse response = new CancellationResponse();

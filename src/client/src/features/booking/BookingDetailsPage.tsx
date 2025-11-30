@@ -23,6 +23,7 @@ import {
   Download,
   LogIn,
   LogOut,
+  Star,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatVND } from '../../utils/currency';
@@ -468,6 +469,15 @@ export default function BookingDetailsPage() {
 
               {/* Action Buttons */}
               <div className="mt-6 space-y-3">
+                {booking.status === 'COMPLETED' && (
+                  <button
+                    onClick={() => navigate(`/review/${booking.id}`)}
+                    className="w-full px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Star className="w-5 h-5" />
+                    Đánh giá đặt phòng
+                  </button>
+                )}
                 {canCancelBooking(booking.status) && (
                   <button
                     onClick={() => setCancelModalOpen(true)}

@@ -26,8 +26,8 @@ public class PromotionService {
 
     @Transactional
     public Promotion createPromotion(Long hotelId, PromotionDTO dto) {
-        Hotel hotel = hotelRepository.findById(hotelId)
-                .orElseThrow(() -> new RuntimeException("Hotel not found"));
+        // Hotel hotel = hotelRepository.findById(hotelId)
+        //         .orElseThrow(() -> new RuntimeException("Hotel not found"));
 
         Promotion promotion = new Promotion();
         promotion.setHotelId(hotelId);

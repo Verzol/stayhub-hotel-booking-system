@@ -15,13 +15,14 @@ import {
   Settings,
   LayoutDashboard,
   Heart,
-  Bell,
   Shield,
   CreditCard,
   Calendar,
   ArrowRight,
   Loader2,
+  MessageCircle,
 } from 'lucide-react';
+import NotificationBell from '../notifications/NotificationBell';
 
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -97,6 +98,9 @@ export default function Navbar() {
   const navItems = [
     { name: 'Khách sạn', icon: Hotel, href: '/search' },
     { name: 'Ưu đãi', icon: Percent, href: '/promotions' },
+    ...(isAuthenticated
+      ? [{ name: 'Tin nhắn', icon: MessageCircle, href: '/chat' }]
+      : []),
   ];
 
   const getDashboardLink = () => {
@@ -113,8 +117,14 @@ export default function Navbar() {
       show: user?.role === 'ADMIN' || user?.role === 'HOST',
     },
     { label: 'Hồ sơ của tôi', icon: UserIcon, href: '/profile', show: true },
+    {
+      label: 'Đặt phòng của tôi',
+      icon: Calendar,
+      href: '/bookings',
+      show: user?.role === 'CUSTOMER',
+    },
+    { label: 'Tin nhắn', icon: MessageCircle, href: '/chat', show: true },
     { label: 'Đã lưu', icon: Heart, href: '/wishlist', show: true },
-    { label: 'Thông báo', icon: Bell, href: '#', show: true },
     {
       label: 'Cài đặt',
       icon: Settings,
@@ -335,6 +345,13 @@ export default function Navbar() {
                 <span>VI</span>
                 <ChevronDown className="w-3 h-3" />
               </div>
+
+              {isAuthenticated && (
+                <>
+                  {/* Notification Bell */}
+                  <NotificationBell showScrolledStyle={showScrolledStyle} />
+                </>
+              )}
 
               {isAuthenticated ? (
                 <div className="relative">

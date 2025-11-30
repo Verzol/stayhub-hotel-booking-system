@@ -1,4 +1,4 @@
-package com.verzol.stayhub.module.review.entity;
+package com.verzol.stayhub.module.notification.entity;
 
 import java.time.LocalDateTime;
 
@@ -19,29 +19,30 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "reviews")
-public class Review {
+@Table(name = "notifications")
+public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "booking_id", nullable = false, unique = true)
-    private Long bookingId;
-
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(name = "hotel_id", nullable = false)
-    private Long hotelId;
+    @Column(nullable = false)
+    private String title;
+
+    @Column(nullable = false, columnDefinition = "text")
+    private String message;
 
     @Column(nullable = false)
-    private Integer rating; // 1-5
+    private String type; // BOOKING, CHAT, SYSTEM
 
-    @Column(columnDefinition = "text")
-    private String comment;
+    @Column(name = "related_user_id")
+    private Long relatedUserId; // For CHAT type: senderId; For BOOKING type: hotel ownerId, etc.
 
-    @Column(columnDefinition = "jsonb")
-    private String images; // JSON array of image URLs stored as JSONB
+    @Column(name = "is_read", nullable = false)
+    @Builder.Default
+    private Boolean isRead = false;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -51,6 +52,15 @@ public class Review {
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
         }
+        if (isRead == null) {
+            isRead = false;
+        }
+    }
+
+    public enum NotificationType {
+        BOOKING,
+        CHAT,
+        SYSTEM
     }
 }
 

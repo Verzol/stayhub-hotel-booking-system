@@ -7,6 +7,7 @@ import {
   BarChart3,
   LogOut,
   ChevronRight,
+  MessageCircle,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
@@ -23,6 +24,7 @@ import HostBookingManagementWrapper from './components/HostBookingManagementWrap
 import DashboardOverview from './components/DashboardOverview';
 import HostAnalytics from './components/HostAnalytics';
 import HostEarnings from './components/HostEarnings';
+import HostChatList from './components/HostChatList';
 import type { Hotel, Room, Promotion } from '../../types/host';
 
 type View =
@@ -36,7 +38,8 @@ type View =
   | 'PROMOTION_FORM'
   | 'BOOKINGS'
   | 'ANALYTICS'
-  | 'EARNINGS';
+  | 'EARNINGS'
+  | 'CHAT';
 
 export default function HostDashboard() {
   const [currentView, setCurrentView] = useState<View>('DASHBOARD');
@@ -63,6 +66,7 @@ export default function HostDashboard() {
     { id: 'DASHBOARD', label: 'Tổng quan', icon: Home },
     { id: 'HOTELS', label: 'Khách sạn', icon: Building2 },
     { id: 'BOOKINGS', label: 'Đặt phòng', icon: Calendar },
+    { id: 'CHAT', label: 'Tin nhắn', icon: MessageCircle },
     { id: 'EARNINGS', label: 'Thu nhập', icon: CreditCard },
     { id: 'ANALYTICS', label: 'Phân tích', icon: BarChart3 },
   ];
@@ -183,6 +187,8 @@ export default function HostDashboard() {
         );
       case 'BOOKINGS':
         return <HostBookingManagementWrapper />;
+      case 'CHAT':
+        return <HostChatList />;
       case 'ANALYTICS':
         return <HostAnalytics />;
       case 'EARNINGS':

@@ -22,6 +22,7 @@ import {
   Download,
   LogIn,
   LogOut,
+  Star,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import OptimizedImage from '../../components/common/OptimizedImage';
@@ -500,6 +501,18 @@ export default function BookingsListPage() {
                           )}
                           {/* Action Buttons */}
                           <div className="flex gap-2 mt-3">
+                            {booking.status === 'COMPLETED' && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigate(`/review/${booking.id}`);
+                                }}
+                                className="px-4 py-2 text-sm font-bold text-yellow-600 hover:bg-yellow-50 rounded-xl transition-colors flex items-center gap-2"
+                              >
+                                <Star className="w-4 h-4" />
+                                Đánh giá
+                              </button>
+                            )}
                             {canCancelBooking(booking.status) && (
                               <button
                                 onClick={(e) => handleCancelBooking(booking, e)}

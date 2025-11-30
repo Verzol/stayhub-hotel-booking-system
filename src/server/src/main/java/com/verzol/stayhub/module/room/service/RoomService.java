@@ -14,7 +14,7 @@ import com.verzol.stayhub.module.amenity.entity.Amenity;
 import com.verzol.stayhub.module.amenity.repository.AmenityRepository;
 import com.verzol.stayhub.module.booking.entity.Booking;
 import com.verzol.stayhub.module.booking.repository.BookingRepository;
-import com.verzol.stayhub.module.hotel.entity.Hotel;
+
 import com.verzol.stayhub.module.hotel.repository.HotelRepository;
 import com.verzol.stayhub.module.room.dto.RoomDTO;
 import com.verzol.stayhub.module.room.entity.Room;
@@ -36,8 +36,8 @@ public class RoomService {
 
     @Transactional
     public Room createRoom(Long hotelId, RoomDTO dto) {
-        Hotel hotel = hotelRepository.findById(hotelId)
-                .orElseThrow(() -> new RuntimeException("Hotel not found"));
+        // Hotel hotel = hotelRepository.findById(hotelId)
+        //         .orElseThrow(() -> new RuntimeException("Hotel not found"));
 
         Room room = new Room();
         room.setHotelId(hotelId);

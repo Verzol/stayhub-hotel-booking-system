@@ -25,16 +25,16 @@ import {
   AlertCircle,
   Eye,
   EyeOff,
-  Bell,
   Settings,
-  CreditCard,
   Heart,
   Clock,
   ChevronRight,
   RefreshCw,
+  MessageCircle,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { getAvatarUrl } from '../../utils/userUtils';
+import { useNavigate } from 'react-router-dom';
 
 export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
@@ -44,6 +44,7 @@ export default function ProfilePage() {
     'profile' | 'security' | 'preferences'
   >('profile');
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   // Personal Data State
   const [personalData, setPersonalData] = useState<UpdateProfileRequest>({
@@ -192,25 +193,38 @@ export default function ProfilePage() {
 
   const quickLinks = [
     {
+      icon: Calendar,
+      label: 'Đặt phòng của tôi',
+      desc: 'Xem lịch sử đặt phòng',
+      count: 0,
+      href: '/bookings',
+      show: user?.role === 'CUSTOMER',
+    },
+    {
+      icon: MessageCircle,
+      label: 'Tin nhắn',
+      desc: 'Cuộc trò chuyện của bạn',
+      count: 0,
+      href: '/chat',
+      show: true,
+    },
+    {
       icon: Heart,
-      label: 'Saved Properties',
-      desc: 'View your wishlist',
-      count: 12,
+      label: 'Đã lưu',
+      desc: 'Xem danh sách yêu thích',
+      count: 0,
+      href: '/wishlist',
+      show: true,
     },
     {
       icon: Clock,
-      label: 'Booking History',
-      desc: 'Past reservations',
-      count: 5,
+      label: 'Lịch sử',
+      desc: 'Đặt phòng đã qua',
+      count: 0,
+      href: '/bookings',
+      show: user?.role === 'CUSTOMER',
     },
-    {
-      icon: CreditCard,
-      label: 'Payment Methods',
-      desc: 'Manage cards',
-      count: 2,
-    },
-    { icon: Bell, label: 'Notifications', desc: 'Alert settings', count: 0 },
-  ];
+  ].filter((link) => link.show);
 
   return (
     <div className="min-h-screen bg-brand-bg pt-24 pb-12">
@@ -310,6 +324,7 @@ export default function ProfilePage() {
                 {quickLinks.map((link) => (
                   <button
                     key={link.label}
+                    onClick={() => link.href && navigate(link.href)}
                     className="w-full flex items-center gap-4 p-3 rounded-2xl hover:bg-slate-50 transition-all group"
                   >
                     <div className="w-12 h-12 bg-brand-accent/10 rounded-xl flex items-center justify-center group-hover:bg-brand-accent group-hover:text-white transition-all text-brand-accent">
