@@ -92,6 +92,10 @@ export default function OptimizedImage({
           setIsThumbnailLoaded(false);
         };
         thumbImg.src = normalizedThumbnail;
+      } else {
+        // No thumbnail, set loading to false to show fallback
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setIsLoading(false);
       }
 
       // Step 2: Load full image

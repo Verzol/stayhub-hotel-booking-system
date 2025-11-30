@@ -2,6 +2,7 @@ package com.verzol.stayhub.module.room.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.verzol.stayhub.module.amenity.entity.Amenity;
 import com.verzol.stayhub.module.amenity.repository.AmenityRepository;
+import com.verzol.stayhub.module.booking.entity.Booking;
+import com.verzol.stayhub.module.booking.repository.BookingRepository;
 import com.verzol.stayhub.module.hotel.entity.Hotel;
 import com.verzol.stayhub.module.hotel.repository.HotelRepository;
 import com.verzol.stayhub.module.room.dto.RoomDTO;
@@ -29,6 +32,7 @@ public class RoomService {
     private final HotelRepository hotelRepository;
     private final AmenityRepository amenityRepository;
     private final RoomAvailabilityRepository roomAvailabilityRepository;
+    private final BookingRepository bookingRepository;
 
     @Transactional
     public Room createRoom(Long hotelId, RoomDTO dto) {
@@ -51,10 +55,8 @@ public class RoomService {
     }
 
     public List<Room> getHotelRooms(Long hotelId) {
-        // Assuming findByHotelId exists or using stream filter
-        return roomRepository.findAll().stream()
-                .filter(r -> r.getHotelId().equals(hotelId))
-                .collect(Collectors.toList());
+        // Use repository method instead of loading all rooms
+        return roomRepository.findByHotelId(hotelId);
     }
 
     public List<RoomAvailability> getAvailability(Long roomId, LocalDate start, LocalDate end) {
@@ -77,6 +79,65 @@ public class RoomService {
         roomAvailabilityRepository.save(availability);
     }
 
+    /**
+     * Reserve room temporarily for PENDING bookings (temporary hold during payment)
+     * Similar to how Booking.com/Agoda hold rooms during payment process
+     */
+    @Transactional
+    public void reserveDatesTemporary(Long roomId, Long bookingId, LocalDate start, LocalDate end, LocalDateTime holdUntil) {
+        List<LocalDate> dates = start.datesUntil(end.plusDays(1)).collect(Collectors.toList());
+        for (LocalDate date : dates) {
+            RoomAvailability availability = roomAvailabilityRepository.findByRoomIdAndDate(roomId, date)
+                    .orElse(new RoomAvailability());
+            
+            if (availability.getId() == null) {
+                availability.setRoomId(roomId);
+                availability.setDate(date);
+            }
+
+            // Check if room is already booked by CONFIRMED booking
+            if (availability.getBookingId() != null && 
+                (availability.getBlockReason() == null || !"PENDING_HOLD".equals(availability.getBlockReason()))) {
+                 throw new RuntimeException("Room is already booked on " + date);
+            }
+            
+            // If there's a PENDING_HOLD, check if it's expired and clean it up
+            if (availability.getBookingId() != null && "PENDING_HOLD".equals(availability.getBlockReason())) {
+                Booking existingBooking = bookingRepository.findById(availability.getBookingId()).orElse(null);
+                if (existingBooking != null && existingBooking.getLockedUntil() != null) {
+                    // Check if the existing PENDING booking has expired
+                    if (existingBooking.getLockedUntil().isBefore(LocalDateTime.now()) || 
+                        !"PENDING".equals(existingBooking.getStatus())) {
+                        // Expired or not PENDING anymore - release this hold
+                        availability.setIsAvailable(true);
+                        availability.setBookingId(null);
+                        availability.setBlockReason(null);
+                    } else {
+                        // Valid PENDING_HOLD still active - room is taken
+                        throw new RuntimeException("Room is currently being held by another booking");
+                    }
+                }
+            }
+            
+            // Check if room is blocked by host (isAvailable is explicitly false)
+            Boolean isAvailable = availability.getIsAvailable();
+            if (isAvailable != null && !isAvailable && availability.getBookingId() == null) {
+                 // Already blocked by host
+                 throw new RuntimeException("Room is not available on " + date);
+            }
+
+            // Reserve the room temporarily (will be confirmed after payment)
+            availability.setIsAvailable(false);
+            availability.setBookingId(bookingId);
+            availability.setBlockReason("PENDING_HOLD"); // Mark as temporary hold
+            
+            roomAvailabilityRepository.save(availability);
+        }
+    }
+
+    /**
+     * Reserve room permanently for CONFIRMED bookings
+     */
     @Transactional
     public void reserveDates(Long roomId, Long bookingId, LocalDate start, LocalDate end) {
         List<LocalDate> dates = start.datesUntil(end.plusDays(1)).collect(Collectors.toList());
@@ -89,7 +150,14 @@ public class RoomService {
                 availability.setDate(date);
             }
 
-            // Check if room is already booked
+            // If already reserved by same booking (from PENDING_HOLD), just update status
+            if (availability.getBookingId() != null && availability.getBookingId().equals(bookingId)) {
+                availability.setBlockReason("BOOKED");
+                roomAvailabilityRepository.save(availability);
+                continue;
+            }
+
+            // Check if room is already booked by another booking
             if (availability.getBookingId() != null) {
                  throw new RuntimeException("Room is already booked on " + date);
             }
@@ -101,7 +169,7 @@ public class RoomService {
                  throw new RuntimeException("Room is not available on " + date);
             }
 
-            // Reserve the room
+            // Reserve the room permanently
             availability.setIsAvailable(false);
             availability.setBookingId(bookingId);
             availability.setBlockReason("BOOKED");

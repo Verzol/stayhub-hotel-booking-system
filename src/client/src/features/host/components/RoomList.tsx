@@ -13,6 +13,7 @@ import type { Room, Hotel } from '../../../types/host';
 import { getHotelRooms } from '../../../services/hostService';
 import { toast } from 'sonner';
 import { formatVND } from '../../../utils/currency';
+import HotelImage from '../../../components/common/HotelImage';
 
 interface RoomListProps {
   hotel: Hotel;
@@ -112,14 +113,12 @@ export default function RoomList({
               {/* Image */}
               <div className="relative aspect-video bg-slate-100 overflow-hidden">
                 {room.images && room.images.length > 0 ? (
-                  <img
-                    src={
-                      room.images[0].url.startsWith('http')
-                        ? room.images[0].url
-                        : `http://localhost:8080${room.images[0].url}`
-                    }
+                  <HotelImage
+                    src={room.images[0].url}
                     alt={room.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    className="w-full h-full group-hover:scale-110 transition-transform duration-700"
+                    aspectRatio="16/9"
+                    lazy={true}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-slate-400">

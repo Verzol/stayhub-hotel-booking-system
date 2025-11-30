@@ -96,7 +96,7 @@ export default function Navbar() {
 
   const navItems = [
     { name: 'Khách sạn', icon: Hotel, href: '/search' },
-    { name: 'Ưu đãi', icon: Percent, href: '/search?deals=true' },
+    { name: 'Ưu đãi', icon: Percent, href: '/promotions' },
   ];
 
   const getDashboardLink = () => {
@@ -237,6 +237,8 @@ export default function Navbar() {
                                           }
                                           alt={booking.roomName || 'Room'}
                                           className="w-full h-full object-cover"
+                                          loading="lazy"
+                                          decoding="async"
                                         />
                                       </div>
                                     )}
@@ -355,6 +357,8 @@ export default function Navbar() {
                             src={getAvatarUrl(user)}
                             alt={user?.fullName || 'User'}
                             className="w-full h-full object-cover"
+                            loading="lazy"
+                            decoding="async"
                           />
                         ) : (
                           user?.fullName?.charAt(0) || 'U'

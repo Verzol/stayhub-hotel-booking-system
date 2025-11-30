@@ -20,6 +20,7 @@ import {
   uploadRoomImages,
 } from '../../../services/hostService';
 import { toast } from 'sonner';
+import HotelImage from '../../../components/common/HotelImage';
 
 interface RoomFormProps {
   hotel: Hotel;
@@ -377,14 +378,12 @@ export default function RoomForm({
                   key={`existing-${idx}`}
                   className="relative aspect-video rounded-xl overflow-hidden bg-slate-100 group shadow-sm hover:shadow-md transition-all"
                 >
-                  <img
-                    src={
-                      img.url.startsWith('http')
-                        ? img.url
-                        : `http://localhost:8080${img.url}`
-                    }
+                  <HotelImage
+                    src={img.url}
                     alt={`Existing ${idx}`}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full"
+                    aspectRatio="16/9"
+                    lazy={true}
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
                 </div>
@@ -404,6 +403,8 @@ export default function RoomForm({
                     src={URL.createObjectURL(file)}
                     alt="preview"
                     className="w-full h-full object-cover"
+                    loading="eager"
+                    decoding="async"
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
                   <button

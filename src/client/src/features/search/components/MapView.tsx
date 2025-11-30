@@ -3,6 +3,7 @@ import 'leaflet/dist/leaflet.css';
 import type { Hotel } from '../../../types/host';
 import { Link } from 'react-router-dom';
 import L from 'leaflet';
+import HotelImage from '../../../components/common/HotelImage';
 
 // Fix for default marker icon
 import icon from 'leaflet/dist/images/marker-icon.png';
@@ -45,16 +46,12 @@ export default function MapView({ hotels }: MapViewProps) {
             <Marker key={hotel.id} position={[hotel.latitude, hotel.longitude]}>
               <Popup>
                 <div className="min-w-[200px]">
-                  <img
-                    src={
-                      hotel.images?.[0]?.url
-                        ? hotel.images[0].url.startsWith('http')
-                          ? hotel.images[0].url
-                          : `http://localhost:8080${hotel.images[0].url}`
-                        : '/placeholder-hotel.jpg'
-                    }
+                  <HotelImage
+                    src={hotel.images?.[0]?.url || null}
                     alt={hotel.name}
-                    className="w-full h-32 object-cover rounded-lg mb-2"
+                    className="w-full h-32 rounded-lg mb-2"
+                    aspectRatio="4/3"
+                    lazy={true}
                   />
                   <h3 className="font-bold text-sm mb-1">{hotel.name}</h3>
                   <p className="text-brand-cta font-bold text-sm">

@@ -3,6 +3,7 @@ import { Toaster } from 'sonner';
 import './index.css';
 import App from './App';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import { registerServiceWorker } from './utils/serviceWorker';
 
 const rootElement = document.getElementById('root');
 
@@ -22,3 +23,8 @@ createRoot(rootElement).render(
     <App />
   </ErrorBoundary>
 );
+
+// Register Service Worker for caching and offline support
+if (import.meta.env.PROD) {
+  registerServiceWorker();
+}

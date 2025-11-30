@@ -9,6 +9,7 @@ import { getHotelDetails } from '../../services/searchService';
 import type { Hotel } from '../../types/host';
 import { Loader2, Heart, MapPin, Star, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
+import HotelImage from '../../components/common/HotelImage';
 
 export default function WishlistPage() {
   const navigate = useNavigate();
@@ -92,17 +93,13 @@ export default function WishlistPage() {
                   <Heart className="w-5 h-5 text-red-500 fill-red-500 group-hover/btn:scale-110 transition-transform" />
                 </button>
 
-                <div className="relative aspect-[4/3] bg-slate-100">
-                  <img
-                    src={
-                      hotel.images?.[0]?.url
-                        ? hotel.images[0].url.startsWith('http')
-                          ? hotel.images[0].url
-                          : `http://localhost:8080${hotel.images[0].url}`
-                        : '/placeholder-hotel.jpg'
-                    }
+                <div className="relative aspect-[4/3] bg-slate-100 overflow-hidden">
+                  <HotelImage
+                    src={hotel.images?.[0]?.url || null}
                     alt={hotel.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full group-hover:scale-105 transition-transform duration-500"
+                    aspectRatio="4/3"
+                    lazy={true}
                   />
                 </div>
 

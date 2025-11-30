@@ -6,6 +6,7 @@ import {
   createPaymentUrl,
   confirmBooking,
   type PriceCalculationResponse,
+  type BookingResponse,
 } from '../../services/bookingService';
 import { getHotelDetails } from '../../services/searchService';
 import type { Hotel, Room } from '../../types/host';
@@ -18,9 +19,10 @@ import {
   Loader2,
   Star,
   MapPin,
-  X,
 } from 'lucide-react';
 import { formatVND } from '../../utils/currency';
+import HotelImage from '../../components/common/HotelImage';
+import QRPaymentModal from './components/QRPaymentModal';
 
 export default function BookingPage() {
   const [searchParams] = useSearchParams();
@@ -56,6 +58,10 @@ export default function BookingPage() {
   const [paymentMethod, setPaymentMethod] = useState<'VNPAY' | 'QR'>('VNPAY');
   const [showQRModal, setShowQRModal] = useState(false);
   const [pendingBookingId, setPendingBookingId] = useState<number | null>(null);
+  const [pendingBooking, setPendingBooking] = useState<BookingResponse | null>(
+    null
+  );
+  const [couponError, setCouponError] = useState<string | null>(null);
 
   // Helper to validate and update dates
   const handleDateChange = (type: 'checkIn' | 'checkOut', value: string) => {
@@ -100,19 +106,23 @@ export default function BookingPage() {
     fetchDetails();
   }, [hotelId, roomId]);
 
+  // Calculate base price (without coupon) when dates/guests change
   useEffect(() => {
     const fetchPrice = async () => {
       if (!roomId || !checkIn || !checkOut) return;
       setCalculating(true);
       try {
+        // Only calculate base price, don't apply coupon here
         const data = await calculatePrice({
           roomId,
           checkInDate: checkIn,
           checkOutDate: checkOut,
           guests,
-          couponCode: formData.couponCode,
+          couponCode: '', // No coupon for base price calculation
         });
         setPriceDetails(data);
+        // Clear coupon error when base price is recalculated
+        setCouponError(null);
       } catch (error) {
         console.error('Failed to calculate price', error);
       } finally {
@@ -120,13 +130,61 @@ export default function BookingPage() {
       }
     };
 
-    // Debounce price calculation for coupon
-    const timeoutId = setTimeout(() => {
-      fetchPrice();
-    }, 500);
+    fetchPrice();
+  }, [roomId, checkIn, checkOut, guests]);
 
-    return () => clearTimeout(timeoutId);
-  }, [roomId, checkIn, checkOut, guests, formData.couponCode]);
+  // Function to validate and apply coupon code
+  const handleApplyCoupon = async () => {
+    if (!formData.couponCode || !formData.couponCode.trim()) {
+      setCouponError(null);
+      return;
+    }
+
+    if (!roomId || !checkIn || !checkOut) return;
+
+    setCalculating(true);
+    setCouponError(null);
+
+    try {
+      const data = await calculatePrice({
+        roomId,
+        checkInDate: checkIn,
+        checkOutDate: checkOut,
+        guests,
+        couponCode: formData.couponCode.trim(),
+      });
+
+      // Success - update price details
+      setPriceDetails(data);
+      if (data.appliedCouponCode) {
+        setCouponError(null);
+      }
+    } catch (error) {
+      console.error('Failed to apply coupon', error);
+      // Show error message below input (don't delete the code)
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Mã giảm giá không hợp lệ. Vui lòng kiểm tra lại.';
+
+      setCouponError(errorMessage);
+      // Revert to base price (without coupon)
+      try {
+        const basePriceData = await calculatePrice({
+          roomId,
+          checkInDate: checkIn,
+          checkOutDate: checkOut,
+          guests,
+          couponCode: '',
+        });
+        setPriceDetails(basePriceData);
+      } catch (recalcError) {
+        console.error('Failed to recalculate base price', recalcError);
+      }
+    } finally {
+      setCalculating(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -134,6 +192,9 @@ export default function BookingPage() {
     try {
       // 1. Create Booking
       console.log('Creating booking...');
+      // Only use coupon code if it was successfully applied
+      const couponCodeToUse = priceDetails.appliedCouponCode || '';
+
       const booking = await createBooking({
         roomId,
         checkInDate: checkIn,
@@ -142,13 +203,15 @@ export default function BookingPage() {
         guestName: `${formData.firstName} ${formData.lastName}`,
         guestEmail: formData.email,
         guestPhone: formData.phone,
-        couponCode: formData.couponCode,
+        couponCode: couponCodeToUse,
         note: formData.note,
       });
       console.log('Booking created:', booking);
+      console.log('Booking lockedUntil:', booking.lockedUntil);
 
       if (paymentMethod === 'QR') {
         setPendingBookingId(booking.id);
+        setPendingBooking(booking); // Store full booking object for countdown
         setShowQRModal(true);
         setLoading(false); // Stop loading for the form, but keep modal open
         return;
@@ -439,17 +502,15 @@ export default function BookingPage() {
 
               {hotel && (
                 <div className="flex gap-4 mb-6 pb-6 border-b border-slate-100">
-                  <img
-                    src={
-                      hotel.images && hotel.images.length > 0
-                        ? hotel.images[0].url.startsWith('http')
-                          ? hotel.images[0].url
-                          : `http://localhost:8080${hotel.images[0].url}`
-                        : '/placeholder-hotel.jpg'
-                    }
-                    alt={hotel.name}
-                    className="w-20 h-20 rounded-xl object-cover"
-                  />
+                  <div className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
+                    <HotelImage
+                      src={hotel.images?.[0]?.url || null}
+                      alt={hotel.name}
+                      className="w-full h-full"
+                      aspectRatio="1/1"
+                      lazy={false}
+                    />
+                  </div>
                   <div>
                     <h4 className="font-bold text-slate-900 line-clamp-2">
                       {hotel.name}
@@ -538,19 +599,48 @@ export default function BookingPage() {
                   <input
                     type="text"
                     value={formData.couponCode}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setFormData({
                         ...formData,
                         couponCode: e.target.value.toUpperCase(),
-                      })
-                    }
-                    className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-accent outline-none"
-                    placeholder="Nhập mã"
+                      });
+                      // Clear error when user starts typing again
+                      if (couponError) {
+                        setCouponError(null);
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleApplyCoupon();
+                      }
+                    }}
+                    className={`flex-1 px-3 py-2 rounded-lg border text-sm focus:outline-none transition-colors ${
+                      couponError
+                        ? 'border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-200'
+                        : priceDetails.appliedCouponCode
+                          ? 'border-green-300 focus:border-green-500'
+                          : 'border-slate-200 focus:border-brand-accent'
+                    }`}
+                    placeholder="Nhập mã và nhấn Enter"
                   />
+                  <button
+                    type="button"
+                    onClick={handleApplyCoupon}
+                    disabled={calculating || !formData.couponCode.trim()}
+                    className="px-4 py-2 bg-brand-accent hover:bg-brand-accent/90 text-white rounded-lg text-sm font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Áp dụng
+                  </button>
                 </div>
-                {priceDetails.appliedCouponCode && (
+                {priceDetails.appliedCouponCode && !couponError && (
                   <p className="text-xs text-green-600 mt-1 font-medium">
-                    Áp dụng mã giảm giá thành công!
+                    ✓ Áp dụng mã giảm giá thành công!
+                  </p>
+                )}
+                {couponError && (
+                  <p className="text-xs text-red-600 mt-1 font-medium">
+                    {couponError}
                   </p>
                 )}
               </div>
@@ -601,76 +691,14 @@ export default function BookingPage() {
       </div>
 
       {/* QR Code Modal */}
-      {showQRModal && (
-        <div
-          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-          onClick={() => setShowQRModal(false)}
-        >
-          <div
-            className="bg-white rounded-3xl p-8 max-w-md w-full animate-in fade-in zoom-in duration-300 relative"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Close Button */}
-            <button
-              onClick={() => setShowQRModal(false)}
-              className="absolute top-4 right-4 p-2 hover:bg-slate-100 rounded-full transition-colors"
-              aria-label="Đóng"
-            >
-              <X className="w-5 h-5 text-slate-500" />
-            </button>
-
-            <h3 className="text-2xl font-bold text-slate-900 mb-2 text-center">
-              Quét để thanh toán
-            </h3>
-            <p className="text-slate-500 text-center mb-6">
-              Vui lòng quét mã QR bên dưới để hoàn tất thanh toán.
-            </p>
-
-            <div className="bg-slate-100 p-4 rounded-2xl mb-6 flex justify-center">
-              {/* Placeholder QR Code - In production use a real QR library */}
-              <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=STAYHUB_BOOKING_${pendingBookingId}_AMOUNT_${priceDetails.finalPrice}`}
-                alt="Payment QR Code"
-                className="w-48 h-48 rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex justify-between text-sm py-2 border-b border-slate-100">
-                <span className="text-slate-500">Số tiền</span>
-                <span className="font-bold text-slate-900">
-                  {formatVND(priceDetails.finalPrice)}
-                </span>
-              </div>
-              <div className="flex justify-between text-sm py-2 border-b border-slate-100">
-                <span className="text-slate-500">Mã đặt phòng</span>
-                <span className="font-bold text-slate-900">
-                  #{pendingBookingId}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex gap-3 mt-8">
-              <button
-                onClick={() => setShowQRModal(false)}
-                className="flex-1 py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-all"
-              >
-                Hủy
-              </button>
-              <button
-                onClick={handleConfirmPayment}
-                disabled={loading}
-                className="flex-1 py-4 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-xl shadow-lg shadow-brand-cta/20 transition-all hover:scale-105 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? (
-                  <Loader2 className="animate-spin" />
-                ) : (
-                  'Tôi đã hoàn tất chuyển khoản'
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
+      {showQRModal && pendingBooking && (
+        <QRPaymentModal
+          booking={pendingBooking}
+          price={priceDetails.finalPrice}
+          onClose={() => setShowQRModal(false)}
+          onConfirmPayment={handleConfirmPayment}
+          loading={loading}
+        />
       )}
     </div>
   );

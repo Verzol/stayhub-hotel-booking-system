@@ -28,6 +28,8 @@ import {
   type Wishlist,
 } from '../../services/wishlistService';
 import { toast } from 'sonner';
+import HotelImage from '../../components/common/HotelImage';
+import { HotelCardSkeleton } from '../../components/common/Skeleton';
 import { useNavigate, Link } from 'react-router-dom';
 import { formatVND } from '../../utils/currency';
 
@@ -365,10 +367,12 @@ export default function LandingPage() {
                   activeDestination === idx ? 'lg:col-span-2 lg:row-span-2' : ''
                 }`}
               >
-                <img
+                <HotelImage
                   src={city.img}
                   alt={city.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  className="w-full h-full group-hover:scale-110 transition-transform duration-700"
+                  aspectRatio="3/4"
+                  lazy={idx > 0} // Load first image immediately
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
 
@@ -431,18 +435,7 @@ export default function LandingPage() {
         {loadingFeatured ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-100 animate-pulse"
-              >
-                <div className="aspect-[4/3] bg-slate-200" />
-                <div className="p-5 space-y-3">
-                  <div className="h-4 bg-slate-200 rounded w-3/4" />
-                  <div className="h-6 bg-slate-200 rounded w-full" />
-                  <div className="h-4 bg-slate-200 rounded w-1/2" />
-                  <div className="h-10 bg-slate-200 rounded" />
-                </div>
-              </div>
+              <HotelCardSkeleton key={i} />
             ))}
           </div>
         ) : featuredProperties.length > 0 ? (
@@ -455,16 +448,12 @@ export default function LandingPage() {
               >
                 {/* Image */}
                 <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
-                  <img
-                    src={
-                      property.images?.[0]?.url
-                        ? property.images[0].url.startsWith('http')
-                          ? property.images[0].url
-                          : `http://localhost:8080${property.images[0].url}`
-                        : '/placeholder-hotel.jpg' // Fallback image
-                    }
+                  <HotelImage
+                    src={property.images?.[0]?.url || null}
                     alt={property.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    className="w-full h-full group-hover:scale-110 transition-transform duration-500"
+                    aspectRatio="4/3"
+                    lazy={idx > 3} // Only lazy load images below the fold
                   />
                   {/* Badge (Optional - can be added to Hotel entity later) */}
                   {/* Badge (Optional - can be added to Hotel entity later) */}

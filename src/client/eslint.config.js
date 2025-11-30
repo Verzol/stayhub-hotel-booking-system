@@ -20,4 +20,12 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  // Disable no-explicit-any for workers and utils (they handle dynamic data)
+  {
+    files: ['**/workers/**/*.ts', '**/utils/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-require-imports': 'off',
+    },
+  },
 ]);

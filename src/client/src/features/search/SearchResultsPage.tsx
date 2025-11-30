@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import SearchBar from './components/SearchBar';
 import FilterSidebar from './components/FilterSidebar';
@@ -12,7 +12,6 @@ import {
 import type { SearchParams } from '../../services/searchService';
 import type { Hotel } from '../../types/host';
 import {
-  Loader2,
   Map as MapIcon,
   List as ListIcon,
   Heart,
@@ -20,6 +19,8 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatVND } from '../../utils/currency';
+import HotelImage from '../../components/common/HotelImage';
+import { HotelCardSkeleton } from '../../components/common/Skeleton';
 
 interface Filters {
   minPrice: number;
@@ -60,37 +61,75 @@ export default function SearchResultsPage() {
     fetchWishlist();
   }, []);
 
+  // Debounce filter changes to avoid too many API calls
+  // Memoize search params to avoid unnecessary recalculations
+  const searchQueryParams = useMemo<SearchParams>(
+    () => ({
+      query: searchParams.get('query') || undefined,
+      checkIn: searchParams.get('checkIn') || undefined,
+      checkOut: searchParams.get('checkOut') || undefined,
+      guests: Number(searchParams.get('guests')) || undefined,
+      minPrice: filters.minPrice || undefined,
+      maxPrice: filters.maxPrice || undefined,
+      stars:
+        filters.stars && filters.stars.length > 0 ? filters.stars : undefined,
+      sort: sort,
+    }),
+    [searchParams, filters, sort]
+  );
+
+  // Track if this is the initial mount
+  const isInitialMount = useRef(true);
+
+  // Fetch hotels with debounce for filter changes
   useEffect(() => {
+    let cancelled = false;
+
     const fetchHotels = async () => {
+      if (cancelled) return;
+
+      // Check cache first for instant results (the searchHotels function already handles caching,
+      // but we can show cached results immediately if available)
+      // Note: searchHotels() will return cached data automatically, so this is just for optimization
+
       setLoading(true);
       try {
-        const queryParams: SearchParams = {
-          query: searchParams.get('query') || undefined,
-          checkIn: searchParams.get('checkIn') || undefined,
-          checkOut: searchParams.get('checkOut') || undefined,
-          guests: Number(searchParams.get('guests')) || undefined,
-          minPrice: filters.minPrice || undefined,
-          maxPrice: filters.maxPrice || undefined,
-          stars:
-            filters.stars && filters.stars.length > 0
-              ? filters.stars
-              : undefined,
-          sort: sort,
-        };
-
-        const data = await searchHotels(queryParams);
-        setHotels(Array.isArray(data?.content) ? data.content : []);
+        const data = await searchHotels(searchQueryParams);
+        if (!cancelled) {
+          setHotels(Array.isArray(data?.content) ? data.content : []);
+        }
       } catch (error) {
-        console.error('Search failed', error);
-        toast.error('Không thể tải kết quả tìm kiếm');
-        setHotels([]);
+        if (!cancelled) {
+          console.error('Search failed', error);
+          toast.error('Không thể tải kết quả tìm kiếm');
+          setHotels([]);
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
-    fetchHotels();
-  }, [searchParams, filters, sort]);
+    // Debounce filter changes (500ms) but fetch immediately on initial mount
+    const shouldDebounce = !isInitialMount.current;
+    const timeoutId = setTimeout(
+      () => {
+        fetchHotels();
+      },
+      shouldDebounce ? 500 : 0
+    );
+
+    // Mark as no longer initial mount after first run
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+    }
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
+  }, [searchQueryParams]);
 
   const handleToggleWishlist = async (e: React.MouseEvent, hotelId: number) => {
     e.stopPropagation();
@@ -194,8 +233,10 @@ export default function SearchResultsPage() {
             </div>
 
             {loading ? (
-              <div className="flex items-center justify-center py-20">
-                <Loader2 className="w-8 h-8 text-brand-accent animate-spin" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[1, 2, 3, 4].map((i) => (
+                  <HotelCardSkeleton key={i} />
+                ))}
               </div>
             ) : viewMode === 'map' ? (
               <MapView hotels={hotels || []} />
@@ -224,17 +265,13 @@ export default function SearchResultsPage() {
                       className="cursor-pointer"
                       onClick={() => navigate(`/hotels/${hotel.id}`)}
                     >
-                      <div className="relative aspect-[4/3] bg-slate-100">
-                        <img
-                          src={
-                            hotel.images?.[0]?.url
-                              ? hotel.images[0].url.startsWith('http')
-                                ? hotel.images[0].url
-                                : `http://localhost:8080${hotel.images[0].url}`
-                              : '/placeholder-hotel.jpg'
-                          }
+                      <div className="relative aspect-[4/3] bg-slate-100 overflow-hidden">
+                        <HotelImage
+                          src={hotel.images?.[0]?.url || null}
                           alt={hotel.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          className="w-full h-full group-hover:scale-105 transition-transform duration-500"
+                          aspectRatio="4/3"
+                          lazy={true}
                         />
                       </div>
                       <div className="p-5">

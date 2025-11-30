@@ -31,9 +31,26 @@ export default defineConfig({
 
   // Cấu hình build optimization
   build: {
+    // Minify code for smaller bundle size
+    // Using esbuild (default, faster than terser)
+    minify: 'esbuild',
+    // Tối ưu chunk size
+    chunkSizeWarningLimit: 600,
+    // Source maps cho production (optional, có thể tắt để nhỏ hơn)
+    sourcemap: false,
     rollupOptions: {
       output: {
+        // Better file naming với hash cho caching
+        chunkFileNames: 'js/[name]-[hash].js',
+        entryFileNames: 'js/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
+
         manualChunks: (id) => {
+          // Web Workers - separate chunk
+          if (id.includes('/workers/') && id.endsWith('.worker.ts')) {
+            return 'workers/[name]';
+          }
+
           // Tách node_modules thành các chunks riêng
           if (id.includes('node_modules')) {
             // React và React DOM
@@ -75,8 +92,10 @@ export default defineConfig({
         },
       },
     },
-    // Tăng chunk size warning limit lên 600KB (từ 500KB mặc định)
-    // Vì sau khi split, mỗi chunk sẽ nhỏ hơn
-    chunkSizeWarningLimit: 600,
+  },
+
+  // Worker configuration
+  worker: {
+    format: 'es',
   },
 });

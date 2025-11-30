@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.verzol.stayhub.module.hotel.dto.HotelSearchDTO;
 import com.verzol.stayhub.module.hotel.entity.Hotel;
 import com.verzol.stayhub.module.hotel.repository.HotelRepository;
 import com.verzol.stayhub.module.hotel.repository.HotelSpecification;
+import com.verzol.stayhub.module.hotel.service.HotelService;
 import com.verzol.stayhub.module.search.dto.SearchRequest;
 
 @RestController
@@ -23,11 +25,14 @@ public class PublicHotelController {
 
     @Autowired
     private HotelRepository hotelRepository;
+    
+    @Autowired
+    private HotelService hotelService;
 
     @GetMapping("/search")
-    public ResponseEntity<Page<Hotel>> searchHotels(
+    public ResponseEntity<Page<HotelSearchDTO>> searchHotels(
             SearchRequest request,
-            @PageableDefault(size = 10) Pageable pageable
+            @PageableDefault(size = 20) Pageable pageable
     ) {
         // Handle sorting manually if needed, or let Pageable handle it if passed from frontend
         // For custom sort logic based on request.getSort():
@@ -51,8 +56,9 @@ public class PublicHotelController {
             );
         }
 
+        // Use optimized search with DTO mapping
         HotelSpecification spec = new HotelSpecification(request);
-        Page<Hotel> hotels = hotelRepository.findAll(spec, pageable);
+        Page<HotelSearchDTO> hotels = hotelService.searchHotelsOptimized(spec, pageable);
         return ResponseEntity.ok(hotels);
     }
 

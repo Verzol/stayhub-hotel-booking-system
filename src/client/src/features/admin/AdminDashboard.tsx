@@ -25,27 +25,18 @@ import {
   ChevronDown,
   RefreshCw,
   Download,
-  Settings,
-  Bell,
-  BarChart3,
-  Home,
-  Calendar,
-  MessageSquare,
-  FileText,
-  HelpCircle,
-  Menu,
-  X,
   LogOut,
+  ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
+import Navbar from '../../components/layout/Navbar';
 
 export default function AdminDashboard() {
   const [users, setUsers] = useState<UserListResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('ALL');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -60,7 +51,7 @@ export default function AdminDashboard() {
       const data = await getAllUsers();
       setUsers(data || []);
     } catch (error) {
-      toast.error('Failed to fetch users');
+      toast.error('Không thể tải danh sách người dùng');
       console.error(error);
       setUsers([]);
     } finally {
@@ -76,12 +67,12 @@ export default function AdminDashboard() {
     try {
       await toggleUserStatus(userId);
       toast.success(
-        `User ${currentStatus ? 'disabled' : 'enabled'} successfully`
+        `Người dùng đã ${currentStatus ? 'bị vô hiệu hóa' : 'được kích hoạt'}`
       );
       fetchUsers();
     } catch (error) {
       console.error(error);
-      toast.error('Failed to update user status');
+      toast.error('Không thể cập nhật trạng thái người dùng');
     }
   };
 
@@ -91,28 +82,28 @@ export default function AdminDashboard() {
   ) => {
     try {
       await changeUserRole(userId, newRole);
-      toast.success(`User role updated to ${newRole}`);
+      toast.success(`Đã cập nhật vai trò thành ${newRole}`);
       fetchUsers();
     } catch (error) {
       console.error(error);
-      toast.error('Failed to update user role');
+      toast.error('Không thể cập nhật vai trò người dùng');
     }
   };
 
   const handleDeleteUser = async (userId: number) => {
     if (
       !confirm(
-        'Are you sure you want to delete this user? This action cannot be undone.'
+        'Bạn có chắc chắn muốn xóa người dùng này? Hành động này không thể hoàn tác.'
       )
     )
       return;
     try {
       await deleteUser(userId);
-      toast.success('User deleted successfully');
+      toast.success('Đã xóa người dùng thành công');
       fetchUsers();
     } catch (error) {
       console.error(error);
-      toast.error('Failed to delete user');
+      toast.error('Không thể xóa người dùng');
     }
   };
 
@@ -134,144 +125,66 @@ export default function AdminDashboard() {
     customers: users.filter((u) => u.role === 'CUSTOMER').length,
   };
 
-  const sidebarItems = [
-    { icon: Home, label: 'Dashboard', active: true },
-    { icon: Users, label: 'Users', active: false },
-    { icon: Building2, label: 'Properties', active: false },
-    { icon: Calendar, label: 'Bookings', active: false },
-    { icon: CreditCard, label: 'Transactions', active: false },
-    { icon: MessageSquare, label: 'Messages', active: false },
-    { icon: BarChart3, label: 'Analytics', active: false },
-    { icon: FileText, label: 'Reports', active: false },
-    { icon: Settings, label: 'Settings', active: false },
-  ];
-
   return (
-    <div className="min-h-screen bg-slate-50 flex font-sans">
-      {/* Sidebar */}
-      <aside
-        className={`${
-          sidebarOpen ? 'w-72' : 'w-24'
-        } bg-slate-900 text-white transition-all duration-300 flex flex-col fixed h-full z-40 shadow-2xl overflow-hidden`}
-      >
-        {/* Background Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-900 to-brand-dark/50 pointer-events-none"></div>
+    <div className="min-h-screen bg-[#F2F3F3] font-sans text-slate-800">
+      <Navbar />
+      <div className="min-h-screen bg-brand-bg pt-24 pb-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header - Similar to Profile Page */}
+          <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-lg border border-white/20 p-8 mb-8 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-brand-accent/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
 
-        {/* Logo */}
-        <div className="relative p-6 border-b border-slate-800/50 flex items-center justify-between z-10">
-          {sidebarOpen && (
-            <Link to="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 bg-gradient-to-br from-brand-accent to-brand-dark rounded-xl flex items-center justify-center shadow-lg shadow-brand-accent/20 group-hover:scale-110 transition-transform">
-                <Building2 className="w-6 h-6 text-white" />
+            <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+              {/* Left - User Info */}
+              <div className="flex items-center gap-6">
+                {/* Avatar */}
+                <div className="relative">
+                  <div className="w-20 h-20 bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-xl shadow-purple-600/20 overflow-hidden ring-4 ring-white">
+                    {user?.fullName?.charAt(0) || 'A'}
+                  </div>
+                </div>
+
+                {/* Info */}
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <h1 className="text-2xl font-black text-brand-dark">
+                      {user?.fullName || 'Admin Dashboard'}
+                    </h1>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-purple-100 text-purple-700 text-xs font-bold uppercase tracking-wider rounded-full">
+                      <ShieldAlert className="w-3.5 h-3.5" />
+                      Admin
+                    </span>
+                  </div>
+                  <p className="text-slate-500 font-medium">{user?.email}</p>
+                </div>
               </div>
-              <span className="font-black text-xl tracking-tight">StayHub</span>
-            </Link>
-          )}
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 hover:bg-white/10 rounded-xl transition-colors text-slate-400 hover:text-white"
-          >
-            {sidebarOpen ? (
-              <X className="w-5 h-5" />
-            ) : (
-              <Menu className="w-5 h-5" />
-            )}
-          </button>
-        </div>
 
-        {/* Navigation */}
-        <nav className="relative flex-1 p-4 space-y-2 z-10 overflow-y-auto custom-scrollbar">
-          {sidebarItems.map((item) => (
-            <button
-              key={item.label}
-              className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group ${
-                item.active
-                  ? 'bg-gradient-to-r from-brand-accent to-brand-dark text-white shadow-lg shadow-brand-accent/25 font-bold'
-                  : 'text-slate-400 hover:bg-white/5 hover:text-white font-medium'
-              }`}
-            >
-              <item.icon
-                className={`w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110 ${
-                  item.active
-                    ? 'text-white'
-                    : 'text-slate-500 group-hover:text-white'
-                }`}
-              />
-              {sidebarOpen && <span>{item.label}</span>}
-            </button>
-          ))}
-        </nav>
-
-        {/* User Profile & Logout */}
-        <div className="relative p-4 border-t border-slate-800/50 space-y-4 z-10 bg-slate-900/50 backdrop-blur-sm">
-          <div
-            className={`flex items-center gap-3 ${!sidebarOpen && 'justify-center'}`}
-          >
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg ring-2 ring-white/10">
-              <span className="text-white font-bold">
-                {user?.fullName?.charAt(0) || 'A'}
-              </span>
-            </div>
-            {sidebarOpen && (
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-sm truncate text-white">
-                  {user?.fullName}
-                </p>
-                <p className="text-xs text-slate-400 truncate">Administrator</p>
+              {/* Right - Actions */}
+              <div className="flex items-center gap-3">
+                <Link
+                  to="/"
+                  className="px-5 py-2.5 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors font-bold text-sm flex items-center gap-2"
+                >
+                  <ChevronRight className="w-4 h-4 rotate-180" />
+                  Về trang chủ
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="px-5 py-2.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors font-bold text-sm flex items-center gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Đăng xuất
+                </button>
               </div>
-            )}
-          </div>
-          <button
-            onClick={handleLogout}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all ${
-              !sidebarOpen ? 'justify-center' : ''
-            }`}
-          >
-            <LogOut className="w-5 h-5 flex-shrink-0" />
-            {sidebarOpen && <span className="font-medium">Sign Out</span>}
-          </button>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main
-        className={`flex-1 ${
-          sidebarOpen ? 'ml-72' : 'ml-24'
-        } transition-all duration-300 min-h-screen flex flex-col`}
-      >
-        {/* Top Header */}
-        <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 shadow-sm">
-          <div className="px-8 py-5 flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-                Dashboard
-              </h1>
-              <p className="text-sm text-slate-500 font-medium mt-1">
-                Welcome back, {user?.fullName}
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              <button className="p-2.5 text-slate-500 hover:text-brand-accent hover:bg-brand-accent/5 rounded-xl transition-all relative group">
-                <Bell className="w-6 h-6" />
-                <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
-              </button>
-              <button className="p-2.5 text-slate-500 hover:text-brand-accent hover:bg-brand-accent/5 rounded-xl transition-all">
-                <HelpCircle className="w-6 h-6" />
-              </button>
-              <button className="p-2.5 text-slate-500 hover:text-brand-accent hover:bg-brand-accent/5 rounded-xl transition-all">
-                <Settings className="w-6 h-6" />
-              </button>
             </div>
           </div>
-        </header>
 
-        <div className="p-8 space-y-8">
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white rounded-2xl p-6 shadow-[0_2px_10px_-3px_rgba(6,182,212,0.1)] border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-lg transition-all">
               <div className="flex items-center justify-between mb-4">
-                <div className="w-14 h-14 bg-cyan-50 rounded-2xl flex items-center justify-center group-hover:bg-cyan-500 transition-colors duration-300">
-                  <Users className="w-7 h-7 text-cyan-500 group-hover:text-white transition-colors duration-300" />
+                <div className="w-12 h-12 rounded-xl bg-cyan-100 flex items-center justify-center">
+                  <Users className="w-6 h-6 text-cyan-600" />
                 </div>
                 <span className="flex items-center px-2.5 py-1 rounded-full bg-green-50 text-xs font-bold text-green-600">
                   <TrendingUp className="w-3.5 h-3.5 mr-1" />
@@ -281,13 +194,15 @@ export default function AdminDashboard() {
               <h3 className="text-3xl font-black text-slate-900 mb-1">
                 {stats.totalUsers}
               </h3>
-              <p className="text-slate-500 font-medium">Total Users</p>
+              <p className="text-slate-500 font-medium text-sm">
+                Tổng người dùng
+              </p>
             </div>
 
-            <div className="bg-white rounded-2xl p-6 shadow-[0_2px_10px_-3px_rgba(16,185,129,0.1)] border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-lg transition-all">
               <div className="flex items-center justify-between mb-4">
-                <div className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center group-hover:bg-green-500 transition-colors duration-300">
-                  <Activity className="w-7 h-7 text-green-500 group-hover:text-white transition-colors duration-300" />
+                <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
+                  <Activity className="w-6 h-6 text-green-600" />
                 </div>
                 <span className="flex items-center px-2.5 py-1 rounded-full bg-green-50 text-xs font-bold text-green-600">
                   <TrendingUp className="w-3.5 h-3.5 mr-1" />
@@ -297,13 +212,15 @@ export default function AdminDashboard() {
               <h3 className="text-3xl font-black text-slate-900 mb-1">
                 {stats.activeUsers}
               </h3>
-              <p className="text-slate-500 font-medium">Active Users</p>
+              <p className="text-slate-500 font-medium text-sm">
+                Người dùng hoạt động
+              </p>
             </div>
 
-            <div className="bg-white rounded-2xl p-6 shadow-[0_2px_10px_-3px_rgba(139,92,246,0.1)] border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-lg transition-all">
               <div className="flex items-center justify-between mb-4">
-                <div className="w-14 h-14 bg-purple-50 rounded-2xl flex items-center justify-center group-hover:bg-purple-500 transition-colors duration-300">
-                  <Building2 className="w-7 h-7 text-purple-500 group-hover:text-white transition-colors duration-300" />
+                <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
+                  <Building2 className="w-6 h-6 text-purple-600" />
                 </div>
                 <span className="flex items-center px-2.5 py-1 rounded-full bg-green-50 text-xs font-bold text-green-600">
                   <TrendingUp className="w-3.5 h-3.5 mr-1" />
@@ -313,21 +230,23 @@ export default function AdminDashboard() {
               <h3 className="text-3xl font-black text-slate-900 mb-1">
                 {stats.hosts}
               </h3>
-              <p className="text-slate-500 font-medium">Property Hosts</p>
+              <p className="text-slate-500 font-medium text-sm">Chủ nhà</p>
             </div>
 
-            <div className="bg-white rounded-2xl p-6 shadow-[0_2px_10px_-3px_rgba(249,115,22,0.1)] border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-lg transition-all">
               <div className="flex items-center justify-between mb-4">
-                <div className="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center group-hover:bg-orange-500 transition-colors duration-300">
-                  <CreditCard className="w-7 h-7 text-orange-500 group-hover:text-white transition-colors duration-300" />
+                <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center">
+                  <CreditCard className="w-6 h-6 text-orange-600" />
                 </div>
                 <span className="flex items-center px-2.5 py-1 rounded-full bg-green-50 text-xs font-bold text-green-600">
                   <TrendingUp className="w-3.5 h-3.5 mr-1" />
                   +18%
                 </span>
               </div>
-              <h3 className="text-3xl font-black text-slate-900 mb-1">$0</h3>
-              <p className="text-slate-500 font-medium">Total Revenue</p>
+              <h3 className="text-3xl font-black text-slate-900 mb-1">0 ₫</h3>
+              <p className="text-slate-500 font-medium text-sm">
+                Tổng doanh thu
+              </p>
             </div>
           </div>
 
@@ -338,10 +257,10 @@ export default function AdminDashboard() {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
                 <div>
                   <h2 className="text-xl font-black text-slate-900">
-                    User Management
+                    Quản lý người dùng
                   </h2>
                   <p className="text-sm text-slate-500 mt-1 font-medium">
-                    Manage all registered users
+                    Quản lý tất cả người dùng đã đăng ký
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -352,15 +271,15 @@ export default function AdminDashboard() {
                     <RefreshCw
                       className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`}
                     />
-                    Refresh
+                    Làm mới
                   </button>
                   <button className="flex items-center gap-2 px-4 py-2.5 text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-xl transition-colors font-bold text-sm">
                     <Download className="w-4 h-4" />
-                    Export
+                    Xuất
                   </button>
                   <button className="flex items-center gap-2 px-5 py-2.5 bg-brand-cta hover:bg-brand-cta-hover text-white rounded-xl transition-all shadow-lg shadow-brand-cta/30 font-bold text-sm hover:scale-105 active:scale-95">
                     <UserPlus className="w-4 h-4" />
-                    Add User
+                    Thêm người dùng
                   </button>
                 </div>
               </div>
@@ -371,7 +290,7 @@ export default function AdminDashboard() {
                   <Search className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within:text-brand-accent transition-colors" />
                   <input
                     type="text"
-                    placeholder="Search users by name or email..."
+                    placeholder="Tìm kiếm người dùng theo tên hoặc email..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-4 focus:ring-brand-accent/10 focus:border-brand-accent outline-none transition-all bg-slate-50 focus:bg-white font-medium"
@@ -384,10 +303,10 @@ export default function AdminDashboard() {
                     onChange={(e) => setRoleFilter(e.target.value)}
                     className="pl-11 pr-10 py-3 border border-slate-200 rounded-xl focus:ring-4 focus:ring-brand-accent/10 focus:border-brand-accent outline-none transition-all bg-slate-50 focus:bg-white appearance-none cursor-pointer font-medium"
                   >
-                    <option value="ALL">All Roles</option>
-                    <option value="ADMIN">Admins</option>
-                    <option value="HOST">Hosts</option>
-                    <option value="CUSTOMER">Customers</option>
+                    <option value="ALL">Tất cả vai trò</option>
+                    <option value="ADMIN">Admin</option>
+                    <option value="HOST">Host</option>
+                    <option value="CUSTOMER">Khách hàng</option>
                   </select>
                   <ChevronDown className="w-4 h-4 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
                 </div>
@@ -400,19 +319,19 @@ export default function AdminDashboard() {
                 <thead>
                   <tr className="bg-slate-50/50 border-b border-slate-100">
                     <th className="text-left px-8 py-5 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                      User
+                      Người dùng
                     </th>
                     <th className="text-left px-8 py-5 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                      Role
+                      Vai trò
                     </th>
                     <th className="text-left px-8 py-5 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                      Status
+                      Trạng thái
                     </th>
                     <th className="text-left px-8 py-5 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                      Joined
+                      Tham gia
                     </th>
                     <th className="text-right px-8 py-5 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                      Actions
+                      Hành động
                     </th>
                   </tr>
                 </thead>
@@ -423,7 +342,7 @@ export default function AdminDashboard() {
                         <div className="flex flex-col items-center">
                           <RefreshCw className="w-10 h-10 text-brand-accent animate-spin mb-4" />
                           <p className="text-slate-500 font-medium">
-                            Loading users...
+                            Đang tải người dùng...
                           </p>
                         </div>
                       </td>
@@ -436,10 +355,10 @@ export default function AdminDashboard() {
                             <Users className="w-8 h-8 text-slate-400" />
                           </div>
                           <p className="text-slate-900 font-bold text-lg">
-                            No users found
+                            Không tìm thấy người dùng
                           </p>
                           <p className="text-slate-500 mt-1">
-                            Try adjusting your search or filter
+                            Thử điều chỉnh tìm kiếm hoặc bộ lọc
                           </p>
                         </div>
                       </td>
@@ -506,11 +425,11 @@ export default function AdminDashboard() {
                             <span
                               className={`w-2 h-2 rounded-full ${u.enabled ? 'bg-green-500' : 'bg-red-500'}`}
                             ></span>
-                            {u.enabled ? 'Active' : 'Disabled'}
+                            {u.enabled ? 'Hoạt động' : 'Đã khóa'}
                           </span>
                         </td>
                         <td className="px-8 py-5 text-sm text-slate-500 font-medium">
-                          {new Date(u.createdAt).toLocaleDateString('en-US', {
+                          {new Date(u.createdAt).toLocaleDateString('vi-VN', {
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric',
@@ -545,7 +464,7 @@ export default function AdminDashboard() {
                                   ? 'text-orange-600 hover:bg-orange-50'
                                   : 'text-green-600 hover:bg-green-50'
                               }`}
-                              title={u.enabled ? 'Disable User' : 'Enable User'}
+                              title={u.enabled ? 'Vô hiệu hóa' : 'Kích hoạt'}
                             >
                               <Shield className="w-4 h-4" />
                             </button>
@@ -553,7 +472,7 @@ export default function AdminDashboard() {
                             <button
                               onClick={() => handleDeleteUser(u.id)}
                               className="p-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
-                              title="Delete User"
+                              title="Xóa người dùng"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -573,29 +492,29 @@ export default function AdminDashboard() {
             {/* Table Footer */}
             <div className="px-8 py-6 border-t border-slate-100 flex items-center justify-between bg-slate-50/30">
               <p className="text-sm text-slate-500 font-medium">
-                Showing{' '}
+                Hiển thị{' '}
                 <span className="font-bold text-slate-900">
                   {filteredUsers.length}
                 </span>{' '}
-                of{' '}
+                trong tổng số{' '}
                 <span className="font-bold text-slate-900">{users.length}</span>{' '}
-                users
+                người dùng
               </p>
               <div className="flex items-center gap-3">
                 <button
                   disabled
                   className="px-4 py-2 text-sm font-bold text-slate-400 bg-white border border-slate-200 rounded-lg cursor-not-allowed shadow-sm"
                 >
-                  Previous
+                  Trước
                 </button>
                 <button className="px-4 py-2 text-sm font-bold text-white bg-brand-dark hover:bg-brand-accent rounded-lg transition-colors shadow-lg shadow-brand-dark/20">
-                  Next
+                  Sau
                 </button>
               </div>
             </div>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

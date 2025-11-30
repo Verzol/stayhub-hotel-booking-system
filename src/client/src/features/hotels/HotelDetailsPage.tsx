@@ -24,11 +24,12 @@ import {
 import { toast } from 'sonner';
 import { formatVND } from '../../utils/currency';
 import { useAuth } from '../../context/AuthContext';
+import HotelImage from '../../components/common/HotelImage';
 
 export default function HotelDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [hotel, setHotel] = useState<Hotel | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
@@ -129,13 +130,22 @@ export default function HotelDetailsPage() {
     }
   };
 
-  // Handle Book button click - require authentication
+  // Handle Book button click - require authentication and CUSTOMER role
   const handleBookClick = (roomId: number) => {
     if (!isAuthenticated) {
       toast.info('Vui lòng đăng nhập để đặt phòng');
       navigate(`/login?returnUrl=/hotels/${hotel?.id}?roomId=${roomId}`);
       return;
     }
+
+    // Block HOST and ADMIN from booking (they can only manage)
+    if (user?.role === 'HOST' || user?.role === 'ADMIN') {
+      toast.error(
+        'Bạn đang đăng nhập với tài khoản Host/Admin. Vui lòng đăng nhập bằng tài khoản khách hàng để đặt phòng.'
+      );
+      return;
+    }
+
     const params = new URLSearchParams();
     params.set('roomId', roomId.toString());
     params.set('hotelId', hotel.id.toString());
@@ -221,16 +231,12 @@ export default function HotelDetailsPage() {
         {/* Gallery */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <div className="lg:col-span-2 aspect-video rounded-3xl overflow-hidden shadow-lg">
-            <img
-              src={
-                hotel.images?.[activeImage]?.url
-                  ? hotel.images[activeImage].url.startsWith('http')
-                    ? hotel.images[activeImage].url
-                    : `http://localhost:8080${hotel.images[activeImage].url}`
-                  : '/placeholder-hotel.jpg'
-              }
+            <HotelImage
+              src={hotel.images?.[activeImage]?.url || null}
               alt={hotel.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full"
+              aspectRatio="16/9"
+              lazy={false}
             />
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-1 gap-4 h-full">
@@ -244,27 +250,23 @@ export default function HotelDetailsPage() {
                 }`}
                 onClick={() => setActiveImage(idx)}
               >
-                <img
-                  src={
-                    img.url.startsWith('http')
-                      ? img.url
-                      : `http://localhost:8080${img.url}`
-                  }
+                <HotelImage
+                  src={img.url}
                   alt={`Gallery ${idx}`}
-                  className="w-full h-full object-cover aspect-video lg:aspect-auto"
+                  className="w-full h-full"
+                  aspectRatio="16/9"
+                  lazy={true}
                 />
               </div>
             ))}
             {hotel.images && hotel.images.length > 3 && (
               <div className="relative rounded-2xl overflow-hidden cursor-pointer group">
-                <img
-                  src={
-                    hotel.images[3].url.startsWith('http')
-                      ? hotel.images[3].url
-                      : `http://localhost:8080${hotel.images[3].url}`
-                  }
+                <HotelImage
+                  src={hotel.images[3].url}
                   alt="Thêm hình ảnh"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full"
+                  aspectRatio="16/9"
+                  lazy={true}
                 />
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center group-hover:bg-black/40 transition-colors">
                   <span className="text-white font-bold text-lg">
