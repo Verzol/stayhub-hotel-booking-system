@@ -91,12 +91,12 @@ export default function HostChatList() {
     const isToday = date.toDateString() === now.toDateString();
 
     if (isToday) {
-      return date.toLocaleTimeString('vi-VN', {
+      return date.toLocaleTimeString('en-US', {
         hour: '2-digit',
         minute: '2-digit',
       });
     }
-    return date.toLocaleDateString('vi-VN', {
+    return date.toLocaleDateString('en-US', {
       day: 'numeric',
       month: 'short',
     });
@@ -114,8 +114,8 @@ export default function HostChatList() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-black text-brand-dark mb-2">Tin nhắn</h2>
-        <p className="text-brand-dark/60">Quản lý tin nhắn với khách hàng</p>
+        <h2 className="text-2xl font-black text-brand-dark mb-2">Messages</h2>
+        <p className="text-brand-dark/60">Manage messages with guests</p>
       </div>
 
       {/* Conversations List */}
@@ -168,11 +168,9 @@ export default function HostChatList() {
       ) : (
         <div className="text-center py-12 bg-white rounded-2xl border border-brand-dark/10">
           <MessageCircle className="w-16 h-16 text-brand-dark/20 mx-auto mb-4" />
-          <p className="text-brand-dark/60 font-medium mb-2">
-            Chưa có tin nhắn nào
-          </p>
+          <p className="text-brand-dark/60 font-medium mb-2">No messages yet</p>
           <p className="text-sm text-brand-dark/40">
-            Khách hàng sẽ có thể nhắn tin với bạn từ trang chi tiết khách sạn
+            Guests can message you from the hotel details page
           </p>
         </div>
       )}

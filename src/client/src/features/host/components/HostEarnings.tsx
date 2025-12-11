@@ -52,7 +52,7 @@ export default function HostEarnings() {
       }
     } catch (error) {
       console.error('Failed to fetch hotels', error);
-      toast.error('Không thể tải danh sách khách sạn');
+      toast.error('Failed to load hotels');
     }
   };
 
@@ -68,7 +68,7 @@ export default function HostEarnings() {
       setEarnings(earningsData);
     } catch (error) {
       console.error('Failed to fetch earnings', error);
-      toast.error('Không thể tải dữ liệu thu nhập');
+      toast.error('Failed to load earnings data');
     } finally {
       setLoading(false);
     }
@@ -84,7 +84,7 @@ export default function HostEarnings() {
   if (!earnings) {
     return (
       <div className="bg-white rounded-2xl p-8 border border-slate-100 text-center">
-        <p className="text-slate-500">Chưa có dữ liệu thu nhập</p>
+        <p className="text-slate-500">No earnings data available</p>
       </div>
     );
   }
@@ -94,8 +94,8 @@ export default function HostEarnings() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-black text-slate-900">Thu nhập</h2>
-          <p className="text-slate-500 mt-1">Xem chi tiết doanh thu của bạn</p>
+          <h2 className="text-2xl font-black text-slate-900">Earnings</h2>
+          <p className="text-slate-500 mt-1">View your revenue details</p>
         </div>
       </div>
 
@@ -104,7 +104,7 @@ export default function HostEarnings() {
         <div className="flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-slate-400" />
-            <span className="text-sm font-bold text-slate-700">Lọc:</span>
+            <span className="text-sm font-bold text-slate-700">Filter:</span>
           </div>
 
           {hotels.length > 1 && (
@@ -117,7 +117,7 @@ export default function HostEarnings() {
               }
               className="px-4 py-2 rounded-xl border border-slate-200 focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/20 outline-none"
             >
-              <option value="">Tất cả khách sạn</option>
+              <option value="">All Hotels</option>
               {hotels.map((hotel) => (
                 <option key={hotel.id} value={hotel.id}>
                   {hotel.name}
@@ -135,7 +135,7 @@ export default function HostEarnings() {
             className="px-4 py-2 rounded-xl border border-slate-200 focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/20 outline-none"
           />
 
-          <span className="text-slate-400">đến</span>
+          <span className="text-slate-400">to</span>
 
           <input
             type="date"
@@ -157,9 +157,9 @@ export default function HostEarnings() {
             </div>
           </div>
           <h3 className="text-3xl font-black mb-1">
-            {formatVND(earnings.totalEarnings)}
+            {formatVND(earnings.totalEarnings, { symbol: 'VND' })}
           </h3>
-          <p className="text-green-50 font-medium">Tổng thu nhập</p>
+          <p className="text-green-50 font-medium">Total Earnings</p>
         </div>
 
         <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6 text-white">
@@ -171,7 +171,7 @@ export default function HostEarnings() {
           <h3 className="text-3xl font-black mb-1">
             {earnings.completedCount}
           </h3>
-          <p className="text-blue-50 font-medium">Đơn hoàn thành</p>
+          <p className="text-blue-50 font-medium">Completed Bookings</p>
         </div>
 
         <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl p-6 text-white">
@@ -182,10 +182,10 @@ export default function HostEarnings() {
           </div>
           <h3 className="text-3xl font-black mb-1">
             {earnings.completedCount > 0
-              ? formatVND(earnings.avgBookingValue)
-              : formatVND(0)}
+              ? formatVND(earnings.avgBookingValue, { symbol: 'VND' })
+              : formatVND(0, { symbol: 'VND' })}
           </h3>
-          <p className="text-purple-50 font-medium">Giá trị TB/đơn</p>
+          <p className="text-purple-50 font-medium">Avg Booking Value</p>
         </div>
       </div>
 
@@ -195,7 +195,7 @@ export default function HostEarnings() {
         Object.keys(earnings.earningsByHotel).length > 0 && (
           <div className="bg-white rounded-2xl p-6 border border-slate-100">
             <h3 className="text-xl font-black text-slate-900 mb-4">
-              Thu nhập theo khách sạn
+              Earnings by Hotel
             </h3>
             <div className="space-y-3">
               {Object.entries(earnings.earningsByHotel)
@@ -213,7 +213,7 @@ export default function HostEarnings() {
                         </p>
                       </div>
                       <p className="font-black text-lg text-slate-900">
-                        {formatVND(revenue)}
+                        {formatVND(revenue, { symbol: 'VND' })}
                       </p>
                     </div>
                   );
@@ -226,7 +226,7 @@ export default function HostEarnings() {
       {earnings.earningsByMonth.length > 0 && (
         <div className="bg-white rounded-2xl p-6 border border-slate-100">
           <h3 className="text-xl font-black text-slate-900 mb-4">
-            Thu nhập theo tháng
+            Monthly Earnings
           </h3>
           <div className="space-y-3">
             {earnings.earningsByMonth.map((monthData) => (
@@ -240,7 +240,7 @@ export default function HostEarnings() {
                   </p>
                 </div>
                 <p className="font-black text-lg text-slate-900">
-                  {formatVND(monthData.earnings)}
+                  {formatVND(monthData.earnings, { symbol: 'VND' })}
                 </p>
               </div>
             ))}
@@ -252,11 +252,11 @@ export default function HostEarnings() {
       <div className="bg-white rounded-2xl p-6 border border-slate-100">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-black text-slate-900">
-            Giao dịch gần đây
+            Recent Transactions
           </h3>
           <button className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition-colors flex items-center gap-2 text-sm">
             <Download className="w-4 h-4" />
-            Xuất Excel
+            Export Excel
           </button>
         </div>
         <div className="overflow-x-auto">
@@ -264,19 +264,19 @@ export default function HostEarnings() {
             <thead>
               <tr className="border-b border-slate-200">
                 <th className="text-left py-3 px-4 text-sm font-bold text-slate-700">
-                  Mã đặt phòng
+                  Booking ID
                 </th>
                 <th className="text-left py-3 px-4 text-sm font-bold text-slate-700">
-                  Khách sạn
+                  Hotel
                 </th>
                 <th className="text-left py-3 px-4 text-sm font-bold text-slate-700">
-                  Khách
+                  Guest
                 </th>
                 <th className="text-left py-3 px-4 text-sm font-bold text-slate-700">
                   Check-out
                 </th>
                 <th className="text-right py-3 px-4 text-sm font-bold text-slate-700">
-                  Số tiền
+                  Amount
                 </th>
               </tr>
             </thead>
@@ -307,13 +307,13 @@ export default function HostEarnings() {
                         {transaction.checkoutDate
                           ? new Date(
                               transaction.checkoutDate
-                            ).toLocaleDateString('vi-VN')
+                            ).toLocaleDateString('en-US')
                           : '-'}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-right">
                       <span className="font-black text-slate-900">
-                        {formatVND(transaction.amount)}
+                        {formatVND(transaction.amount, { symbol: 'VND' })}
                       </span>
                     </td>
                   </tr>
@@ -321,7 +321,7 @@ export default function HostEarnings() {
               ) : (
                 <tr>
                   <td colSpan={5} className="py-8 text-center text-slate-500">
-                    Chưa có giao dịch nào
+                    No transactions yet
                   </td>
                 </tr>
               )}

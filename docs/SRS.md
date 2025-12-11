@@ -36,56 +36,63 @@
 
 ## 3. System Modules
 
-The system is divided into 7 core modules, each responsible for a specific domain of functionality.
+Hệ thống được chia thành các module chức năng dựa trên cấu trúc source code thực tế (Backend Modules & Frontend Features).
 
 ### 3.1. Authentication & User Management (Identity)
-*   **Role-Based Access Control (RBAC):** Supports `CUSTOMER`, `HOST`, and `ADMIN` roles.
-*   **Registration:** Email/Password with Bcrypt encryption.
-*   **Social Login:** Integration with Google/Facebook via OAuth2.
-*   **Security:**
-    *   Email verification to prevent spam.
-    *   Two-Factor Authentication (2FA) support.
-    *   JWT-based stateless authentication.
-*   **Profile Management:** Avatar upload, personal info updates, and password management.
+*   **Backend Module:** `auth`, `user`
+*   **Frontend Feature:** `auth`, `user`
+*   **Chức năng:**
+    *   **Đăng ký/Đăng nhập:** Email/Password, xác thực email, hỗ trợ OAuth2 (Google, Facebook).
+    *   **Quản lý tài khoản:** Cập nhật hồ sơ (avatar, thông tin cá nhân), đổi mật khẩu.
+    *   **Phân quyền (RBAC):** Hệ thống phân quyền rõ ràng cho `CUSTOMER`, `HOST`, và `ADMIN`.
+    *   **Bảo mật:** Sử dụng JWT cho xác thực stateless, mã hóa mật khẩu với Bcrypt.
 
-### 3.2. Host Management (Property & Inventory)
-*   **Property CRUD:** Hosts can create and manage hotels/properties with rich descriptions, location data (Lat/Long), and policies.
-*   **Room Management:** Define room types, base prices, capacity, and bed configurations.
-*   **Media Gallery:** Upload and manage high-quality images for hotels and rooms.
-*   **Amenities:** Select from a predefined list of system amenities (Wifi, Pool, AC, etc.).
-*   **Availability Calendar:**
-    *   Visual calendar for managing room availability.
-    *   Manual block/unblock dates.
-    *   Automatic synchronization with bookings.
+### 3.2. Host Management (Hotel & Room)
+*   **Backend Module:** `hotel`, `room`, `amenity`
+*   **Frontend Feature:** `host` (Dashboard, HotelForm, RoomForm, etc.)
+*   **Chức năng:**
+    *   **Quản lý Khách sạn (Hotel):** Thêm, sửa, xóa thông tin khách sạn, địa chỉ, hình ảnh, chính sách.
+    *   **Quản lý Phòng (Room):** Thiết lập loại phòng, giá cơ bản, sức chứa, cấu hình giường.
+    *   **Quản lý Tiện nghi (Amenity):** Gắn các tiện ích (Wifi, Bể bơi, v.v.) cho khách sạn và phòng.
+    *   **Dashboard:** Thống kê doanh thu, lượt đặt phòng, lịch rảnh bận (Availability Calendar).
 
-### 3.3. Search & Discovery
-*   **Search Engine:** Advanced search by City/Hotel Name, Date Range, and Guest Count.
-*   **Filtering:** Price range slider, Star rating, Amenities, and Room types.
-*   **Sorting:** Price (Low/High), Rating (High/Low).
-*   **Map View:** Interactive map displaying properties as pins with price previews.
-*   **Wishlist:** Users can save properties to their favorites list.
+### 3.3. Booking & Payment Core
+*   **Backend Module:** `booking`, `payment`
+*   **Frontend Feature:** `booking`
+*   **Chức năng:**
+    *   **Quy trình đặt phòng:** Kiểm tra tình trạng phòng, tính toán giá tiền (bao gồm thuế, phí, giảm giá).
+    *   **Inventory Locking:** Cơ chế khóa phòng tạm thời để tránh trùng lặp đơn đặt trong quá trình thanh toán.
+    *   **Thanh toán:** Tích hợp cổng thanh toán, xử lý giao dịch, tạo hóa đơn (InvoiceService).
+    *   **Quản lý trạng thái:** Theo dõi vòng đời đơn đặt (`PENDING`, `CONFIRMED`, `CHECKED_IN`, `COMPLETED`, `CANCELLED`).
+    *   **Refund:** Tính toán hoàn tiền dựa trên chính sách hủy phòng.
 
-### 3.4. Booking Core (Transaction Processing)
-*   **Booking Flow:** Step-by-step process: Search -> Select Room -> Review -> Payment -> Confirmation.
-*   **Inventory Locking:** Prevents double-booking by temporarily locking the selected room for 10 minutes during the payment phase (using Redis or DB timestamps).
-*   **Pricing Engine:** dynamic calculation: `(Base Price * Nights) - Discount + Service Fee`.
-*   **Payment Gateway:** Integration with VNPay/Stripe/PayPal (Sandbox environment) with Webhook support for status updates.
+### 3.4. Search & Discovery
+*   **Backend Module:** `search`, `wishlist`, `hotel` (Public API)
+*   **Frontend Feature:** `search`, `wishlist`, `landing`, `hotels`
+*   **Chức năng:**
+    *   **Tìm kiếm:** Tìm kiếm theo địa điểm, ngày đến/đi, số lượng khách.
+    *   **Bộ lọc:** Lọc theo khoảng giá, xếp hạng sao, tiện nghi.
+    *   **Hiển thị:** Danh sách kết quả, xem chi tiết khách sạn, bản đồ trực quan.
+    *   **Wishlist:** Lưu và quản lý danh sách khách sạn yêu thích.
 
-### 3.5. Booking Management (Lifecycle)
-*   **State Machine:** Tracks booking status: `PENDING` -> `CONFIRMED` -> `CHECKED_IN` -> `COMPLETED` (or `CANCELLED`).
-*   **Guest Features:** View booking history, cancel bookings (with automated refund policy checks), download invoices.
-*   **Host Features:** View upcoming arrivals, manage check-ins/check-outs, view daily occupancy.
+### 3.5. Promotions & Marketing
+*   **Backend Module:** `promotion`
+*   **Frontend Feature:** `promotions`
+*   **Chức năng:**
+    *   **Quản lý khuyến mãi:** Tạo mã giảm giá, thiết lập mức giảm (%), ngày áp dụng, giới hạn sử dụng.
+    *   **Áp dụng mã:** Kiểm tra tính hợp lệ và tính toán số tiền giảm giá khi đặt phòng.
 
-### 3.6. Social & Communication
-*   **Reviews & Ratings:** Verified guests can rate and review properties after a completed stay. Support for photo uploads in reviews.
-*   **Messaging System:** Real-time chat between Host and Guest for pre-stay coordination.
-*   **Notifications:** Real-time alerts (Bell icon) for booking confirmations, new messages, and cancellations.
+### 3.6. Communication & Social
+*   **Backend Module:** `review`, `message`, `notification`
+*   **Frontend Feature:** `review`, `chat`
+*   **Chức năng:**
+    *   **Đánh giá (Review):** Cho phép khách hàng đánh giá và bình luận sau khi hoàn tất kỳ nghỉ.
+    *   **Tin nhắn (Message):** Hệ thống chat thời gian thực (Real-time) giữa chủ nhà và khách thuê.
+    *   **Thông báo (Notification):** Gửi thông báo hệ thống về trạng thái đặt phòng, tin nhắn mới.
 
-### 3.7. Admin Dashboard
-*   **Analytics:** Visual charts for revenue, new user growth, and booking trends.
-*   **User Management:** Ban/Unban users, view user details.
-*   **Content Moderation:** Approve new hotel listings before they go live.
-*   **System Configuration:** Manage global settings, amenity lists, and location data.
+### 3.7. Admin & System
+*   **Backend Module:** `admin` (logic nằm rải rác hoặc trong user role ADMIN)
+*   **Chức năng:** Quản lý người dùng, kiểm duyệt khách sạn (nếu có quy trình duyệt), theo dõi hoạt động hệ thống.
 
 ---
 

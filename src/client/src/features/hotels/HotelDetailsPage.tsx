@@ -47,7 +47,7 @@ export default function HotelDetailsPage() {
         setHotel(data);
       } catch (error) {
         console.error('Failed to load hotel details', error);
-        toast.error('Không thể tải thông tin khách sạn');
+        toast.error('Failed to load hotel details');
       } finally {
         setLoading(false);
       }
@@ -75,11 +75,11 @@ export default function HotelDetailsPage() {
       try {
         setLoadingReviews(true);
         const data = await getReviewsByHotel(Number(id));
-        // Đảm bảo data luôn là array
+        // Ensure data is always an array
         setReviews(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error('Failed to load reviews:', error);
-        // Đảm bảo reviews luôn là array ngay cả khi có lỗi
+        // Ensure reviews is always an array even on error
         setReviews([]);
       } finally {
         setLoadingReviews(false);
@@ -99,11 +99,11 @@ export default function HotelDetailsPage() {
       );
       toast.success(
         wishlist.includes(hotel.id)
-          ? 'Đã xóa khỏi danh sách yêu thích'
-          : 'Đã thêm vào danh sách yêu thích'
+          ? 'Removed from wishlist'
+          : 'Added to wishlist'
       );
     } catch {
-      toast.error('Vui lòng đăng nhập để lưu vào danh sách yêu thích');
+      toast.error('Please login to save to wishlist');
     }
   };
 
@@ -118,25 +118,23 @@ export default function HotelDetailsPage() {
   if (!hotel) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-        <h1 className="text-2xl font-bold text-slate-900">
-          Không tìm thấy khách sạn
-        </h1>
+        <h1 className="text-2xl font-bold text-slate-900">Hotel not found</h1>
         <button
           onClick={() => navigate('/search')}
           className="px-6 py-2 bg-brand-primary text-white rounded-lg font-bold"
         >
-          Quay lại tìm kiếm
+          Back to search
         </button>
       </div>
     );
   }
 
   const amenitiesList = [
-    { icon: Wifi, label: 'WiFi miễn phí' },
-    { icon: Car, label: 'Bãi đỗ xe' },
-    { icon: Utensils, label: 'Nhà hàng' },
-    { icon: Wind, label: 'Điều hòa' },
-    { icon: Tv, label: 'TV màn hình phẳng' },
+    { icon: Wifi, label: 'Free WiFi' },
+    { icon: Car, label: 'Parking' },
+    { icon: Utensils, label: 'Restaurant' },
+    { icon: Wind, label: 'Air Conditioning' },
+    { icon: Tv, label: 'Flat-screen TV' },
   ];
 
   // Get minimum price from rooms
@@ -156,7 +154,7 @@ export default function HotelDetailsPage() {
   // Handle Book button click - require authentication and CUSTOMER role
   const handleBookClick = (roomId: number) => {
     if (!isAuthenticated) {
-      toast.info('Vui lòng đăng nhập để đặt phòng');
+      toast.info('Please login to book');
       navigate(`/login?returnUrl=/hotels/${hotel?.id}?roomId=${roomId}`);
       return;
     }
@@ -164,7 +162,7 @@ export default function HotelDetailsPage() {
     // Block HOST from booking (they can only manage)
     if (user?.role === 'HOST') {
       toast.error(
-        'Bạn đang đăng nhập với tài khoản Host. Vui lòng đăng nhập bằng tài khoản khách hàng để đặt phòng.'
+        'You are logged in as a Host. Please login as a customer to book.'
       );
       return;
     }
@@ -192,7 +190,7 @@ export default function HotelDetailsPage() {
           className="flex items-center gap-2 text-slate-500 hover:text-slate-900 mb-6 font-medium transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
-          Quay lại tìm kiếm
+          Back to search
         </button>
 
         {/* Header */}
@@ -209,11 +207,11 @@ export default function HotelDetailsPage() {
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1 px-3 py-1 bg-brand-accent/10 rounded-full text-brand-accent font-bold">
                   <Star className="w-4 h-4 fill-brand-accent" />
-                  {hotel.starRating} Sao
+                  {hotel.starRating} Stars
                 </div>
                 <div className="flex items-center gap-1 px-3 py-1 bg-green-100 rounded-full text-green-600 font-bold">
                   <CheckCircle className="w-4 h-4" />
-                  Đã xác minh
+                  Verified
                 </div>
               </div>
             </div>
@@ -225,7 +223,7 @@ export default function HotelDetailsPage() {
                     <button
                       onClick={() => navigate(`/chat/${hotel.ownerId}`)}
                       className="p-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors group"
-                      title="Nhắn tin với chủ khách sạn"
+                      title="Chat with host"
                     >
                       <MessageCircle className="w-6 h-6 text-slate-400 group-hover:text-brand-accent transition-colors" />
                     </button>
@@ -244,11 +242,15 @@ export default function HotelDetailsPage() {
                 </button>
               </div>
               <div className="text-right mb-2">
-                <span className="text-slate-400 text-sm">Giá từ</span>
-                <div className="text-3xl font-black text-brand-cta">
-                  {minPrice ? formatVND(minPrice) : 'Liên hệ'}
-                  <span className="text-sm font-medium text-slate-400">
-                    /đêm
+                <span className="text-slate-400 text-sm">Price from</span>
+                <div className="text-3xl font-black text-brand-cta flex items-baseline justify-end gap-1 flex-wrap">
+                  <span className="whitespace-nowrap">
+                    {minPrice
+                      ? formatVND(minPrice, { symbol: 'VND' })
+                      : 'Contact'}
+                  </span>
+                  <span className="text-sm font-medium text-slate-400 whitespace-nowrap">
+                    /night
                   </span>
                 </div>
               </div>
@@ -256,7 +258,7 @@ export default function HotelDetailsPage() {
                 onClick={handleSelectRoom}
                 className="px-8 py-3 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-xl shadow-lg shadow-brand-cta/20 transition-all hover:scale-105"
               >
-                Chọn Phòng
+                Select Room
               </button>
             </div>
           </div>
@@ -297,14 +299,14 @@ export default function HotelDetailsPage() {
               <div className="relative rounded-2xl overflow-hidden cursor-pointer group">
                 <HotelImage
                   src={hotel.images[3].url}
-                  alt="Thêm hình ảnh"
+                  alt="More photos"
                   className="w-full h-full"
                   aspectRatio="16/9"
                   lazy={true}
                 />
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center group-hover:bg-black/40 transition-colors">
                   <span className="text-white font-bold text-lg">
-                    +{hotel.images.length - 3} Ảnh
+                    +{hotel.images.length - 3} Photos
                   </span>
                 </div>
               </div>
@@ -318,7 +320,7 @@ export default function HotelDetailsPage() {
           <div className="lg:col-span-2 space-y-8">
             <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
               <h2 className="text-2xl font-bold text-slate-900 mb-4">
-                Về khách sạn này
+                About this hotel
               </h2>
               <p className="text-slate-600 leading-relaxed">
                 {hotel.description}
@@ -327,7 +329,7 @@ export default function HotelDetailsPage() {
 
             <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
               <h2 className="text-2xl font-bold text-slate-900 mb-6">
-                Tiện nghi
+                Amenities
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {amenitiesList.map((item, idx) => (
@@ -346,12 +348,11 @@ export default function HotelDetailsPage() {
 
             <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
               <h2 className="text-2xl font-bold text-slate-900 mb-6">
-                Chính sách
+                Policies
               </h2>
               <div className="prose prose-slate max-w-none">
                 <p className="text-slate-600 whitespace-pre-line">
-                  {hotel.policies ||
-                    'Chưa có chính sách cụ thể nào được liệt kê.'}
+                  {hotel.policies || 'No specific policies listed.'}
                 </p>
               </div>
             </div>
@@ -360,7 +361,7 @@ export default function HotelDetailsPage() {
             <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-slate-900">
-                  Đánh giá ({reviews.length})
+                  Reviews ({reviews.length})
                 </h2>
               </div>
 
@@ -404,7 +405,7 @@ export default function HotelDetailsPage() {
                               </div>
                               <span className="text-sm text-slate-500">
                                 {new Date(review.createdAt).toLocaleDateString(
-                                  'vi-VN',
+                                  'en-US',
                                   {
                                     year: 'numeric',
                                     month: 'long',
@@ -448,7 +449,7 @@ export default function HotelDetailsPage() {
                 <div className="text-center py-8">
                   <Star className="w-12 h-12 text-slate-300 mx-auto mb-3" />
                   <p className="text-slate-500">
-                    Chưa có đánh giá nào cho khách sạn này
+                    No reviews yet for this hotel
                   </p>
                 </div>
               )}
@@ -459,7 +460,7 @@ export default function HotelDetailsPage() {
           <div className="lg:col-span-1" id="rooms-section">
             <div className="bg-white rounded-3xl p-6 shadow-lg border border-slate-100 sticky top-24">
               <h3 className="text-xl font-bold text-slate-900 mb-4">
-                Phòng có sẵn
+                Available Rooms
               </h3>
 
               {hotel.rooms && hotel.rooms.length > 0 ? (
@@ -479,7 +480,7 @@ export default function HotelDetailsPage() {
                       <div className="flex items-center gap-4 text-xs text-slate-500 mb-3">
                         <div className="flex items-center gap-1">
                           <Users className="w-3 h-3" />
-                          {room.capacity} Khách
+                          {room.capacity} Guests
                         </div>
                         <div className="flex items-center gap-1">
                           <MapPin className="w-3 h-3" />
@@ -488,17 +489,19 @@ export default function HotelDetailsPage() {
                       </div>
 
                       <div className="flex items-center justify-between mt-2">
-                        <div className="text-lg font-black text-brand-cta">
-                          {formatVND(room.basePrice)}
-                          <span className="text-xs font-medium text-slate-400">
-                            /đêm
+                        <div className="text-lg font-black text-brand-cta flex items-baseline gap-1 flex-wrap">
+                          <span className="whitespace-nowrap">
+                            {formatVND(room.basePrice, { symbol: 'VND' })}
+                          </span>
+                          <span className="text-xs font-medium text-slate-400 whitespace-nowrap">
+                            /night
                           </span>
                         </div>
                         <button
                           onClick={() => handleBookClick(room.id)}
                           className="px-4 py-2 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-lg text-sm shadow-lg shadow-brand-cta/20 transition-all"
                         >
-                          Đặt phòng
+                          Book Now
                         </button>
                       </div>
                     </div>
@@ -506,7 +509,7 @@ export default function HotelDetailsPage() {
                 </div>
               ) : (
                 <div className="text-center py-8 text-slate-500">
-                  Không có phòng nào có sẵn cho khách sạn này.
+                  No rooms available for this hotel.
                 </div>
               )}
             </div>

@@ -24,7 +24,7 @@ export default function HostBookingManagementWrapper() {
       }
     } catch (error) {
       console.error('Failed to load hotels', error);
-      toast.error('Không thể tải danh sách khách sạn');
+      toast.error('Failed to load hotels');
     } finally {
       setLoading(false);
     }
@@ -42,8 +42,8 @@ export default function HostBookingManagementWrapper() {
     return (
       <div className="text-center py-12 bg-white rounded-2xl border border-slate-200">
         <p className="text-slate-500 font-bold">
-          Bạn chưa có khách sạn nào. Hãy tạo khách sạn trước để quản lý đặt
-          phòng.
+          You don't have any hotels yet. Please create a hotel first to manage
+          bookings.
         </p>
       </div>
     );
@@ -54,7 +54,7 @@ export default function HostBookingManagementWrapper() {
       {/* Hotel Selector */}
       <div className="bg-white rounded-2xl p-4 border border-slate-200">
         <label className="block text-sm font-bold text-slate-700 mb-2">
-          Chọn khách sạn
+          Select Hotel
         </label>
         <select
           value={selectedHotelId || ''}

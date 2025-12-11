@@ -21,4 +21,6 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
            "AND :now >= p.startDate AND :now <= p.endDate " +
            "AND (p.maxUsage IS NULL OR p.currentUsage IS NULL OR p.currentUsage < p.maxUsage)")
     List<Promotion> findActivePromotions(@Param("now") LocalDateTime now);
+
+    List<Promotion> findByHotelId(Long hotelId);
 }

@@ -64,7 +64,7 @@ export default function HostBookingManagement({
       setAllBookings(hotelBookings);
     } catch (error) {
       console.error('Failed to fetch all bookings', error);
-      toast.error('Không thể tải danh sách đặt phòng');
+      toast.error('Failed to load bookings');
       setAllBookings([]);
     } finally {
       setLoading(false);
@@ -91,7 +91,7 @@ export default function HostBookingManagement({
       setAllBookings(data);
     } catch (error) {
       console.error('Failed to fetch bookings', error);
-      toast.error('Không thể tải danh sách đặt phòng');
+      toast.error('Failed to load bookings');
       setAllBookings([]);
     } finally {
       setLoading(false);
@@ -161,7 +161,7 @@ export default function HostBookingManagement({
 
     try {
       await checkInGuest(booking.id, hotelId);
-      toast.success('Check-in thành công!');
+      toast.success('Check-in successful!');
       setModalOpen(false);
       // Refresh bookings after check-in
       if (viewMode === 'all') {
@@ -173,7 +173,7 @@ export default function HostBookingManagement({
       console.error('Failed to check-in', error);
       const errorMessage =
         (error as { response?: { data?: { message?: string } } })?.response
-          ?.data?.message || 'Không thể check-in. Vui lòng thử lại.';
+          ?.data?.message || 'Failed to check-in. Please try again.';
       toast.error(errorMessage);
     }
   };
@@ -183,7 +183,7 @@ export default function HostBookingManagement({
 
     try {
       await checkOutGuest(booking.id, hotelId);
-      toast.success('Check-out thành công!');
+      toast.success('Check-out successful!');
       setModalOpen(false);
       // Refresh bookings after check-out
       if (viewMode === 'all') {
@@ -195,7 +195,7 @@ export default function HostBookingManagement({
       console.error('Failed to check-out', error);
       const errorMessage =
         (error as { response?: { data?: { message?: string } } })?.response
-          ?.data?.message || 'Không thể check-out. Vui lòng thử lại.';
+          ?.data?.message || 'Failed to check-out. Please try again.';
       toast.error(errorMessage);
     }
   };
@@ -226,11 +226,9 @@ export default function HostBookingManagement({
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-black text-slate-900">
-            Quản lý đặt phòng
+            Booking Management
           </h2>
-          <p className="text-slate-500 mt-1">
-            Quản lý các đặt phòng của khách sạn
-          </p>
+          <p className="text-slate-500 mt-1">Manage your hotel bookings</p>
         </div>
         <button
           onClick={handleRefresh}
@@ -238,7 +236,7 @@ export default function HostBookingManagement({
           className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition-colors flex items-center gap-2"
         >
           <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-          Làm mới
+          Refresh
         </button>
       </div>
 
@@ -252,7 +250,7 @@ export default function HostBookingManagement({
               : 'border-transparent text-slate-500 hover:text-slate-700'
           }`}
         >
-          Tất cả
+          All
         </button>
         <button
           onClick={() => setViewMode('upcoming')}
@@ -262,7 +260,7 @@ export default function HostBookingManagement({
               : 'border-transparent text-slate-500 hover:text-slate-700'
           }`}
         >
-          Sắp tới
+          Upcoming
         </button>
         <button
           onClick={() => setViewMode('pending-checkins')}
@@ -272,7 +270,7 @@ export default function HostBookingManagement({
               : 'border-transparent text-slate-500 hover:text-slate-700'
           }`}
         >
-          Chờ check-in
+          Pending Check-in
         </button>
         <button
           onClick={() => setViewMode('pending-checkouts')}
@@ -282,7 +280,7 @@ export default function HostBookingManagement({
               : 'border-transparent text-slate-500 hover:text-slate-700'
           }`}
         >
-          Chờ check-out
+          Pending Check-out
         </button>
       </div>
 
@@ -292,7 +290,7 @@ export default function HostBookingManagement({
           <div className="flex items-center gap-4 flex-wrap">
             <div className="flex items-center gap-2">
               <Filter className="w-4 h-4 text-slate-400" />
-              <span className="text-sm font-bold text-slate-700">Lọc:</span>
+              <span className="text-sm font-bold text-slate-700">Filter:</span>
             </div>
 
             <select
@@ -302,12 +300,12 @@ export default function HostBookingManagement({
               }
               className="px-4 py-2 rounded-xl border border-slate-200 focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/20 outline-none"
             >
-              <option value="">Tất cả trạng thái</option>
-              <option value="PENDING">Chờ thanh toán</option>
-              <option value="CONFIRMED">Đã xác nhận</option>
-              <option value="CHECKED_IN">Đã nhận phòng</option>
-              <option value="COMPLETED">Đã trả phòng</option>
-              <option value="CANCELLED">Đã hủy</option>
+              <option value="">All Statuses</option>
+              <option value="PENDING">Pending Payment</option>
+              <option value="CONFIRMED">Confirmed</option>
+              <option value="CHECKED_IN">Checked In</option>
+              <option value="COMPLETED">Completed</option>
+              <option value="CANCELLED">Cancelled</option>
             </select>
 
             <input
@@ -319,7 +317,7 @@ export default function HostBookingManagement({
                   startDate: e.target.value || undefined,
                 })
               }
-              placeholder="Từ ngày"
+              placeholder="From Date"
               className="px-4 py-2 rounded-xl border border-slate-200 focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/20 outline-none"
             />
 
@@ -329,7 +327,7 @@ export default function HostBookingManagement({
               onChange={(e) =>
                 setFilters({ ...filters, endDate: e.target.value || undefined })
               }
-              placeholder="Đến ngày"
+              placeholder="To Date"
               className="px-4 py-2 rounded-xl border border-slate-200 focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/20 outline-none"
             />
           </div>
@@ -346,12 +344,12 @@ export default function HostBookingManagement({
           <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-4" />
           <p className="text-slate-500 font-bold">
             {viewMode === 'all'
-              ? 'Chưa có đặt phòng nào'
+              ? 'No bookings found'
               : viewMode === 'upcoming'
-                ? 'Không có đặt phòng sắp tới'
+                ? 'No upcoming bookings'
                 : viewMode === 'pending-checkins'
-                  ? 'Không có đặt phòng chờ check-in'
-                  : 'Không có đặt phòng chờ check-out'}
+                  ? 'No pending check-ins'
+                  : 'No pending check-outs'}
           </p>
         </div>
       ) : (

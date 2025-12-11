@@ -68,39 +68,41 @@ export default function FilterSidebar({
     <div className="bg-white rounded-2xl border border-slate-100 p-6 space-y-8 sticky top-24">
       {/* Price Range */}
       <div>
-        <h3 className="font-bold text-slate-900 mb-4">Khoảng giá</h3>
-        <div className="flex items-center gap-4">
-          <div className="flex-1">
+        <h3 className="font-bold text-slate-900 mb-4">Price Range</h3>
+        <div className="space-y-4">
+          <div className="w-full">
             <label className="text-xs text-slate-500 mb-1 block">
-              Giá tối thiểu
+              Min Price
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                ₫
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">
+                VND
               </span>
               <input
                 type="number"
+                step="10000"
                 value={localFilters.minPrice || ''}
                 onChange={(e) => handlePriceChange(e, 'min')}
-                className="w-full pl-7 pr-3 py-2 border border-slate-200 rounded-xl text-sm focus:border-brand-accent outline-none transition-colors"
+                className="w-full pl-12 pr-3 py-3 border border-slate-200 rounded-xl text-sm focus:border-brand-accent outline-none transition-colors bg-slate-50 focus:bg-white"
                 placeholder="0"
               />
             </div>
           </div>
-          <div className="flex-1">
+          <div className="w-full">
             <label className="text-xs text-slate-500 mb-1 block">
-              Giá tối đa
+              Max Price
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                ₫
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">
+                VND
               </span>
               <input
                 type="number"
+                step="10000"
                 value={localFilters.maxPrice || ''}
                 onChange={(e) => handlePriceChange(e, 'max')}
-                className="w-full pl-7 pr-3 py-2 border border-slate-200 rounded-xl text-sm focus:border-brand-accent outline-none transition-colors"
-                placeholder="Bất kỳ"
+                className="w-full pl-12 pr-3 py-3 border border-slate-200 rounded-xl text-sm focus:border-brand-accent outline-none transition-colors bg-slate-50 focus:bg-white"
+                placeholder="Any"
               />
             </div>
           </div>
@@ -109,7 +111,7 @@ export default function FilterSidebar({
 
       {/* Star Rating */}
       <div>
-        <h3 className="font-bold text-slate-900 mb-4">Xếp hạng sao</h3>
+        <h3 className="font-bold text-slate-900 mb-4">Star Rating</h3>
         <div className="flex flex-col gap-2">
           {[5, 4, 3, 2, 1].map((star) => (
             <label
@@ -130,7 +132,7 @@ export default function FilterSidebar({
                   />
                 ))}
                 <span className="text-sm text-slate-600 ml-1 group-hover:text-slate-900">
-                  {star} Sao
+                  {star} Stars
                 </span>
               </div>
             </label>

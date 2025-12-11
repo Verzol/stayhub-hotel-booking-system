@@ -29,6 +29,10 @@ export const getMyHotels = async (): Promise<Hotel[]> => {
   return response.data;
 };
 
+export const deleteHotel = async (id: number): Promise<void> => {
+  await api.delete(`/host/hotels/${id}`);
+};
+
 export const uploadHotelImages = async (
   id: number,
   formData: FormData

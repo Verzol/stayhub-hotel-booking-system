@@ -136,31 +136,31 @@ export default function LandingPage() {
     {
       name: 'Nguyễn Thị Lan',
       avatar: 'L',
-      role: 'Blogger Du lịch',
-      text: 'StayHub giúp tôi tìm khách sạn hoàn hảo một cách dễ dàng! Quy trình đặt phòng rất suôn sẻ và tôi còn được giá tốt nữa.',
+      role: 'Travel Blogger',
+      text: 'StayHub helped me find the perfect hotel easily! The booking process was very smooth and I got a great price too.',
       rating: 5,
     },
     {
       name: 'Trần Văn Minh',
       avatar: 'M',
-      role: 'Khách hàng công tác',
-      text: 'Tôi sử dụng StayHub cho tất cả các chuyến công tác. Dịch vụ khách hàng tuyệt vời và giá cả không thể cạnh tranh hơn.',
+      role: 'Business Traveler',
+      text: 'I use StayHub for all my business trips. Excellent customer service and unbeatable prices.',
       rating: 5,
     },
     {
       name: 'Lê Thị Mai',
       avatar: 'M',
-      role: 'Gia đình đi nghỉ',
-      text: 'Đã tìm được resort gia đình hoàn hảo qua StayHub. Các con rất thích và chúng tôi còn được giảm 30%! Rất đáng thử.',
+      role: 'Family Vacationer',
+      text: 'Found the perfect family resort via StayHub. The kids loved it and we got 30% off! Highly recommended.',
       rating: 5,
     },
   ];
 
   const stats = [
-    { number: '50K+', label: 'Khách hàng hài lòng', icon: Users },
-    { number: '10K+', label: 'Khách sạn', icon: HotelIcon },
-    { number: '100+', label: 'Điểm đến', icon: Globe },
-    { number: '4.9', label: 'Đánh giá trung bình', icon: Star },
+    { number: '50K+', label: 'Happy Customers', icon: Users },
+    { number: '10K+', label: 'Hotels', icon: HotelIcon },
+    { number: '100+', label: 'Destinations', icon: Globe },
+    { number: '4.9', label: 'Average Rating', icon: Star },
   ];
 
   return (
@@ -188,37 +188,36 @@ export default function LandingPage() {
             <div>
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-brand-accent/20 backdrop-blur-sm rounded-full text-brand-accent text-sm font-medium mb-6">
                 <Sparkles className="w-4 h-4" />
-                #1 Nền tảng đặt phòng khách sạn tại Việt Nam
+                #1 Hotel Booking Platform in Vietnam
               </div>
 
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-6 leading-tight">
-                Tìm khách sạn
+                Find the Perfect
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-accent to-brand-bg">
                   {' '}
-                  Hoàn Hảo
+                  Hotel
                 </span>
               </h1>
               <p className="text-white/70 text-lg md:text-xl mb-8 max-w-lg">
-                Khám phá những khách sạn, resort và homestay tuyệt vời với giá
-                tốt nhất. Đặt phòng an tâm và tận hưởng kỳ nghỉ hoàn hảo của
-                bạn.
+                Discover amazing hotels, resorts, and homestays at the best
+                prices. Book with confidence and enjoy your perfect vacation.
               </p>
 
               {/* Trust Badges */}
               <div className="flex flex-wrap items-center gap-6 mb-8">
                 <div className="flex items-center gap-2 text-white/80">
                   <CheckCircle className="w-5 h-5 text-green-400" />
-                  <span className="text-sm font-medium">Hủy miễn phí</span>
+                  <span className="text-sm font-medium">Free Cancellation</span>
                 </div>
                 <div className="flex items-center gap-2 text-white/80">
                   <CheckCircle className="w-5 h-5 text-green-400" />
                   <span className="text-sm font-medium">
-                    Cam kết giá tốt nhất
+                    Best Price Guarantee
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-white/80">
                   <CheckCircle className="w-5 h-5 text-green-400" />
-                  <span className="text-sm font-medium">Hỗ trợ 24/7</span>
+                  <span className="text-sm font-medium">24/7 Support</span>
                 </div>
               </div>
 
@@ -228,12 +227,12 @@ export default function LandingPage() {
                   to="/search"
                   className="px-8 py-4 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-xl shadow-lg shadow-brand-cta/30 transition-all hover:scale-105 flex items-center gap-2"
                 >
-                  Khám phá khách sạn
+                  Explore Hotels
                   <ArrowRight className="w-5 h-5" />
                 </Link>
                 <button className="px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-bold rounded-xl border border-white/20 transition-all flex items-center gap-2">
                   <Play className="w-5 h-5" />
-                  Xem video
+                  Watch Video
                 </button>
               </div>
             </div>
@@ -272,11 +271,11 @@ export default function LandingPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-black text-slate-900 mb-4">
-            Tại sao bạn nên chọn StayHub?
+            Why Choose StayHub?
           </h2>
           <p className="text-slate-500 max-w-2xl mx-auto">
-            Chúng tôi cam kết mang đến trải nghiệm du lịch mượt mà và thú vị cho
-            bạn
+            We are committed to providing you with a smooth and enjoyable travel
+            experience.
           </p>
         </div>
 
@@ -284,26 +283,26 @@ export default function LandingPage() {
           {[
             {
               icon: ShieldCheck,
-              title: 'Đặt phòng an toàn',
-              desc: 'Thanh toán và dữ liệu của bạn luôn được bảo vệ',
+              title: 'Secure Booking',
+              desc: 'Your payment and data are always protected',
               color: 'blue',
             },
             {
               icon: Award,
-              title: 'Giá tốt nhất',
-              desc: 'Chúng tôi cam kết giá tốt nhất hiện có',
+              title: 'Best Prices',
+              desc: 'We guarantee the best prices available',
               color: 'green',
             },
             {
               icon: Clock,
-              title: 'Xác nhận tức thì',
-              desc: 'Nhận xác nhận đặt phòng trong vài giây',
+              title: 'Instant Confirmation',
+              desc: 'Get booking confirmation in seconds',
               color: 'purple',
             },
             {
               icon: Headphones,
-              title: 'Hỗ trợ 24/7',
-              desc: 'Đội ngũ của chúng tôi luôn sẵn sàng hỗ trợ bạn',
+              title: '24/7 Support',
+              desc: 'Our team is always ready to support you',
               color: 'orange',
             },
           ].map((feature, idx) => (
@@ -339,17 +338,17 @@ export default function LandingPage() {
           <div className="flex items-center justify-between mb-10">
             <div>
               <h2 className="text-3xl font-black text-slate-900 mb-2">
-                Điểm đến phổ biến tại Việt Nam
+                Popular Destinations in Vietnam
               </h2>
               <p className="text-slate-500">
-                Khám phá những địa điểm được du khách yêu thích tại Việt Nam
+                Discover places loved by travelers in Vietnam
               </p>
             </div>
             <button
               onClick={() => navigate('/search')}
               className="hidden md:flex items-center gap-2 px-5 py-2.5 text-brand-accent hover:bg-brand-accent/10 rounded-xl font-bold transition-colors"
             >
-              Xem tất cả
+              View All
               <ChevronRight className="w-5 h-5" />
             </button>
           </div>
@@ -386,7 +385,7 @@ export default function LandingPage() {
                     {city.name}
                   </h3>
                   <p className="text-white/80 font-medium">
-                    {city.properties.toLocaleString()}+ khách sạn
+                    {city.properties.toLocaleString()}+ properties
                   </p>
 
                   <button
@@ -398,7 +397,7 @@ export default function LandingPage() {
                     }}
                     className="mt-4 w-full py-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-bold rounded-xl border border-white/20 transition-all flex items-center justify-center gap-2"
                   >
-                    Khám phá
+                    Explore
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -413,17 +412,15 @@ export default function LandingPage() {
         <div className="flex items-center justify-between mb-10">
           <div>
             <h2 className="text-3xl font-black text-slate-900 mb-2">
-              Khách sạn nổi bật
+              Featured Hotels
             </h2>
-            <p className="text-slate-500">
-              Những khách sạn được lựa chọn kỹ dành cho bạn
-            </p>
+            <p className="text-slate-500">Handpicked hotels just for you</p>
           </div>
           <button
             onClick={() => navigate('/search')}
             className="hidden md:flex items-center gap-2 px-5 py-2.5 text-brand-accent hover:bg-brand-accent/10 rounded-xl font-bold transition-colors"
           >
-            Xem tất cả
+            View All
             <ChevronRight className="w-5 h-5" />
           </button>
         </div>
@@ -453,7 +450,7 @@ export default function LandingPage() {
                   />
                   {/* Badge (Optional - can be added to Hotel entity later) */}
                   {/* Badge (Optional - can be added to Hotel entity later) */}
-                  // ... inside return ...
+
                   {/* Favorite */}
                   <button
                     onClick={(e) => handleToggleWishlist(e, property.id)}
@@ -489,17 +486,20 @@ export default function LandingPage() {
                   </div>
                   <div className="flex items-center justify-between pt-4 border-t border-slate-100">
                     <div>
-                      <span className="text-slate-400 text-sm">Từ</span>
-                      <div className="text-2xl font-black text-brand-dark">
-                        {property.rooms && property.rooms.length > 0
-                          ? formatVND(
-                              Math.min(
-                                ...property.rooms.map((r) => r.basePrice)
+                      <span className="text-slate-400 text-sm">From</span>
+                      <div className="text-xl font-black text-brand-dark flex items-baseline gap-1 flex-wrap">
+                        <span className="whitespace-nowrap">
+                          {property.rooms && property.rooms.length > 0
+                            ? formatVND(
+                                Math.min(
+                                  ...property.rooms.map((r) => r.basePrice)
+                                ),
+                                { symbol: 'VND' }
                               )
-                            )
-                          : 'Liên hệ'}{' '}
-                        <span className="text-sm font-medium text-slate-400">
-                          /đêm
+                            : 'Contact'}
+                        </span>
+                        <span className="text-sm font-medium text-slate-400 whitespace-nowrap">
+                          /night
                         </span>
                       </div>
                     </div>
@@ -510,7 +510,7 @@ export default function LandingPage() {
                       }}
                       className="px-4 py-2 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-lg transition-colors text-sm"
                     >
-                      Xem chi tiết
+                      Book
                     </button>
                   </div>
                 </div>
@@ -520,13 +520,13 @@ export default function LandingPage() {
         ) : (
           <div className="text-center py-12 bg-slate-50 rounded-2xl">
             <p className="text-slate-500">
-              Hiện tại chưa có khách sạn nổi bật.
+              No featured hotels available at the moment.
             </p>
             <button
               onClick={() => navigate('/search')}
               className="mt-4 text-brand-accent font-bold hover:underline"
             >
-              Xem tất cả khách sạn
+              View All Hotels
             </button>
           </div>
         )}
@@ -537,10 +537,10 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-black text-white mb-4">
-              Khách hàng nói gì về chúng tôi
+              What Customers Say About Us
             </h2>
             <p className="text-slate-400 max-w-2xl mx-auto">
-              Đọc đánh giá từ những du khách đã đặt phòng qua StayHub
+              Read reviews from travelers who booked via StayHub
             </p>
           </div>
 
@@ -585,24 +585,24 @@ export default function LandingPage() {
       <div className="bg-gradient-to-r from-brand-dark to-brand-accent py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-black text-white mb-6">
-            Bạn đã sẵn sàng cho chuyến du lịch tiếp theo?
+            Ready for your next trip?
           </h2>
           <p className="text-brand-bg text-lg mb-8 max-w-2xl mx-auto">
-            Tham gia cùng hàng nghìn du khách và khám phá những khách sạn tuyệt
-            vời với giá cả phải chăng.
+            Join thousands of travelers and discover amazing hotels at
+            affordable prices.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
               onClick={() => navigate('/search')}
               className="px-8 py-4 bg-brand-cta hover:bg-brand-cta-hover text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-105"
             >
-              Bắt đầu khám phá
+              Start Exploring
             </button>
             <Link
               to="/search"
               className="px-8 py-4 bg-white/10 backdrop-blur-sm text-white font-bold rounded-xl border border-white/30 hover:bg-white/20 transition-all"
             >
-              Xem tất cả khách sạn
+              View All Hotels
             </Link>
           </div>
         </div>
@@ -621,8 +621,7 @@ export default function LandingPage() {
                 <span className="text-2xl font-black text-white">StayHub</span>
               </div>
               <p className="text-slate-400 text-sm mb-6">
-                Đối tác tin cậy của bạn trong việc tìm chỗ nghỉ hoàn hảo tại
-                Việt Nam.
+                Your trusted partner in finding the perfect stay in Vietnam.
               </p>
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 bg-slate-700 rounded-lg flex items-center justify-center hover:bg-slate-600 cursor-pointer transition-colors">
@@ -637,25 +636,16 @@ export default function LandingPage() {
             {/* Links */}
             {[
               {
-                title: 'Công ty',
-                links: ['Về chúng tôi', 'Tuyển dụng', 'Báo chí', 'Blog'],
+                title: 'Company',
+                links: ['About Us', 'Careers', 'Press', 'Blog'],
               },
               {
-                title: 'Hỗ trợ',
-                links: [
-                  'Trung tâm trợ giúp',
-                  'Liên hệ',
-                  'Câu hỏi thường gặp',
-                  'An toàn',
-                ],
+                title: 'Support',
+                links: ['Help Center', 'Contact', 'FAQs', 'Safety'],
               },
               {
-                title: 'Pháp lý',
-                links: [
-                  'Chính sách bảo mật',
-                  'Điều khoản dịch vụ',
-                  'Chính sách Cookie',
-                ],
+                title: 'Legal',
+                links: ['Privacy Policy', 'Terms of Service', 'Cookie Policy'],
               },
             ].map((section, idx) => (
               <div key={idx}>
@@ -679,7 +669,7 @@ export default function LandingPage() {
           {/* Bottom */}
           <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-slate-400 text-sm">
-              © 2025 StayHub. Bảo lưu mọi quyền.
+              © 2025 StayHub. All rights reserved.
             </p>
             <div className="flex items-center gap-6">
               <CreditCard className="h-8 text-slate-500" />

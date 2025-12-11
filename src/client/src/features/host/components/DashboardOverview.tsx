@@ -37,7 +37,7 @@ export default function DashboardOverview() {
       setSummary(data);
     } catch (error) {
       console.error('Failed to fetch dashboard data', error);
-      toast.error('Không thể tải dữ liệu dashboard');
+      toast.error('Failed to load dashboard data');
     } finally {
       setLoading(false);
     }
@@ -54,7 +54,7 @@ export default function DashboardOverview() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <p className="text-slate-500">Không thể tải dữ liệu dashboard</p>
+          <p className="text-slate-500">Failed to load dashboard data</p>
         </div>
       </div>
     );
@@ -71,10 +71,10 @@ export default function DashboardOverview() {
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-3">
             <Sparkles className="w-6 h-6" />
-            <h1 className="text-3xl font-black">Chào mừng trở lại!</h1>
+            <h1 className="text-3xl font-black">Welcome back!</h1>
           </div>
           <p className="text-white/90 text-lg font-medium">
-            Tổng quan về hoạt động kinh doanh của bạn
+            Overview of your business performance
           </p>
         </div>
       </div>
@@ -87,8 +87,8 @@ export default function DashboardOverview() {
           iconColor="text-blue-600"
           iconBg="bg-blue-50"
           value={summary.totalHotels}
-          label="Khách sạn"
-          subtitle={`${summary.totalRooms} phòng`}
+          label="Total Hotels"
+          subtitle={`${summary.totalRooms} rooms`}
         />
 
         {/* Total Bookings */}
@@ -97,8 +97,8 @@ export default function DashboardOverview() {
           iconColor="text-purple-600"
           iconBg="bg-purple-50"
           value={summary.totalBookings}
-          label="Tổng đặt phòng"
-          subtitle={`${summary.confirmedBookings} đã xác nhận`}
+          label="Total Bookings"
+          subtitle={`${summary.confirmedBookings} confirmed`}
         />
 
         {/* Total Revenue */}
@@ -106,8 +106,8 @@ export default function DashboardOverview() {
           icon={DollarSign}
           iconColor="text-green-600"
           iconBg="bg-green-50"
-          value={formatVND(summary.totalRevenue)}
-          label="Tổng doanh thu"
+          value={formatVND(summary.totalRevenue, { symbol: 'VND' })}
+          label="Total Revenue"
           subtitle={
             <div className="flex items-center gap-1 mt-1">
               {isRevenueUp ? (
@@ -121,7 +121,7 @@ export default function DashboardOverview() {
                 }`}
               >
                 {isRevenueUp ? '+' : ''}
-                {revenueChange.toFixed(1)}% so với tháng trước
+                {revenueChange.toFixed(1)}% vs last month
               </span>
             </div>
           }
@@ -133,8 +133,8 @@ export default function DashboardOverview() {
           iconColor="text-orange-600"
           iconBg="bg-orange-50"
           value={summary.upcomingBookings}
-          label="Đặt phòng sắp tới"
-          subtitle="Cần chuẩn bị"
+          label="Upcoming Bookings"
+          subtitle="Need preparation"
         />
       </div>
 
@@ -146,8 +146,8 @@ export default function DashboardOverview() {
               icon={LogIn}
               iconBg="bg-blue-500"
               count={summary.pendingCheckIns}
-              label="Khách chờ check-in"
-              description="Cần xử lý ngay hôm nay"
+              label="Pending Check-ins"
+              description="Action required today"
               onClick={() => navigate('/host?view=BOOKINGS')}
             />
           )}
@@ -157,8 +157,8 @@ export default function DashboardOverview() {
               icon={LogOut}
               iconBg="bg-green-500"
               count={summary.pendingCheckOuts}
-              label="Khách chờ check-out"
-              description="Cần xử lý ngay hôm nay"
+              label="Pending Check-outs"
+              description="Action required today"
               onClick={() => navigate('/host?view=BOOKINGS')}
             />
           )}
@@ -170,13 +170,13 @@ export default function DashboardOverview() {
         <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-black text-slate-900">
-              Đặt phòng gần đây
+              Recent Bookings
             </h2>
             <button
               onClick={() => navigate('/host?view=BOOKINGS')}
               className="flex items-center gap-2 text-sm font-bold text-brand-accent hover:text-brand-dark transition-colors"
             >
-              Xem tất cả
+              View All
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -206,16 +206,16 @@ export default function DashboardOverview() {
                   </p>
                   <p className="text-xs text-slate-500 mt-1">
                     {booking.guestName} •{' '}
-                    {new Date(booking.checkInDate).toLocaleDateString('vi-VN')}
+                    {new Date(booking.checkInDate).toLocaleDateString('en-US')}
                   </p>
                 </div>
                 <div className="text-right flex items-center gap-3">
                   <div>
                     <p className="font-black text-lg text-slate-900">
-                      {formatVND(booking.totalPrice)}
+                      {formatVND(booking.totalPrice, { symbol: 'VND' })}
                     </p>
                     <p className="text-xs text-slate-400">
-                      Click để xem chi tiết
+                      Click to view details
                     </p>
                   </div>
                   <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-brand-accent group-hover:translate-x-1 transition-all" />
@@ -231,17 +231,16 @@ export default function DashboardOverview() {
         <div className="bg-white rounded-2xl p-12 border border-slate-100 text-center">
           <Building2 className="w-16 h-16 text-slate-300 mx-auto mb-4" />
           <h3 className="text-xl font-bold text-slate-900 mb-2">
-            Chưa có khách sạn nào
+            No hotels yet
           </h3>
           <p className="text-slate-500 mb-6 max-w-md mx-auto">
-            Bắt đầu bằng cách thêm khách sạn đầu tiên của bạn để quản lý phòng
-            và đặt phòng
+            Start by adding your first hotel to manage rooms and bookings
           </p>
           <button
             onClick={() => navigate('/host?view=HOTEL_FORM')}
             className="px-6 py-3 bg-brand-cta hover:bg-brand-cta-hover text-white rounded-xl font-bold transition-all shadow-lg shadow-brand-cta/30 hover:scale-105"
           >
-            Thêm khách sạn đầu tiên
+            Add First Hotel
           </button>
         </div>
       )}

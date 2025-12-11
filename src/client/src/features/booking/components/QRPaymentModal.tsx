@@ -120,12 +120,12 @@ export default function QRPaymentModal({
         // If booking was confirmed or cancelled, close modal
         if (updatedBooking.status !== 'PENDING') {
           if (updatedBooking.status === 'CONFIRMED') {
-            toast.success('Thanh toán đã được xác nhận!');
+            toast.success('Payment confirmed!');
             setTimeout(() => {
               navigate(`/booking/${updatedBooking.id}`);
             }, 1500);
           } else if (updatedBooking.status === 'CANCELLED') {
-            toast.error('Đặt phòng đã hết hạn. Vui lòng đặt lại.');
+            toast.error('Booking expired. Please book again.');
             onClose();
           }
         }
@@ -145,15 +145,13 @@ export default function QRPaymentModal({
       const updatedBooking = await getBooking(currentBooking.id);
       if (updatedBooking.status === 'CANCELLED') {
         toast.error(
-          'Thời gian giữ phòng đã hết. Đặt phòng đã bị hủy tự động. Vui lòng đặt lại.'
+          'Holding time expired. Booking cancelled automatically. Please book again.'
         );
         onClose();
       }
     } catch (error) {
       console.error('Failed to check expired booking', error);
-      toast.error(
-        'Thời gian giữ phòng đã hết. Vui lòng kiểm tra lại đặt phòng của bạn.'
-      );
+      toast.error('Holding time expired. Please check your booking again.');
       onClose();
     }
   };
@@ -180,16 +178,16 @@ export default function QRPaymentModal({
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-2 hover:bg-slate-100 rounded-full transition-colors"
-          aria-label="Đóng"
+          aria-label="Close"
         >
           <X className="w-5 h-5 text-slate-500" />
         </button>
 
         <h3 className="text-2xl font-bold text-slate-900 mb-2 text-center">
-          Quét để thanh toán
+          Scan to Pay
         </h3>
         <p className="text-slate-500 text-center mb-6">
-          Vui lòng quét mã QR bên dưới để hoàn tất thanh toán.
+          Please scan the QR code below to complete payment.
         </p>
 
         {/* Countdown Timer - Only show if we have a valid lockedUntil in the future */}
@@ -235,10 +233,10 @@ export default function QRPaymentModal({
                   }`}
                 >
                   {isCriticalTime
-                    ? 'Sắp hết thời gian!'
+                    ? 'Time running out!'
                     : isWarningTime
-                      ? 'Thời gian còn lại'
-                      : 'Thời gian giữ phòng'}
+                      ? 'Time remaining'
+                      : 'Holding time'}
                 </div>
               </div>
             </div>
@@ -247,8 +245,8 @@ export default function QRPaymentModal({
                 <AlertTriangle className="w-4 h-4" />
                 <span>
                   {isCriticalTime
-                    ? 'Vui lòng hoàn tất thanh toán ngay để giữ phòng!'
-                    : 'Vui lòng hoàn tất thanh toán trong thời gian này!'}
+                    ? 'Please complete payment now to hold your room!'
+                    : 'Please complete payment within this time!'}
                 </span>
               </div>
             )}
@@ -262,7 +260,7 @@ export default function QRPaymentModal({
             <div className="mb-6 p-4 rounded-2xl bg-blue-50 border-2 border-blue-200">
               <div className="flex items-center justify-center gap-2 text-blue-600">
                 <Clock className="w-5 h-5" />
-                <span className="font-bold text-sm">Đang tải thông tin...</span>
+                <span className="font-bold text-sm">Loading info...</span>
               </div>
             </div>
           )}
@@ -272,10 +270,10 @@ export default function QRPaymentModal({
           <div className="mb-6 p-4 rounded-2xl bg-red-50 border-2 border-red-200">
             <div className="flex items-center justify-center gap-2 text-red-600">
               <AlertTriangle className="w-5 h-5" />
-              <span className="font-bold">Thời gian giữ phòng đã hết</span>
+              <span className="font-bold">Holding time expired</span>
             </div>
             <p className="text-sm text-red-600 text-center mt-2">
-              Đặt phòng sẽ bị hủy tự động. Vui lòng đặt lại.
+              Booking will be cancelled automatically. Please book again.
             </p>
           </div>
         )}
@@ -293,11 +291,11 @@ export default function QRPaymentModal({
 
         <div className="space-y-4">
           <div className="flex justify-between text-sm py-2 border-b border-slate-100">
-            <span className="text-slate-500">Số tiền</span>
+            <span className="text-slate-500">Amount</span>
             <span className="font-bold text-slate-900">{formatVND(price)}</span>
           </div>
           <div className="flex justify-between text-sm py-2 border-b border-slate-100">
-            <span className="text-slate-500">Mã đặt phòng</span>
+            <span className="text-slate-500">Booking ID</span>
             <span className="font-bold text-slate-900">
               #{currentBooking.id}
             </span>
@@ -309,7 +307,7 @@ export default function QRPaymentModal({
             onClick={onClose}
             className="flex-1 py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-all"
           >
-            Hủy
+            Cancel
           </button>
           <button
             onClick={onConfirmPayment}
@@ -319,9 +317,9 @@ export default function QRPaymentModal({
             {loading || loadingBooking ? (
               <Loader2 className="animate-spin" />
             ) : showExpired ? (
-              'Đã hết hạn'
+              'Expired'
             ) : (
-              'Tôi đã hoàn tất chuyển khoản'
+              'I have completed the transfer'
             )}
           </button>
         </div>

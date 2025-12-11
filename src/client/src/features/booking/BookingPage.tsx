@@ -81,7 +81,7 @@ export default function BookingPage() {
         nextDay.setDate(nextDay.getDate() + 1);
         params.set('checkOut', nextDay.toISOString().split('T')[0]);
         if (type === 'checkOut') {
-          toast.error('Ngày trả phòng phải sau ngày nhận phòng');
+          toast.error('Check-out date must be after check-in date');
         }
       }
     }
@@ -165,7 +165,7 @@ export default function BookingPage() {
       const errorMessage =
         error instanceof Error
           ? error.message
-          : 'Mã giảm giá không hợp lệ. Vui lòng kiểm tra lại.';
+          : 'Invalid coupon code. Please check again.';
 
       setCouponError(errorMessage);
       // Revert to base price (without coupon)
@@ -226,7 +226,7 @@ export default function BookingPage() {
         // 3. Redirect to Payment
         window.location.href = paymentUrl;
       } else {
-        toast.error('Không thể tạo URL thanh toán');
+        toast.error('Could not generate payment URL');
         setLoading(false);
       }
     } catch (error) {
@@ -234,7 +234,7 @@ export default function BookingPage() {
       const errorMessage =
         error instanceof Error
           ? error.message
-          : 'Không thể tạo đặt phòng. Vui lòng thử lại.';
+          : 'Could not create booking. Please try again.';
       toast.error(errorMessage);
       setLoading(false);
     }
@@ -242,7 +242,7 @@ export default function BookingPage() {
 
   const handleConfirmPayment = async () => {
     if (!pendingBookingId) {
-      toast.error('Không tìm thấy mã đặt phòng');
+      toast.error('Booking ID not found');
       return;
     }
 
@@ -251,7 +251,7 @@ export default function BookingPage() {
       // Call API to confirm payment and send invoice email
       await confirmBooking(pendingBookingId);
       toast.success(
-        'Thanh toán đã được xác nhận! Hóa đơn đã được gửi đến email của bạn. Đang chuyển đến trang chi tiết đặt phòng...'
+        'Payment confirmed! Invoice has been sent to your email. Redirecting to booking details...'
       );
 
       // Wait a bit before redirect to show success message
@@ -261,7 +261,7 @@ export default function BookingPage() {
     } catch (error: unknown) {
       console.error('Payment confirmation failed - Full error:', error);
 
-      let errorMessage = 'Không thể xác nhận thanh toán. Vui lòng thử lại.';
+      let errorMessage = 'Could not confirm payment. Please try again.';
 
       if (error && typeof error === 'object') {
         // Check if it's an Axios error
@@ -291,10 +291,9 @@ export default function BookingPage() {
           }
 
           if (axiosError.response.status === 401) {
-            errorMessage =
-              'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.';
+            errorMessage = 'Session expired. Please login again.';
           } else if (axiosError.response.status === 404) {
-            errorMessage = 'Không tìm thấy đặt phòng.';
+            errorMessage = 'Booking not found.';
           }
         } else if ('message' in error && typeof error.message === 'string') {
           errorMessage = error.message;
@@ -314,14 +313,14 @@ export default function BookingPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-slate-900 mb-2">
-            Yêu cầu đặt phòng không hợp lệ
+            Invalid Booking Request
           </h2>
-          <p className="text-slate-500 mb-4">Thiếu ID phòng</p>
+          <p className="text-slate-500 mb-4">Missing Room ID</p>
           <button
             onClick={() => navigate('/')}
             className="text-brand-accent font-bold hover:underline"
           >
-            Về trang chủ
+            Back to Home
           </button>
         </div>
       </div>
@@ -332,7 +331,7 @@ export default function BookingPage() {
     <div className="min-h-screen bg-slate-50 pt-24 pb-12">
       <div className="container mx-auto px-4 max-w-6xl">
         <h1 className="text-3xl font-black text-slate-900 mb-8">
-          Xác nhận đặt phòng của bạn
+          Confirm your booking
         </h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -344,7 +343,7 @@ export default function BookingPage() {
                   <Users className="w-5 h-5" />
                 </div>
                 <h2 className="text-xl font-bold text-slate-900">
-                  Thông tin khách hàng
+                  Guest Information
                 </h2>
               </div>
 
@@ -355,7 +354,7 @@ export default function BookingPage() {
               >
                 <div>
                   <label className="block text-sm font-bold text-slate-700 mb-2">
-                    Họ
+                    First Name
                   </label>
                   <input
                     required
@@ -370,7 +369,7 @@ export default function BookingPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-slate-700 mb-2">
-                    Tên
+                    Last Name
                   </label>
                   <input
                     required
@@ -385,7 +384,7 @@ export default function BookingPage() {
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-bold text-slate-700 mb-2">
-                    Địa chỉ email
+                    Email Address
                   </label>
                   <input
                     required
@@ -398,12 +397,12 @@ export default function BookingPage() {
                     placeholder="nguyenvana@example.com"
                   />
                   <p className="text-xs text-slate-500 mt-1">
-                    Email xác nhận đặt phòng sẽ được gửi đến địa chỉ này.
+                    Booking confirmation will be sent to this email.
                   </p>
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-bold text-slate-700 mb-2">
-                    Số điện thoại
+                    Phone Number
                   </label>
                   <input
                     required
@@ -418,7 +417,7 @@ export default function BookingPage() {
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-bold text-slate-700 mb-2">
-                    Yêu cầu đặc biệt (Tùy chọn)
+                    Special Requests (Optional)
                   </label>
                   <textarea
                     value={formData.note}
@@ -426,7 +425,7 @@ export default function BookingPage() {
                       setFormData({ ...formData, note: e.target.value })
                     }
                     className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/20 outline-none transition-all h-32 resize-none"
-                    placeholder="Nhận phòng muộn, phòng yên tĩnh, v.v."
+                    placeholder="Late check-in, quiet room, etc."
                   />
                 </div>
               </form>
@@ -438,7 +437,7 @@ export default function BookingPage() {
                   <CreditCard className="w-5 h-5" />
                 </div>
                 <h2 className="text-xl font-bold text-slate-900">
-                  Phương thức thanh toán
+                  Payment Method
                 </h2>
               </div>
 
@@ -453,7 +452,7 @@ export default function BookingPage() {
                     </span>
                   </div>
                   <span className="font-bold text-slate-900">
-                    Thanh toán bằng VNPay
+                    Pay with VNPay
                   </span>
                 </div>
                 <div
@@ -474,7 +473,7 @@ export default function BookingPage() {
                     <span className="font-bold text-xs text-slate-900">QR</span>
                   </div>
                   <span className="font-bold text-slate-900">
-                    Chuyển khoản / QR Code
+                    Bank Transfer / QR Code
                   </span>
                 </div>
                 <div
@@ -488,7 +487,7 @@ export default function BookingPage() {
 
               <div className="mt-6 flex items-center gap-2 text-slate-500 text-sm">
                 <ShieldCheck className="w-4 h-4 text-green-500" />
-                Thông tin thanh toán của bạn được bảo mật và mã hóa.
+                Your payment information is secure and encrypted.
               </div>
             </div>
           </div>
@@ -497,7 +496,7 @@ export default function BookingPage() {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-3xl p-6 shadow-lg border border-slate-100 sticky top-24">
               <h3 className="text-xl font-bold text-slate-900 mb-6">
-                Tóm tắt đặt phòng
+                Booking Summary
               </h3>
 
               {hotel && (
@@ -521,7 +520,7 @@ export default function BookingPage() {
                     </div>
                     <div className="flex items-center gap-1 text-slate-500 text-xs mt-1">
                       <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                      {hotel.starRating} Sao
+                      {hotel.starRating} Stars
                     </div>
                   </div>
                 </div>
@@ -529,7 +528,7 @@ export default function BookingPage() {
 
               <div className="space-y-4 mb-6">
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-500">Nhận phòng</span>
+                  <span className="text-slate-500">Check In</span>
                   <input
                     type="date"
                     value={checkIn}
@@ -541,7 +540,7 @@ export default function BookingPage() {
                   />
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-500">Trả phòng</span>
+                  <span className="text-slate-500">Check Out</span>
                   <input
                     type="date"
                     value={checkOut}
@@ -559,7 +558,7 @@ export default function BookingPage() {
                   />
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-500">Khách</span>
+                  <span className="text-slate-500">Guests</span>
                   <div className="flex items-center gap-2">
                     <input
                       type="number"
@@ -570,7 +569,7 @@ export default function BookingPage() {
                         const val = Number(e.target.value);
                         if (room && val > room.capacity) {
                           toast.error(
-                            `Sức chứa tối đa của phòng này là ${room.capacity} khách`
+                            `Maximum capacity for this room is ${room.capacity} guests`
                           );
                           return;
                         }
@@ -580,12 +579,12 @@ export default function BookingPage() {
                       }}
                       className="font-bold text-slate-900 bg-transparent border-b border-slate-200 focus:border-brand-accent outline-none text-right w-16"
                     />
-                    <span className="font-bold text-slate-900">Khách</span>
+                    <span className="font-bold text-slate-900">Guest(s)</span>
                   </div>
                 </div>
                 {room && guests > room.capacity && (
                   <p className="text-xs text-red-500 text-right">
-                    Vượt quá sức chứa ({room.capacity})
+                    Exceeds capacity ({room.capacity})
                   </p>
                 )}
               </div>
@@ -593,7 +592,7 @@ export default function BookingPage() {
               {/* Coupon Input */}
               <div className="mb-6">
                 <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
-                  Mã giảm giá
+                  Coupon Code
                 </label>
                 <div className="flex gap-2">
                   <input
@@ -622,7 +621,7 @@ export default function BookingPage() {
                           ? 'border-green-300 focus:border-green-500'
                           : 'border-slate-200 focus:border-brand-accent'
                     }`}
-                    placeholder="Nhập mã và nhấn Enter"
+                    placeholder="Enter code"
                   />
                   <button
                     type="button"
@@ -630,12 +629,12 @@ export default function BookingPage() {
                     disabled={calculating || !formData.couponCode.trim()}
                     className="px-4 py-2 bg-brand-accent hover:bg-brand-accent/90 text-white rounded-lg text-sm font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Áp dụng
+                    Apply
                   </button>
                 </div>
                 {priceDetails.appliedCouponCode && !couponError && (
                   <p className="text-xs text-green-600 mt-1 font-medium">
-                    ✓ Áp dụng mã giảm giá thành công!
+                    ✓ Coupon applied successfully!
                   </p>
                 )}
                 {couponError && (
@@ -647,21 +646,21 @@ export default function BookingPage() {
 
               <div className="space-y-3 pt-6 border-t border-slate-100 mb-6">
                 <div className="flex justify-between text-slate-600">
-                  <span>Giá gốc</span>
+                  <span>Original Price</span>
                   <span>{formatVND(priceDetails.originalPrice)}</span>
                 </div>
                 {priceDetails.discountAmount > 0 && (
                   <div className="flex justify-between text-green-600 font-medium">
-                    <span>Giảm giá</span>
+                    <span>Discount</span>
                     <span>-{formatVND(priceDetails.discountAmount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-slate-600">
-                  <span>Phí dịch vụ</span>
+                  <span>Service Fee</span>
                   <span>{formatVND(priceDetails.serviceFee)}</span>
                 </div>
                 <div className="flex justify-between text-xl font-black text-slate-900 pt-4 border-t border-slate-100">
-                  <span>Tổng cộng</span>
+                  <span>Total</span>
                   <span>{formatVND(priceDetails.finalPrice)}</span>
                 </div>
               </div>
@@ -674,13 +673,11 @@ export default function BookingPage() {
                 {loading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    Đang xử lý...
+                    Processing...
                   </>
                 ) : (
                   <>
-                    {paymentMethod === 'QR'
-                      ? 'Tiếp tục thanh toán'
-                      : 'Thanh toán ngay'}
+                    {paymentMethod === 'QR' ? 'Continue to Payment' : 'Pay Now'}
                     <ChevronRight className="w-5 h-5" />
                   </>
                 )}

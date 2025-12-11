@@ -17,6 +17,7 @@ import {
   getAmenities,
   uploadHotelImages,
 } from '../../../services/hostService';
+import { clearHostCache } from '../../../utils/cachedServices';
 import { toast } from 'sonner';
 import HotelImage from '../../../components/common/HotelImage';
 
@@ -133,6 +134,9 @@ export default function HotelForm({
         });
         await uploadHotelImages(savedHotel.id, formData);
       }
+
+      // Clear cache to ensure fresh data is fetched
+      clearHostCache();
 
       onSuccess();
     } catch (error) {
