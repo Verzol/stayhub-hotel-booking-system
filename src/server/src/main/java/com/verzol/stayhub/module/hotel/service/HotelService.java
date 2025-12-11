@@ -26,6 +26,11 @@ public class HotelService {
 
     private final HotelRepository hotelRepository;
     private final AmenityRepository amenityRepository;
+    private final com.verzol.stayhub.module.room.repository.RoomRepository roomRepository;
+    private final com.verzol.stayhub.module.booking.repository.BookingRepository bookingRepository;
+    private final com.verzol.stayhub.module.promotion.repository.PromotionRepository promotionRepository;
+    private final com.verzol.stayhub.module.review.repository.ReviewRepository reviewRepository;
+    private final com.verzol.stayhub.module.room.repository.RoomAvailabilityRepository roomAvailabilityRepository;
 
     @Transactional
     public Hotel createHotel(HotelDTO dto, Long ownerId) {
@@ -52,6 +57,40 @@ public class HotelService {
     public List<Hotel> getMyHotels(Long ownerId) {
         // Use optimized query - findByOwnerId uses database index
         return hotelRepository.findByOwnerId(ownerId);
+    }
+
+    @Transactional
+    public void deleteHotel(Long id, Long ownerId) {
+        Hotel hotel = hotelRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Hotel not found"));
+
+        if (!hotel.getOwnerId().equals(ownerId)) {
+            throw new RuntimeException("Unauthorized access to hotel");
+        }
+
+        // Delete Promotions
+        List<com.verzol.stayhub.module.promotion.entity.Promotion> promotions = promotionRepository.findByHotelId(id);
+        promotionRepository.deleteAll(promotions);
+
+        // Delete Reviews
+        List<com.verzol.stayhub.module.review.entity.Review> reviews = reviewRepository.findByHotelIdOrderByCreatedAtDesc(id);
+        reviewRepository.deleteAll(reviews);
+
+        // Delete Rooms and related data
+        List<com.verzol.stayhub.module.room.entity.Room> rooms = roomRepository.findByHotelId(id);
+        for (com.verzol.stayhub.module.room.entity.Room room : rooms) {
+            // Delete Availability
+            List<com.verzol.stayhub.module.room.entity.RoomAvailability> availabilities = roomAvailabilityRepository.findByRoomId(room.getId());
+            roomAvailabilityRepository.deleteAll(availabilities);
+
+            // Delete Bookings
+            List<com.verzol.stayhub.module.booking.entity.Booking> bookings = bookingRepository.findByRoomId(room.getId());
+            bookingRepository.deleteAll(bookings);
+
+            roomRepository.delete(room);
+        }
+
+        hotelRepository.delete(hotel);
     }
 
     private final com.verzol.stayhub.common.service.FileStorageService fileStorageService;

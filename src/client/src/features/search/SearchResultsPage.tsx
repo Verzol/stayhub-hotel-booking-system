@@ -101,7 +101,7 @@ export default function SearchResultsPage() {
       } catch (error) {
         if (!cancelled) {
           console.error('Search failed', error);
-          toast.error('Không thể tải kết quả tìm kiếm');
+          toast.error('Failed to load search results');
           setHotels([]);
         }
       } finally {
@@ -142,11 +142,11 @@ export default function SearchResultsPage() {
       );
       toast.success(
         wishlist.includes(hotelId)
-          ? 'Đã xóa khỏi danh sách yêu thích'
-          : 'Đã thêm vào danh sách yêu thích'
+          ? 'Removed from wishlist'
+          : 'Added to wishlist'
       );
     } catch {
-      toast.error('Vui lòng đăng nhập để lưu vào danh sách yêu thích');
+      toast.error('Please login to save to wishlist');
     }
   };
 
@@ -185,10 +185,9 @@ export default function SearchResultsPage() {
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-2xl font-bold text-slate-900">
                 {hotels?.length || 0}{' '}
-                {(hotels?.length || 0) === 1 ? 'địa điểm' : 'địa điểm'} được tìm
-                thấy
+                {(hotels?.length || 0) === 1 ? 'property' : 'properties'} found
                 {searchParams.get('query') &&
-                  ` tại ${searchParams.get('query')}`}
+                  ` in ${searchParams.get('query')}`}
               </h1>
 
               <div className="flex items-center gap-4">
@@ -199,9 +198,9 @@ export default function SearchResultsPage() {
                     onChange={(e) => setSort(e.target.value)}
                     className="appearance-none bg-white border border-slate-200 text-slate-700 py-2 pl-4 pr-10 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-brand-accent cursor-pointer"
                   >
-                    <option value="price_asc">Giá: Thấp đến cao</option>
-                    <option value="price_desc">Giá: Cao đến thấp</option>
-                    <option value="rating_desc">Đánh giá cao nhất</option>
+                    <option value="price_asc">Price: Low to High</option>
+                    <option value="price_desc">Price: High to Low</option>
+                    <option value="rating_desc">Highest Rated</option>
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                 </div>
@@ -282,20 +281,23 @@ export default function SearchResultsPage() {
                           {hotel.description}
                         </p>
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-lg text-slate-900">
-                            {hotel.rooms && hotel.rooms.length > 0
-                              ? `Từ ${formatVND(
-                                  Math.min(
-                                    ...hotel.rooms.map((r) => r.basePrice)
-                                  )
-                                )}`
-                              : 'Liên hệ'}
-                            <span className="text-sm text-slate-500 font-normal">
-                              /đêm
+                          <span className="font-bold text-lg text-slate-900 flex items-baseline gap-1 flex-wrap">
+                            <span className="whitespace-nowrap">
+                              {hotel.rooms && hotel.rooms.length > 0
+                                ? `From ${formatVND(
+                                    Math.min(
+                                      ...hotel.rooms.map((r) => r.basePrice)
+                                    ),
+                                    { symbol: 'VND' }
+                                  )}`
+                                : 'Contact'}
+                            </span>
+                            <span className="text-sm text-slate-500 font-normal whitespace-nowrap">
+                              /night
                             </span>
                           </span>
-                          <button className="px-4 py-2 bg-brand-primary text-white rounded-xl font-bold text-sm hover:bg-brand-primary/90 transition-colors">
-                            Xem chi tiết
+                          <button className="px-4 py-2 bg-brand-primary text-white rounded-xl font-bold text-sm hover:bg-brand-primary/90 transition-colors whitespace-nowrap">
+                            View Details
                           </button>
                         </div>
                       </div>

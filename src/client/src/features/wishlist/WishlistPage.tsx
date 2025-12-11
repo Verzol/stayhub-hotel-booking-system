@@ -27,7 +27,7 @@ export default function WishlistPage() {
         setWishlistItems(hotels.filter((h): h is Hotel => h !== null));
       } catch (error) {
         console.error('Failed to load wishlist', error);
-        toast.error('Không thể tải danh sách yêu thích của bạn');
+        toast.error('Failed to load your wishlist');
       } finally {
         setLoading(false);
       }
@@ -41,9 +41,9 @@ export default function WishlistPage() {
     try {
       await toggleWishlist(hotelId);
       setWishlistItems((prev) => prev.filter((h) => h.id !== hotelId));
-      toast.success('Đã xóa khỏi danh sách yêu thích');
+      toast.success('Removed from wishlist');
     } catch {
-      toast.error('Không thể xóa khỏi danh sách yêu thích');
+      toast.error('Failed to remove from wishlist');
     }
   };
 
@@ -58,24 +58,22 @@ export default function WishlistPage() {
   return (
     <div className="min-h-screen bg-slate-50 pt-24 pb-12">
       <div className="container mx-auto px-4">
-        <h1 className="text-3xl font-black text-slate-900 mb-8">
-          Danh sách yêu thích của tôi
-        </h1>
+        <h1 className="text-3xl font-black text-slate-900 mb-8">My Wishlist</h1>
 
         {wishlistItems.length === 0 ? (
           <div className="text-center py-20 bg-white rounded-3xl border border-slate-100 shadow-sm">
             <Heart className="w-16 h-16 text-slate-200 mx-auto mb-4" />
             <h2 className="text-xl font-bold text-slate-900 mb-2">
-              Danh sách yêu thích của bạn đang trống
+              Your wishlist is empty
             </h2>
             <p className="text-slate-500 mb-6">
-              Bắt đầu khám phá khách sạn và lưu những nơi bạn yêu thích!
+              Start exploring hotels and save your favorite places!
             </p>
             <button
               onClick={() => navigate('/search')}
               className="px-6 py-3 bg-brand-primary text-white rounded-xl font-bold hover:bg-brand-primary/90 transition-colors"
             >
-              Khám phá khách sạn
+              Explore Hotels
             </button>
           </div>
         ) : (
@@ -118,11 +116,11 @@ export default function WishlistPage() {
                     <div className="flex items-center gap-1 bg-brand-accent/10 px-2 py-1 rounded-lg">
                       <Star className="w-3 h-3 text-brand-accent fill-brand-accent" />
                       <span className="text-xs font-bold text-brand-accent">
-                        {hotel.starRating} Sao
+                        {hotel.starRating} Stars
                       </span>
                     </div>
                     <div className="flex items-center gap-1 text-brand-primary font-bold text-sm group-hover:translate-x-1 transition-transform">
-                      Xem chi tiết
+                      View Details
                       <ArrowRight className="w-4 h-4" />
                     </div>
                   </div>

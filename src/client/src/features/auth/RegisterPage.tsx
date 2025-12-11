@@ -27,34 +27,37 @@ import { PasswordStrengthIndicator } from '../../components/common/PasswordStren
 
 // Step 1: Email check
 const emailSchema = z.object({
-  email: z.string().email('Địa chỉ email không hợp lệ'),
+  email: z.string().email('Invalid email address'),
 });
 
 // Step 2: Password & Info
 const registerSchema = z
   .object({
-    email: z.string().email('Địa chỉ email không hợp lệ'),
+    email: z.string().email('Invalid email address'),
     password: z
       .string()
-      .min(8, 'Mật khẩu phải có ít nhất 8 ký tự')
-      .regex(/[A-Z]/, 'Phải chứa ít nhất một chữ cái in hoa')
-      .regex(/[a-z]/, 'Phải chứa ít nhất một chữ cái thường')
-      .regex(/[0-9]/, 'Phải chứa ít nhất một chữ số')
-      .regex(/[!@#$%^&*]/, 'Phải chứa ít nhất một ký tự đặc biệt (!@#$%^&*)'),
+      .min(8, 'Password must be at least 8 characters')
+      .regex(/[A-Z]/, 'Must contain at least one uppercase letter')
+      .regex(/[a-z]/, 'Must contain at least one lowercase letter')
+      .regex(/[0-9]/, 'Must contain at least one number')
+      .regex(
+        /[!@#$%^&*]/,
+        'Must contain at least one special character (!@#$%^&*)'
+      ),
     confirmPassword: z.string(),
     fullName: z
       .string()
-      .min(2, 'Họ tên phải có ít nhất 2 ký tự')
-      .max(50, 'Họ tên không được vượt quá 50 ký tự'),
+      .min(2, 'Full name must be at least 2 characters')
+      .max(50, 'Full name cannot exceed 50 characters'),
     phoneNumber: z
       .string()
-      .regex(/^\d{10,11}$/, 'Số điện thoại phải có 10-11 chữ số'),
+      .regex(/^\d{10,11}$/, 'Phone number must have 10-11 digits'),
     address: z.string().optional(),
     dateOfBirth: z.string().optional(),
     gender: z.enum(['MALE', 'FEMALE', 'OTHER']),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'Mật khẩu không khớp',
+    message: 'Passwords do not match',
     path: ['confirmPassword'],
   });
 
@@ -92,7 +95,7 @@ export default function RegisterPage() {
       if (result.exists) {
         emailForm.setError('email', {
           type: 'manual',
-          message: 'Email này đã được đăng ký. Vui lòng đăng nhập.',
+          message: 'This email is already registered. Please sign in.',
         });
       } else {
         setEmailValue(data.email);
@@ -100,7 +103,9 @@ export default function RegisterPage() {
         setStep(2);
       }
     } catch {
-      toast.error('Lỗi kết nối. Vui lòng kiểm tra internet và thử lại.');
+      toast.error(
+        'Connection error. Please check your internet and try again.'
+      );
     } finally {
       setIsLoading(false);
     }
@@ -116,20 +121,19 @@ export default function RegisterPage() {
       });
 
       toast.success(
-        'Tài khoản đã được tạo! Vui lòng kiểm tra email để lấy mã xác thực.'
+        'Account created! Please check your email for the verification code.'
       );
       navigate('/verify-email', {
         state: {
           email: data.email,
-          message:
-            'Vui lòng nhập mã xác thực chúng tôi đã gửi đến email của bạn.',
+          message: 'Please enter the verification code we sent to your email.',
         },
       });
     } catch (err: unknown) {
       if (err instanceof Error) {
         toast.error(err.message);
       } else {
-        toast.error('Đã xảy ra lỗi. Vui lòng thử lại sau.');
+        toast.error('An error occurred. Please try again later.');
       }
     } finally {
       setIsLoading(false);
@@ -165,11 +169,11 @@ export default function RegisterPage() {
 
           <div className="max-w-md">
             <blockquote className="text-4xl font-black leading-tight mb-6">
-              "Tham gia cộng đồng du khách và chủ nhà trên khắp Việt Nam."
+              "Join the community of travelers and hosts across Vietnam."
             </blockquote>
             <p className="text-white/80 text-lg leading-relaxed">
-              Tạo tài khoản ngay hôm nay và bắt đầu khám phá những chỗ nghỉ độc
-              đáo hoặc chia sẻ không gian của bạn với khách từ mọi nơi.
+              Create an account today and start discovering unique stays or
+              sharing your space with guests from everywhere.
             </p>
           </div>
 
@@ -178,19 +182,19 @@ export default function RegisterPage() {
               <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
                 <Check className="w-5 h-5" />
               </div>
-              <span className="font-medium">Miễn phí tham gia</span>
+              <span className="font-medium">Free to join</span>
             </div>
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
                 <Check className="w-5 h-5" />
               </div>
-              <span className="font-medium">Hệ thống đặt phòng an toàn</span>
+              <span className="font-medium">Secure booking system</span>
             </div>
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
                 <Check className="w-5 h-5" />
               </div>
-              <span className="font-medium">Hỗ trợ khách hàng 24/7</span>
+              <span className="font-medium">24/7 Customer Support</span>
             </div>
           </div>
         </div>
@@ -241,10 +245,10 @@ export default function RegisterPage() {
               <>
                 <div className="mb-10 text-center">
                   <h1 className="text-3xl font-black text-slate-900 mb-3">
-                    Tạo tài khoản
+                    Create Account
                   </h1>
                   <p className="text-slate-500 text-lg">
-                    Nhập email của bạn để bắt đầu
+                    Enter your email to start
                   </p>
                 </div>
 
@@ -271,7 +275,7 @@ export default function RegisterPage() {
                       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                     />
                   </svg>
-                  Tiếp tục với Google
+                  Continue with Google
                 </button>
 
                 <div className="relative my-8">
@@ -280,7 +284,7 @@ export default function RegisterPage() {
                   </div>
                   <div className="relative flex justify-center text-sm">
                     <span className="px-4 bg-white text-slate-500 font-medium">
-                      hoặc tiếp tục với email
+                      or continue with email
                     </span>
                   </div>
                 </div>
@@ -291,7 +295,7 @@ export default function RegisterPage() {
                 >
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">
-                      Địa chỉ Email
+                      Email Address
                     </label>
                     <div className="relative group">
                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-accent transition-colors" />
@@ -321,11 +325,11 @@ export default function RegisterPage() {
                     {isLoading ? (
                       <>
                         <Loader2 className="w-5 h-5 animate-spin" />
-                        Đang kiểm tra...
+                        Checking...
                       </>
                     ) : (
                       <>
-                        Tiếp tục
+                        Continue
                         <ArrowRight className="w-5 h-5" />
                       </>
                     )}
@@ -333,12 +337,12 @@ export default function RegisterPage() {
                 </form>
 
                 <p className="mt-8 text-center text-slate-500 font-medium">
-                  Đã có tài khoản?{' '}
+                  Already have an account?{' '}
                   <Link
                     to="/login"
                     className="text-brand-accent hover:text-brand-dark font-bold transition-colors"
                   >
-                    Đăng nhập
+                    Sign In
                   </Link>
                 </p>
               </>
@@ -349,10 +353,10 @@ export default function RegisterPage() {
               <>
                 <div className="mb-8 text-center">
                   <h1 className="text-3xl font-black text-slate-900 mb-2">
-                    Hoàn tất thông tin
+                    Complete your profile
                   </h1>
                   <p className="text-slate-500">
-                    cho{' '}
+                    for{' '}
                     <span className="font-bold text-brand-dark">
                       {emailValue}
                     </span>
@@ -367,7 +371,7 @@ export default function RegisterPage() {
                     {/* Full Name */}
                     <div className="md:col-span-2">
                       <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">
-                        Họ và Tên
+                        Full Name
                       </label>
                       <div className="relative group">
                         <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-accent transition-colors" />
@@ -379,7 +383,7 @@ export default function RegisterPage() {
                               ? 'border-red-300 focus:ring-red-100'
                               : 'border-slate-200'
                           }`}
-                          placeholder="Nguyễn Văn A"
+                          placeholder="Nguyen Van A"
                         />
                       </div>
                       {registerForm.formState.errors.fullName && (
@@ -392,7 +396,7 @@ export default function RegisterPage() {
                     {/* Phone */}
                     <div className="md:col-span-2">
                       <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">
-                        Số Điện Thoại
+                        Phone Number
                       </label>
                       <div className="relative group">
                         <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-accent transition-colors" />
@@ -417,16 +421,16 @@ export default function RegisterPage() {
                     {/* Gender */}
                     <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">
-                        Giới Tính
+                        Gender
                       </label>
                       <div className="relative">
                         <select
                           {...registerForm.register('gender')}
                           className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-brand-accent/10 focus:border-brand-accent focus:bg-white transition-all duration-200 text-slate-800 font-medium appearance-none"
                         >
-                          <option value="OTHER">Khác</option>
-                          <option value="MALE">Nam</option>
-                          <option value="FEMALE">Nữ</option>
+                          <option value="OTHER">Other</option>
+                          <option value="MALE">Male</option>
+                          <option value="FEMALE">Female</option>
                         </select>
                         <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
                           <svg
@@ -449,7 +453,7 @@ export default function RegisterPage() {
                     {/* DOB */}
                     <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">
-                        Ngày Sinh
+                        Date of Birth
                       </label>
                       <div className="relative group">
                         <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-accent transition-colors" />
@@ -464,7 +468,7 @@ export default function RegisterPage() {
                     {/* Address */}
                     <div className="md:col-span-2">
                       <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">
-                        Địa Chỉ (tùy chọn)
+                        Address (Optional)
                       </label>
                       <div className="relative group">
                         <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-accent transition-colors" />
@@ -472,7 +476,7 @@ export default function RegisterPage() {
                           type="text"
                           {...registerForm.register('address')}
                           className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-brand-accent/10 focus:border-brand-accent focus:bg-white transition-all duration-200 text-slate-800 placeholder-slate-400 font-medium"
-                          placeholder="Địa chỉ của bạn"
+                          placeholder="Your address"
                         />
                       </div>
                     </div>
@@ -480,7 +484,7 @@ export default function RegisterPage() {
                     {/* Password */}
                     <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">
-                        Mật Khẩu
+                        Password
                       </label>
                       <div className="relative group">
                         <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-accent transition-colors" />
@@ -492,7 +496,7 @@ export default function RegisterPage() {
                               ? 'border-red-300 focus:ring-red-100'
                               : 'border-slate-200'
                           }`}
-                          placeholder="Mật khẩu"
+                          placeholder="Password"
                         />
                         <button
                           type="button"
@@ -511,7 +515,7 @@ export default function RegisterPage() {
                     {/* Confirm Password */}
                     <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">
-                        Xác Nhận Mật Khẩu
+                        Confirm Password
                       </label>
                       <div className="relative group">
                         <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-accent transition-colors" />
@@ -523,7 +527,7 @@ export default function RegisterPage() {
                               ? 'border-red-300 focus:ring-red-100'
                               : 'border-slate-200'
                           }`}
-                          placeholder="Xác nhận mật khẩu"
+                          placeholder="Confirm Password"
                         />
                         <button
                           type="button"
@@ -564,7 +568,7 @@ export default function RegisterPage() {
                       className="w-1/3 py-4 px-6 border border-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 flex items-center justify-center gap-2"
                     >
                       <ArrowLeft className="w-5 h-5" />
-                      Quay lại
+                      Back
                     </button>
                     <button
                       type="submit"
@@ -574,10 +578,10 @@ export default function RegisterPage() {
                       {isLoading ? (
                         <>
                           <Loader2 className="w-5 h-5 animate-spin" />
-                          Đang tạo...
+                          Creating...
                         </>
                       ) : (
-                        'Tạo Tài Khoản'
+                        'Create Account'
                       )}
                     </button>
                   </div>

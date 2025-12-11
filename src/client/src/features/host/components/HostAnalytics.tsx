@@ -38,7 +38,7 @@ export default function HostAnalytics() {
       }
     } catch (error) {
       console.error('Failed to fetch hotels', error);
-      toast.error('Không thể tải danh sách khách sạn');
+      toast.error('Failed to load hotels');
     }
   };
 
@@ -69,7 +69,7 @@ export default function HostAnalytics() {
       setAnalytics(analyticsData);
     } catch (error) {
       console.error('Failed to fetch analytics', error);
-      toast.error('Không thể tải dữ liệu phân tích');
+      toast.error('Failed to load analytics');
     } finally {
       setLoading(false);
     }
@@ -85,7 +85,7 @@ export default function HostAnalytics() {
   if (!analytics) {
     return (
       <div className="bg-white rounded-2xl p-8 border border-slate-100 text-center">
-        <p className="text-slate-500">Chưa có dữ liệu phân tích</p>
+        <p className="text-slate-500">No analytics data available</p>
       </div>
     );
   }
@@ -100,8 +100,8 @@ export default function HostAnalytics() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-black text-slate-900">Phân tích</h2>
-          <p className="text-slate-500 mt-1">Theo dõi hiệu suất kinh doanh</p>
+          <h2 className="text-2xl font-black text-slate-900">Analytics</h2>
+          <p className="text-slate-500 mt-1">Track your business performance</p>
         </div>
 
         {/* Filters */}
@@ -121,7 +121,7 @@ export default function HostAnalytics() {
                   {hotel.name}
                 </option>
               ))}
-              {hotels.length > 1 && <option value="">Tất cả khách sạn</option>}
+              {hotels.length > 1 && <option value="">All Hotels</option>}
             </select>
           )}
 
@@ -137,10 +137,10 @@ export default function HostAnalytics() {
                 }`}
               >
                 {range === 'week'
-                  ? 'Tuần'
+                  ? 'Week'
                   : range === 'month'
-                    ? 'Tháng'
-                    : 'Năm'}
+                    ? 'Month'
+                    : 'Year'}
               </button>
             ))}
           </div>
@@ -156,9 +156,9 @@ export default function HostAnalytics() {
             </div>
           </div>
           <h3 className="text-3xl font-black text-slate-900 mb-1">
-            {formatVND(analytics.revenue)}
+            {formatVND(analytics.revenue, { symbol: 'VND' })}
           </h3>
-          <p className="text-slate-500 font-medium">Doanh thu</p>
+          <p className="text-slate-500 font-medium">Revenue</p>
         </div>
 
         <div className="bg-white rounded-2xl p-6 border border-slate-100">
@@ -170,7 +170,7 @@ export default function HostAnalytics() {
           <h3 className="text-3xl font-black text-slate-900 mb-1">
             {analytics.bookingsCount}
           </h3>
-          <p className="text-slate-500 font-medium">Tổng đặt phòng</p>
+          <p className="text-slate-500 font-medium">Total Bookings</p>
         </div>
 
         <div className="bg-white rounded-2xl p-6 border border-slate-100">
@@ -182,7 +182,7 @@ export default function HostAnalytics() {
           <h3 className="text-3xl font-black text-slate-900 mb-1">
             {analytics.occupancyRate.toFixed(1)}%
           </h3>
-          <p className="text-slate-500 font-medium">Tỷ lệ lấp đầy</p>
+          <p className="text-slate-500 font-medium">Occupancy Rate</p>
         </div>
 
         <div className="bg-white rounded-2xl p-6 border border-slate-100">
@@ -192,16 +192,16 @@ export default function HostAnalytics() {
             </div>
           </div>
           <h3 className="text-3xl font-black text-slate-900 mb-1">
-            {formatVND(analytics.avgBookingValue)}
+            {formatVND(analytics.avgBookingValue, { symbol: 'VND' })}
           </h3>
-          <p className="text-slate-500 font-medium">Giá trị TB/đơn</p>
+          <p className="text-slate-500 font-medium">Avg Booking Value</p>
         </div>
       </div>
 
       {/* Revenue Chart */}
       <div className="bg-white rounded-2xl p-6 border border-slate-100">
         <h3 className="text-xl font-black text-slate-900 mb-6">
-          Doanh thu theo tháng (6 tháng gần nhất)
+          Monthly Revenue (Last 6 Months)
         </h3>
         <div className="space-y-4">
           {analytics.revenueByMonth.map((item, index) => (
@@ -211,7 +211,7 @@ export default function HostAnalytics() {
                   {item.month}
                 </span>
                 <span className="text-sm font-black text-slate-900">
-                  {formatVND(item.revenue)}
+                  {formatVND(item.revenue, { symbol: 'VND' })}
                 </span>
               </div>
               <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
@@ -231,27 +231,31 @@ export default function HostAnalytics() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white rounded-2xl p-6 border border-slate-100">
           <h3 className="text-xl font-black text-slate-900 mb-4">
-            Phân bố trạng thái
+            Status Distribution
           </h3>
           <div className="space-y-3">
             {[
               {
                 status: 'COMPLETED',
-                label: 'Hoàn thành',
+                label: 'Completed',
                 color: 'bg-green-500',
               },
               {
                 status: 'CONFIRMED',
-                label: 'Đã xác nhận',
+                label: 'Confirmed',
                 color: 'bg-blue-500',
               },
-              { status: 'CHECKED_IN', label: 'Đang ở', color: 'bg-purple-500' },
+              {
+                status: 'CHECKED_IN',
+                label: 'Checked In',
+                color: 'bg-purple-500',
+              },
               {
                 status: 'PENDING',
-                label: 'Chờ thanh toán',
+                label: 'Pending Payment',
                 color: 'bg-yellow-500',
               },
-              { status: 'CANCELLED', label: 'Đã hủy', color: 'bg-red-500' },
+              { status: 'CANCELLED', label: 'Cancelled', color: 'bg-red-500' },
             ].map(({ status, label, color }) => {
               const count = analytics.statusDistribution[status] || 0;
               const percentage =
@@ -282,25 +286,23 @@ export default function HostAnalytics() {
 
         <div className="bg-white rounded-2xl p-6 border border-slate-100">
           <h3 className="text-xl font-black text-slate-900 mb-4">
-            Thống kê khác
+            Other Stats
           </h3>
           <div className="space-y-4">
             <div>
-              <p className="text-sm text-slate-500 mb-1">Tỷ lệ hủy</p>
+              <p className="text-sm text-slate-500 mb-1">Cancellation Rate</p>
               <p className="text-2xl font-black text-red-600">
                 {analytics.cancellationRate.toFixed(1)}%
               </p>
             </div>
             <div>
-              <p className="text-sm text-slate-500 mb-1">
-                Số đặt phòng hoàn thành
-              </p>
+              <p className="text-sm text-slate-500 mb-1">Completed Bookings</p>
               <p className="text-2xl font-black text-green-600">
                 {analytics.statusDistribution['COMPLETED'] || 0}
               </p>
             </div>
             <div>
-              <p className="text-sm text-slate-500 mb-1">Tổng số đặt phòng</p>
+              <p className="text-sm text-slate-500 mb-1">Total Bookings</p>
               <p className="text-2xl font-black text-slate-900">
                 {analytics.bookingsCount}
               </p>

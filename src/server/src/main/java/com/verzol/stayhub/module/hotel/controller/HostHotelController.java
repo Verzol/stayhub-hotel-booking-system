@@ -34,6 +34,12 @@ public class HostHotelController {
         return ResponseEntity.ok(hotelService.getMyHotels(user.getId()));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteHotel(@PathVariable Long id, @AuthenticationPrincipal User user) {
+        hotelService.deleteHotel(id, user.getId());
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/{id}/images")
     public ResponseEntity<Void> uploadImages(@PathVariable Long id, @RequestParam("files") org.springframework.web.multipart.MultipartFile[] files) {
         hotelService.uploadImages(id, files);

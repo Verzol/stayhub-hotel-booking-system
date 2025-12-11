@@ -125,7 +125,7 @@ export default function SearchBar({
         className="w-full md:flex-1 px-6 py-3 border-b md:border-b-0 md:border-r border-slate-100 relative group hover:bg-slate-50 rounded-2xl md:rounded-full transition-colors"
       >
         <label className="block text-xs font-bold text-brand-dark uppercase tracking-wider mb-1 ml-9">
-          Điểm đến
+          Destination
         </label>
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 rounded-full bg-brand-bg/50 flex items-center justify-center text-brand-dark group-hover:bg-brand-accent group-hover:text-white transition-colors shrink-0">
@@ -142,7 +142,7 @@ export default function SearchBar({
                   setShowLocationSuggestions(true);
                 }
               }}
-              placeholder="Bạn muốn đi đâu?"
+              placeholder="Where are you going?"
               className="w-full outline-none text-slate-700 placeholder:text-slate-400 font-semibold bg-transparent text-lg"
             />
             {/* Location Suggestions Dropdown */}
@@ -151,7 +151,7 @@ export default function SearchBar({
                 <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-50 max-h-64 overflow-y-auto">
                   {loadingSuggestions ? (
                     <div className="px-4 py-3 text-sm text-slate-500 text-center">
-                      Đang tìm...
+                      Searching...
                     </div>
                   ) : (
                     suggestions.map((suggestion, index) => (
@@ -176,7 +176,7 @@ export default function SearchBar({
       {/* Dates */}
       <div className="w-full md:flex-1 px-6 py-3 border-b md:border-b-0 md:border-r border-slate-100 relative group hover:bg-slate-50 rounded-2xl md:rounded-full transition-colors">
         <label className="block text-xs font-bold text-brand-dark uppercase tracking-wider mb-1 ml-9">
-          Nhận phòng / Trả phòng
+          Check In / Check Out
         </label>
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 rounded-full bg-brand-bg/50 flex items-center justify-center text-brand-dark group-hover:bg-brand-accent group-hover:text-white transition-colors shrink-0">
@@ -190,7 +190,7 @@ export default function SearchBar({
               onChange={(update: [Date | null, Date | null]) =>
                 setDateRange(update)
               }
-              placeholderText="Chọn ngày"
+              placeholderText="Select dates"
               className="w-full outline-none text-slate-700 placeholder:text-slate-400 font-semibold bg-transparent text-lg cursor-pointer"
               dateFormat="MMM d"
               minDate={new Date()}
@@ -206,16 +206,16 @@ export default function SearchBar({
         ref={guestPopupRef}
       >
         <label className="block text-xs font-bold text-brand-dark uppercase tracking-wider mb-1 ml-9">
-          Khách
+          Guests
         </label>
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 rounded-full bg-brand-bg/50 flex items-center justify-center text-brand-dark group-hover:bg-brand-accent group-hover:text-white transition-colors shrink-0">
             <Users className="w-5 h-5" />
           </div>
           <span className="text-slate-700 font-semibold text-lg flex-1">
-            {totalGuests} {totalGuests === 1 ? 'Khách' : 'Khách'}
+            {totalGuests} {totalGuests === 1 ? 'Guest' : 'Guests'}
             {children > 0 &&
-              `, ${children} ${children === 1 ? 'Trẻ em' : 'Trẻ em'}`}
+              `, ${children} ${children === 1 ? 'Child' : 'Children'}`}
           </span>
           <ChevronDown
             className={`w-4 h-4 text-slate-400 transition-transform ${showGuestPopup ? 'rotate-180' : ''}`}
@@ -229,8 +229,8 @@ export default function SearchBar({
               {/* Adults */}
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-bold text-slate-900">Người lớn</h4>
-                  <p className="text-sm text-slate-500">Từ 13 tuổi trở lên</p>
+                  <h4 className="font-bold text-slate-900">Adults</h4>
+                  <p className="text-sm text-slate-500">Ages 13 or above</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <button
@@ -264,8 +264,8 @@ export default function SearchBar({
               {/* Children */}
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-bold text-slate-900">Trẻ em</h4>
-                  <p className="text-sm text-slate-500">Từ 0-12 tuổi</p>
+                  <h4 className="font-bold text-slate-900">Children</h4>
+                  <p className="text-sm text-slate-500">Ages 0-12</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <button
@@ -303,7 +303,7 @@ export default function SearchBar({
         className="w-full md:w-auto bg-brand-cta hover:bg-brand-cta-hover text-white p-4 md:px-8 md:py-4 rounded-2xl md:rounded-full transition-all shadow-lg shadow-brand-cta/30 hover:shadow-xl hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
       >
         <Search className="w-6 h-6" />
-        <span className="md:hidden font-bold">Tìm kiếm</span>
+        <span className="md:hidden font-bold">Search</span>
       </button>
     </div>
   );

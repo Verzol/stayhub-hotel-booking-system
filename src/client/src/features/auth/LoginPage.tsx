@@ -13,8 +13,8 @@ import { useAuth } from '../../context/AuthContext';
 import { login as loginApi } from '../../services/authService';
 
 const loginSchema = z.object({
-  email: z.string().email('Địa chỉ email không hợp lệ'),
-  password: z.string().min(1, 'Vui lòng nhập mật khẩu'),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(1, 'Please enter your password'),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -62,7 +62,7 @@ export function LoginPage() {
       // Redirect to returnUrl if provided, otherwise go to home
       navigate(returnUrl);
     } catch {
-      setError('Email hoặc mật khẩu không đúng');
+      setError('Invalid email or password');
     } finally {
       setIsLoading(false);
     }
@@ -97,28 +97,26 @@ export function LoginPage() {
 
           <div className="max-w-md">
             <blockquote className="text-4xl font-black leading-tight mb-6">
-              "Tìm nơi nghỉ hoàn hảo, tạo nên những kỷ niệm khó quên."
+              "Find the perfect stay, create unforgettable memories."
             </blockquote>
             <p className="text-white/80 text-lg leading-relaxed">
-              Khám phá hàng nghìn chỗ nghỉ độc đáo trên khắp Việt Nam. Hành
-              trình tiếp theo của bạn bắt đầu từ đây.
+              Discover thousands of unique accommodations across Vietnam. Your
+              next journey starts here.
             </p>
           </div>
 
           <div className="flex gap-12">
             <div>
               <div className="text-3xl font-black">10K+</div>
-              <div className="text-white/60 font-medium">Khách sạn</div>
+              <div className="text-white/60 font-medium">Hotels</div>
             </div>
             <div>
               <div className="text-3xl font-black">50K+</div>
-              <div className="text-white/60 font-medium">
-                Khách hàng hài lòng
-              </div>
+              <div className="text-white/60 font-medium">Happy Customers</div>
             </div>
             <div>
               <div className="text-3xl font-black">100+</div>
-              <div className="text-white/60 font-medium">Thành phố</div>
+              <div className="text-white/60 font-medium">Cities</div>
             </div>
           </div>
         </div>
@@ -141,10 +139,10 @@ export function LoginPage() {
 
             <div className="mb-10">
               <h1 className="text-3xl font-black text-slate-900 mb-3">
-                Chào mừng trở lại
+                Welcome Back
               </h1>
               <p className="text-slate-500 text-lg">
-                Đăng nhập để tiếp tục hành trình của bạn
+                Sign in to continue your journey
               </p>
             </div>
 
@@ -167,8 +165,8 @@ export function LoginPage() {
                   </svg>
                 </div>
                 <p className="text-green-700 text-sm font-medium">
-                  Đăng ký thành công! Vui lòng kiểm tra email để lấy mã OTP xác
-                  thực tài khoản.
+                  Registration successful! Please check your email for the OTP
+                  to verify your account.
                 </p>
               </div>
             )}
@@ -198,7 +196,7 @@ export function LoginPage() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="space-y-2">
                 <label className="text-sm font-bold text-slate-700 ml-1">
-                  Địa chỉ Email
+                  Email Address
                 </label>
                 <div className="relative group">
                   <Mail className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within:text-brand-accent transition-colors" />
@@ -223,13 +221,13 @@ export function LoginPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between ml-1">
                   <label className="text-sm font-bold text-slate-700">
-                    Mật khẩu
+                    Password
                   </label>
                   <Link
                     to="/forgot-password"
                     className="text-sm font-bold text-brand-accent hover:text-brand-dark transition-colors"
                   >
-                    Quên mật khẩu?
+                    Forgot Password?
                   </Link>
                 </div>
                 <div className="relative group">
@@ -242,7 +240,7 @@ export function LoginPage() {
                         ? 'border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
                         : 'border-slate-200 focus:border-brand-accent focus:ring-4 focus:ring-brand-accent/10'
                     }`}
-                    placeholder="Nhập mật khẩu của bạn"
+                    placeholder="Enter your password"
                   />
                   <button
                     type="button"
@@ -271,10 +269,10 @@ export function LoginPage() {
                 {isLoading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    Đang đăng nhập...
+                    Signing in...
                   </>
                 ) : (
-                  'Đăng nhập'
+                  'Sign In'
                 )}
               </button>
             </form>
@@ -285,7 +283,7 @@ export function LoginPage() {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-4 bg-white text-slate-500 font-medium">
-                  hoặc đăng nhập bằng
+                  or sign in with
                 </span>
               </div>
             </div>
@@ -316,33 +314,33 @@ export function LoginPage() {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              <span className="text-lg">Tiếp tục với Google</span>
+              <span className="text-lg">Continue with Google</span>
             </button>
 
             <p className="mt-8 text-center text-slate-500 font-medium">
-              Chưa có tài khoản?{' '}
+              Don't have an account?{' '}
               <Link
                 to="/register"
                 className="text-brand-accent font-bold hover:underline"
               >
-                Tạo tài khoản
+                Create Account
               </Link>
             </p>
 
             <p className="mt-8 text-center text-slate-500 text-sm">
-              Bằng cách tiếp tục, bạn đồng ý với{' '}
+              By continuing, you agree to our{' '}
               <a
                 href="#"
                 className="text-brand-accent font-bold hover:underline"
               >
-                Điều khoản Dịch vụ
+                Terms of Service
               </a>{' '}
-              và{' '}
+              and{' '}
               <a
                 href="#"
                 className="text-brand-accent font-bold hover:underline"
               >
-                Chính sách Bảo mật
+                Privacy Policy
               </a>
               .
             </p>

@@ -96,10 +96,10 @@ export default function Navbar() {
   };
 
   const navItems = [
-    { name: 'Khách sạn', icon: Hotel, href: '/search' },
-    { name: 'Ưu đãi', icon: Percent, href: '/promotions' },
+    { name: 'Hotels', icon: Hotel, href: '/search' },
+    { name: 'Deals', icon: Percent, href: '/promotions' },
     ...(isAuthenticated
-      ? [{ name: 'Tin nhắn', icon: MessageCircle, href: '/chat' }]
+      ? [{ name: 'Messages', icon: MessageCircle, href: '/chat' }]
       : []),
   ];
 
@@ -110,22 +110,22 @@ export default function Navbar() {
 
   const userMenuItems = [
     {
-      label: 'Bảng điều khiển',
+      label: 'Dashboard',
       icon: LayoutDashboard,
       href: getDashboardLink(),
       show: user?.role === 'HOST',
     },
-    { label: 'Hồ sơ của tôi', icon: UserIcon, href: '/profile', show: true },
+    { label: 'My Profile', icon: UserIcon, href: '/profile', show: true },
     {
-      label: 'Đặt phòng của tôi',
+      label: 'My Bookings',
       icon: Calendar,
       href: '/bookings',
       show: user?.role === 'CUSTOMER',
     },
-    { label: 'Tin nhắn', icon: MessageCircle, href: '/chat', show: true },
-    { label: 'Đã lưu', icon: Heart, href: '/wishlist', show: true },
+    { label: 'Messages', icon: MessageCircle, href: '/chat', show: true },
+    { label: 'Saved', icon: Heart, href: '/wishlist', show: true },
     {
-      label: 'Cài đặt',
+      label: 'Settings',
       icon: Settings,
       href: '#',
       show: false,
@@ -192,7 +192,7 @@ export default function Navbar() {
                       } ${isBookingsMenuOpen ? (showScrolledStyle ? 'bg-brand-accent/10 text-brand-accent' : 'bg-white/10 text-white') : ''}`}
                     >
                       <CreditCard className="w-4 h-4" />
-                      Đặt phòng của tôi
+                      My Bookings
                       <ChevronDown
                         className={`w-3 h-3 transition-transform ${isBookingsMenuOpen ? 'rotate-180' : ''}`}
                       />
@@ -210,14 +210,14 @@ export default function Navbar() {
                           <div className="px-4 py-4 bg-brand-bg/30 border-b border-brand-dark/10 flex items-center justify-between">
                             <h3 className="font-bold text-brand-dark flex items-center gap-2">
                               <CreditCard className="w-4 h-4" />
-                              Đặt phòng gần đây
+                              Recent Bookings
                             </h3>
                             <Link
                               to="/bookings"
                               onClick={() => setIsBookingsMenuOpen(false)}
                               className="text-xs text-brand-accent hover:underline font-semibold"
                             >
-                              Xem tất cả
+                              View All
                             </Link>
                           </div>
 
@@ -255,7 +255,7 @@ export default function Navbar() {
                                       <div className="font-semibold text-brand-dark text-sm truncate">
                                         {booking.hotelName ||
                                           booking.roomName ||
-                                          `Đặt phòng #${booking.id}`}
+                                          `Booking #${booking.id}`}
                                       </div>
                                       <div className="flex items-center gap-2 text-xs text-brand-dark/60 mt-1">
                                         <Calendar className="w-3 h-3" />
@@ -286,11 +286,11 @@ export default function Navbar() {
                                           }`}
                                         >
                                           {booking.status === 'CONFIRMED'
-                                            ? 'Đã xác nhận'
+                                            ? 'Confirmed'
                                             : booking.status === 'PENDING'
-                                              ? 'Chờ thanh toán'
+                                              ? 'Pending Payment'
                                               : booking.status === 'CANCELLED'
-                                                ? 'Đã hủy'
+                                                ? 'Cancelled'
                                                 : booking.status}
                                         </span>
                                         {booking.totalPrice && (
@@ -309,14 +309,14 @@ export default function Navbar() {
                               <div className="px-4 py-8 text-center">
                                 <CreditCard className="w-12 h-12 text-brand-dark/20 mx-auto mb-3" />
                                 <p className="text-sm text-brand-dark/60 mb-2">
-                                  Chưa có đặt phòng nào
+                                  No bookings yet
                                 </p>
                                 <Link
                                   to="/search"
                                   onClick={() => setIsBookingsMenuOpen(false)}
                                   className="text-sm text-brand-accent hover:underline font-semibold inline-flex items-center gap-1"
                                 >
-                                  Bắt đầu đặt phòng
+                                  Start Booking
                                   <ArrowRight className="w-3 h-3" />
                                 </Link>
                               </div>
@@ -341,7 +341,7 @@ export default function Navbar() {
                 }`}
               >
                 <Globe className="w-4 h-4" />
-                <span>VI</span>
+                <span>EN</span>
                 <ChevronDown className="w-3 h-3" />
               </div>
 
@@ -416,10 +416,8 @@ export default function Navbar() {
                                 {user?.fullName}
                               </div>
                               <div className="text-xs text-brand-dark/50 capitalize">
-                                Tài khoản{' '}
-                                {user?.role === 'HOST'
-                                  ? 'Chủ nhà'
-                                  : 'Khách hàng'}
+                                Account{' '}
+                                {user?.role === 'HOST' ? 'Host' : 'Guest'}
                               </div>
                             </div>
                           </div>
@@ -447,7 +445,7 @@ export default function Navbar() {
                             className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-brand-cta hover:bg-brand-cta/10 transition-colors"
                           >
                             <LogOut className="w-4 h-4" />
-                            Đăng xuất
+                            Sign Out
                           </button>
                         </div>
                       </div>
@@ -464,13 +462,13 @@ export default function Navbar() {
                         : 'text-white hover:bg-white/10 border border-white/30'
                     }`}
                   >
-                    Đăng nhập
+                    Sign In
                   </Link>
                   <Link
                     to="/register"
                     className="px-5 py-2.5 rounded-xl bg-brand-cta hover:bg-brand-cta-hover text-white text-sm font-bold shadow-lg shadow-brand-cta/30 transition-all hover:scale-105 hover:shadow-brand-cta/50"
                   >
-                    Bắt đầu
+                    Get Started
                   </Link>
                 </div>
               )}
@@ -544,12 +542,12 @@ export default function Navbar() {
                   {/* My Bookings in Mobile */}
                   {isAuthenticated && (
                     <Link
-                      to="/profile"
+                      to="/bookings"
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 rounded-xl text-brand-dark/80 hover:bg-brand-accent/10 hover:text-brand-accent font-medium transition-colors"
                     >
                       <CreditCard className="w-5 h-5" />
-                      Đặt phòng của tôi
+                      My Bookings
                     </Link>
                   )}
                 </nav>
@@ -559,7 +557,7 @@ export default function Navbar() {
                     <div className="my-4 border-t border-brand-dark/10" />
                     <div className="px-3">
                       <div className="px-4 py-2 text-xs font-bold text-brand-dark/40 uppercase tracking-wider">
-                        Tài khoản
+                        Account
                       </div>
                       {userMenuItems.map((item) => (
                         <Link
@@ -594,14 +592,14 @@ export default function Navbar() {
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="block w-full px-4 py-3 text-center text-brand-dark border border-brand-dark/20 rounded-xl font-bold hover:bg-brand-dark/5 transition-colors"
                     >
-                      Đăng nhập
+                      Sign In
                     </Link>
                     <Link
                       to="/register"
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="block w-full px-4 py-3 text-center bg-brand-cta text-white rounded-xl font-bold hover:bg-brand-cta-hover transition-colors"
                     >
-                      Bắt đầu
+                      Get Started
                     </Link>
                   </div>
                 )}

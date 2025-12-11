@@ -10,4 +10,5 @@ public interface RoomAvailabilityRepository extends JpaRepository<RoomAvailabili
     List<RoomAvailability> findByRoomIdAndDateBetween(Long roomId, LocalDate startDate, LocalDate endDate);
     Optional<RoomAvailability> findByRoomIdAndDate(Long roomId, LocalDate date);
     List<RoomAvailability> findByBookingId(Long bookingId);
+    List<RoomAvailability> findByRoomId(Long roomId);
 }

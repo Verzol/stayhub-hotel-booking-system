@@ -63,12 +63,12 @@ export default function HostDashboard() {
   };
 
   const tabs = [
-    { id: 'DASHBOARD', label: 'Tổng quan', icon: Home },
-    { id: 'HOTELS', label: 'Khách sạn', icon: Building2 },
-    { id: 'BOOKINGS', label: 'Đặt phòng', icon: Calendar },
-    { id: 'CHAT', label: 'Tin nhắn', icon: MessageCircle },
-    { id: 'EARNINGS', label: 'Thu nhập', icon: CreditCard },
-    { id: 'ANALYTICS', label: 'Phân tích', icon: BarChart3 },
+    { id: 'DASHBOARD', label: 'Overview', icon: Home },
+    { id: 'HOTELS', label: 'Hotels', icon: Building2 },
+    { id: 'BOOKINGS', label: 'Bookings', icon: Calendar },
+    { id: 'CHAT', label: 'Messages', icon: MessageCircle },
+    { id: 'EARNINGS', label: 'Earnings', icon: CreditCard },
+    { id: 'ANALYTICS', label: 'Analytics', icon: BarChart3 },
   ];
 
   // Navigation Handlers
@@ -249,14 +249,14 @@ export default function HostDashboard() {
                   className="px-5 py-2.5 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors font-bold text-sm flex items-center gap-2"
                 >
                   <ChevronRight className="w-4 h-4 rotate-180" />
-                  Về trang chủ
+                  Back to Home
                 </Link>
                 <button
                   onClick={handleLogout}
                   className="px-5 py-2.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors font-bold text-sm flex items-center gap-2"
                 >
                   <LogOut className="w-4 h-4" />
-                  Đăng xuất
+                  Log Out
                 </button>
               </div>
             </div>

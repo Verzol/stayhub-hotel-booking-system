@@ -6,12 +6,15 @@ import {
   Star,
   Building2,
   Image as ImageIcon,
+  Trash2,
 } from 'lucide-react';
 import type { Hotel } from '../../../types/host';
+import { deleteHotel } from '../../../services/hostService';
 import { toast } from 'sonner';
 import HotelImage from '../../../components/common/HotelImage';
-import { getCachedHotels } from '../../../utils/cachedServices';
+import { getCachedHotels, clearHostCache } from '../../../utils/cachedServices';
 import { HotelCardSkeleton } from '../../../components/common/Skeleton';
+import ConfirmDeleteModal from '../../../components/common/ConfirmDeleteModal';
 
 interface HotelListProps {
   onEdit: (hotel: Hotel) => void;
@@ -28,6 +31,8 @@ export default function HotelList({
 }: HotelListProps) {
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hotelToDelete, setHotelToDelete] = useState<Hotel | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const loadHotels = useCallback(async () => {
     try {
@@ -41,6 +46,28 @@ export default function HotelList({
       setLoading(false);
     }
   }, []);
+
+  const confirmDelete = (hotel: Hotel) => {
+    setHotelToDelete(hotel);
+  };
+
+  const handleDelete = async () => {
+    if (!hotelToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteHotel(hotelToDelete.id);
+      clearHostCache(); // Clear cache to force reload
+      toast.success('Hotel deleted successfully');
+      loadHotels(); // Reload list
+      setHotelToDelete(null);
+    } catch (error) {
+      console.error('Failed to delete hotel', error);
+      toast.error('Failed to delete hotel');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   useEffect(() => {
     loadHotels();
@@ -147,6 +174,13 @@ export default function HotelList({
                 <Edit className="w-4 h-4" />
                 Edit Hotel Details
               </button>
+              <button
+                onClick={() => confirmDelete(hotel)}
+                className="col-span-2 px-4 py-2.5 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete Hotel
+              </button>
             </div>
           </div>
         </div>
@@ -164,6 +198,15 @@ export default function HotelList({
           Add Another Hotel
         </span>
       </button>
+
+      <ConfirmDeleteModal
+        isOpen={!!hotelToDelete}
+        title="Delete Hotel"
+        message={`Are you sure you want to delete ${hotelToDelete?.name}? All rooms and bookings associated with this hotel will also be deleted. This action cannot be undone.`}
+        onConfirm={handleDelete}
+        onCancel={() => setHotelToDelete(null)}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 }

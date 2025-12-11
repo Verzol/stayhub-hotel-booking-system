@@ -159,4 +159,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
            "ORDER BY b.created_at DESC LIMIT 5", 
            nativeQuery = true)
     List<Booking> findRecentBookingsByOwnerId(@Param("ownerId") Long ownerId);
+
+    List<Booking> findByRoomId(Long roomId);
 }
