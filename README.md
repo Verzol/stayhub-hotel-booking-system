@@ -314,19 +314,48 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ---
 
+## 📄 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+### What this means:
+
+- ✅ Commercial use allowed
+- ✅ Modification allowed
+- ✅ Distribution allowed
+- ✅ Private use allowed
+- ℹ️ License and copyright notice required
+
+---
+
+## 🙏 Acknowledgments
+
+- [React](https://reactjs.org/) - Frontend framework
+- [Spring Boot](https://spring.io/projects/spring-boot) - Backend framework
+- [Tailwind CSS](https://tailwindcss.com/) - CSS framework
+- [PostgreSQL](https://www.postgresql.org/) - Database
+- [Docker](https://www.docker.com/) - Containerization
+
+---
+
 <div align="center">
 
-### Contact
+### 📬 Contact
 
 **Author:** Verzol  
 **GitHub:** [@Verzol](https://github.com/Verzol)
 
+<br/>
+
+[![GitHub followers](https://img.shields.io/github/followers/Verzol?style=social)](https://github.com/Verzol)
+[![GitHub stars](https://img.shields.io/github/stars/Verzol/stayhub?style=social)](https://github.com/Verzol/stayhub)
+
 ---
 
 <p>
-  <sub>Built with  using React & Spring Boot</sub>
+  <sub>Built with ❤️ using React & Spring Boot</sub>
 </p>
 
-Star this repository if you find it helpful!
+**⭐ Star this repository if you find it helpful!**
 
 </div>
