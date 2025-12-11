@@ -1,6 +1,6 @@
 ﻿<div align="center">
 
-#  StayHub
+# StayHub
 
 ### Modern Hotel & Homestay Booking Platform
 
@@ -15,34 +15,35 @@
   <strong>A full-stack enterprise web application connecting travelers with hotels and homestays.</strong>
 </p>
 
-[Features](#-features)  [Tech Stack](#-tech-stack)  [Architecture](#-architecture)  [Getting Started](#-getting-started)  [API Documentation](#-api-documentation)
+[Features](#-features) [Tech Stack](#-tech-stack) [Architecture](#-architecture) [Getting Started](#-getting-started) [API Documentation](#-api-documentation)
 
 </div>
 
 ---
 
-##  Overview
+## Overview
 
 **StayHub** is a comprehensive accommodation booking platform built with modern technologies and best practices. The system enables seamless connections between guests seeking accommodations and hosts offering properties, featuring real-time availability, secure payments, and an intuitive user experience.
 
-###  Key Highlights
+### Key Highlights
 
--  **Secure Authentication**  JWT-based auth with OAuth2 social login support
--  **Smart Search**  Advanced filtering by location, price, amenities, and ratings
--  **Payment Integration**  Secure online payment processing
--  **Analytics Dashboard**  Real-time insights for hosts and admins
--  **Responsive Design**  Optimized for all devices
--  **Container-Ready**  Docker & Docker Compose for easy deployment
+- **Secure Authentication** JWT-based auth with OAuth2 social login support
+- **Smart Search** Advanced filtering by location, price, amenities, and ratings
+- **Payment Integration** Secure online payment processing
+- **Analytics Dashboard** Real-time insights for hosts and admins
+- **Responsive Design** Optimized for all devices
+- **Container-Ready** Docker & Docker Compose for easy deployment
 
 ---
 
-##  Features
+## Features
 
 <table>
 <tr>
 <td width="33%">
 
-###  Guest Features
+### Guest Features
+
 - Browse & search properties
 - Advanced filters & sorting
 - Secure booking & payment
@@ -53,7 +54,8 @@
 </td>
 <td width="33%">
 
-###  Host Features
+### Host Features
+
 - Property listing management
 - Room & pricing control
 - Booking request handling
@@ -64,7 +66,8 @@
 </td>
 <td width="33%">
 
-###  Admin Features
+### Admin Features
+
 - User management
 - Property moderation
 - System-wide analytics
@@ -78,78 +81,81 @@
 
 ---
 
-##  Tech Stack
+## Tech Stack
 
 ### Frontend
-| Technology | Purpose |
-|------------|---------|
-| ![React](https://img.shields.io/badge/-React_18-61DAFB?style=flat-square&logo=react&logoColor=black) | UI Library |
-| ![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white) | Type Safety |
-| ![Vite](https://img.shields.io/badge/-Vite-646CFF?style=flat-square&logo=vite&logoColor=white) | Build Tool |
-| ![TailwindCSS](https://img.shields.io/badge/-Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white) | Styling |
-| ![React Query](https://img.shields.io/badge/-React_Query-FF4154?style=flat-square&logo=reactquery&logoColor=white) | Data Fetching |
+
+| Technology                                                                                                           | Purpose       |
+| -------------------------------------------------------------------------------------------------------------------- | ------------- |
+| ![React](https://img.shields.io/badge/-React_18-61DAFB?style=flat-square&logo=react&logoColor=black)                 | UI Library    |
+| ![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)     | Type Safety   |
+| ![Vite](https://img.shields.io/badge/-Vite-646CFF?style=flat-square&logo=vite&logoColor=white)                       | Build Tool    |
+| ![TailwindCSS](https://img.shields.io/badge/-Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white) | Styling       |
+| ![React Query](https://img.shields.io/badge/-React_Query-FF4154?style=flat-square&logo=reactquery&logoColor=white)   | Data Fetching |
 
 ### Backend
-| Technology | Purpose |
-|------------|---------|
-| ![Spring Boot](https://img.shields.io/badge/-Spring_Boot_3-6DB33F?style=flat-square&logo=springboot&logoColor=white) | Framework |
-| ![Java](https://img.shields.io/badge/-Java_21-ED8B00?style=flat-square&logo=openjdk&logoColor=white) | Language |
+
+| Technology                                                                                                                     | Purpose        |
+| ------------------------------------------------------------------------------------------------------------------------------ | -------------- |
+| ![Spring Boot](https://img.shields.io/badge/-Spring_Boot_3-6DB33F?style=flat-square&logo=springboot&logoColor=white)           | Framework      |
+| ![Java](https://img.shields.io/badge/-Java_21-ED8B00?style=flat-square&logo=openjdk&logoColor=white)                           | Language       |
 | ![Spring Security](https://img.shields.io/badge/-Spring_Security-6DB33F?style=flat-square&logo=springsecurity&logoColor=white) | Authentication |
-| ![JWT](https://img.shields.io/badge/-JWT-000000?style=flat-square&logo=jsonwebtokens&logoColor=white) | Token Auth |
-| ![Maven](https://img.shields.io/badge/-Maven-C71A36?style=flat-square&logo=apachemaven&logoColor=white) | Build Tool |
+| ![JWT](https://img.shields.io/badge/-JWT-000000?style=flat-square&logo=jsonwebtokens&logoColor=white)                          | Token Auth     |
+| ![Maven](https://img.shields.io/badge/-Maven-C71A36?style=flat-square&logo=apachemaven&logoColor=white)                        | Build Tool     |
 
 ### Database & Infrastructure
-| Technology | Purpose |
-|------------|---------|
-| ![PostgreSQL](https://img.shields.io/badge/-PostgreSQL_16-4169E1?style=flat-square&logo=postgresql&logoColor=white) | Primary Database |
-| ![Redis](https://img.shields.io/badge/-Redis-DC382D?style=flat-square&logo=redis&logoColor=white) | Caching & Sessions |
-| ![Docker](https://img.shields.io/badge/-Docker-2496ED?style=flat-square&logo=docker&logoColor=white) | Containerization |
-| ![GitHub Actions](https://img.shields.io/badge/-GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white) | CI/CD |
-| ![Nginx](https://img.shields.io/badge/-Nginx-009639?style=flat-square&logo=nginx&logoColor=white) | Reverse Proxy |
+
+| Technology                                                                                                                  | Purpose            |
+| --------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| ![PostgreSQL](https://img.shields.io/badge/-PostgreSQL_16-4169E1?style=flat-square&logo=postgresql&logoColor=white)         | Primary Database   |
+| ![Redis](https://img.shields.io/badge/-Redis-DC382D?style=flat-square&logo=redis&logoColor=white)                           | Caching & Sessions |
+| ![Docker](https://img.shields.io/badge/-Docker-2496ED?style=flat-square&logo=docker&logoColor=white)                        | Containerization   |
+| ![GitHub Actions](https://img.shields.io/badge/-GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white) | CI/CD              |
+| ![Nginx](https://img.shields.io/badge/-Nginx-009639?style=flat-square&logo=nginx&logoColor=white)                           | Reverse Proxy      |
 
 ---
 
-##  Architecture
+## Architecture
 
 ```
 
-                         Client Layer                            
-     
-             React + TypeScript + Tailwind CSS                 
-                      (Vite Build)                             
-     
+                         Client Layer
 
-                              
-                              
+             React + TypeScript + Tailwind CSS
+                      (Vite Build)
 
-                        API Gateway                              
-                     (Nginx Reverse Proxy)                       
 
-                              
-                              
 
-                       Backend Layer                             
-     
-                Spring Boot 3.x (Java 21)                      
-                 
-     Controllers    Services     Repositories           
-                 
-     
 
-                              
-                              
 
-                        Data Layer                               
-                        
-     PostgreSQL 16                  Redis                   
-    (Primary Store)            (Cache/Sessions)             
-                        
+                        API Gateway
+                     (Nginx Reverse Proxy)
+
+
+
+
+                       Backend Layer
+
+                Spring Boot 3.x (Java 21)
+
+     Controllers    Services     Repositories
+
+
+
+
+
+
+                        Data Layer
+
+     PostgreSQL 16                  Redis
+    (Primary Store)            (Cache/Sessions)
+
 
 ```
 
 ---
 
-##  Project Structure
+## Project Structure
 
 ```
 stayhub/
@@ -168,7 +174,7 @@ stayhub/
         package.json
         vite.config.ts
         Dockerfile
-   
+
      server/                 # Backend Application
          src/main/java/
             com/verzol/stayhub/
@@ -188,18 +194,18 @@ stayhub/
 
 ---
 
-##  Getting Started
+## Getting Started
 
 ### Prerequisites
 
 | Requirement | Version |
-|-------------|---------|
-| Node.js | >= 18.x |
-| Java JDK | >= 21 |
-| Docker | Latest |
-| Maven | >= 3.9 |
+| ----------- | ------- |
+| Node.js     | >= 18.x |
+| Java JDK    | >= 21   |
+| Docker      | Latest  |
+| Maven       | >= 3.9  |
 
-###  Quick Start with Docker (Recommended)
+### Quick Start with Docker (Recommended)
 
 ```bash
 # Clone the repository
@@ -213,13 +219,13 @@ docker-compose up -d --build
 docker-compose logs -f
 ```
 
-| Service | URL |
-|---------|-----|
-|  Frontend | http://localhost:3000 |
-|  Backend API | http://localhost:8080 |
-|  API Docs | http://localhost:8080/swagger-ui.html |
+| Service     | URL                                   |
+| ----------- | ------------------------------------- |
+| Frontend    | http://localhost:3000                 |
+| Backend API | http://localhost:8080                 |
+| API Docs    | http://localhost:8080/swagger-ui.html |
 
-###  Development Setup
+### Development Setup
 
 <details>
 <summary><strong>Backend Setup</strong></summary>
@@ -259,7 +265,7 @@ npm run build
 
 ---
 
-##  API Documentation
+## API Documentation
 
 API documentation is available via Swagger UI when the server is running:
 
@@ -269,17 +275,17 @@ http://localhost:8080/swagger-ui.html
 
 ### Sample Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/auth/register` | User registration |
-| `POST` | `/api/auth/login` | User authentication |
-| `GET` | `/api/properties` | List all properties |
-| `POST` | `/api/bookings` | Create a booking |
-| `GET` | `/api/users/profile` | Get user profile |
+| Method | Endpoint             | Description         |
+| ------ | -------------------- | ------------------- |
+| `POST` | `/api/auth/register` | User registration   |
+| `POST` | `/api/auth/login`    | User authentication |
+| `GET`  | `/api/properties`    | List all properties |
+| `POST` | `/api/bookings`      | Create a booking    |
+| `GET`  | `/api/users/profile` | Get user profile    |
 
 ---
 
-##  Testing
+## Testing
 
 ```bash
 # Backend tests
@@ -296,7 +302,7 @@ npm run test:e2e
 
 ---
 
-##  Contributing
+## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
@@ -308,15 +314,9 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ---
 
-##  License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
 <div align="center">
 
-###  Contact
+### Contact
 
 **Author:** Verzol  
 **GitHub:** [@Verzol](https://github.com/Verzol)
@@ -327,6 +327,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   <sub>Built with  using React & Spring Boot</sub>
 </p>
 
- Star this repository if you find it helpful!
+Star this repository if you find it helpful!
 
 </div>
